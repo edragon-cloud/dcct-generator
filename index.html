@@ -643,19 +643,21 @@ function toggleApiPanel() {
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) { showToast('Vui lòng nhập API Key!', 'danger'); return; }
-  if (_saveToStorage('gemini_api_key', key)) {
-    document.getElementById('apiKeyStatus').innerHTML =
-      '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu API Key thành công!</span>';
-    showToast('API Key đã được lưu!', 'success');
-  }
+  _apiKeyMemory = key; // luôn lưu vào memory trước
+  _saveToStorage('gemini_api_key', key); // cố lưu localStorage (có thể bị chặn)
+  document.getElementById('apiKeyStatus').innerHTML =
+    '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu API Key thành công!</span>';
+  showToast('API Key đã được lưu!', 'success');
 }
 
+// ─────────────────────────────────────────────────────────────
+// API Key — lưu cả trong memory lẫn localStorage
+// ─────────────────────────────────────────────────────────────
+let _apiKeyMemory = ''; // fallback khi browser chặn localStorage
+
 function getApiKey() {
-  try {
-    return localStorage.getItem('gemini_api_key') || '';
-  } catch (_) {
-    return '';
-  }
+  if (_apiKeyMemory) return _apiKeyMemory;
+  try { return localStorage.getItem('gemini_api_key') || ''; } catch (_) { return ''; }
 }
 
 function _saveToStorage(key, value) {
@@ -663,7 +665,7 @@ function _saveToStorage(key, value) {
     localStorage.setItem(key, value);
     return true;
   } catch (_) {
-    showToast('⚠️ Trình duyệt đang chặn lưu trữ dữ liệu. Hãy tắt "Tracking Prevention" hoặc dùng Chrome.', 'warning');
+    showToast('⚠️ Trình duyệt đang chặn lưu trữ. Hãy tắt "Tracking Prevention" hoặc dùng Chrome.', 'warning');
     return false;
   }
 }
@@ -1085,7 +1087,7 @@ ${contextBlock}`
 async function callGemini(apiKey, prompt, retryCount = 0) {
   if (!apiKey) throw new Error('Chưa có API Key. Nhấn nút "API Key" ở góc trên phải để nhập.');
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.6, maxOutputTokens: 2048 }
