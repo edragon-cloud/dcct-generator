@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tạo Đề Cương Chi Tiết – DNU</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <!-- docx.js (browser build) -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+
+  <!-- FileSaver -->
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+  <!-- mammoth.js – read uploaded .docx -->
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+
+  <style>
+    /* ── Reset & Base ─────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --primary:    #1a3c5e;
+      --primary-lt: #e8f0f8;
+      --accent:     #c8902a;
+      --success:    #198754;
+      --danger:     #dc3545;
+      --text:       #1e2a38;
+      --muted:      #6c757d;
+      --border:     #d0dae6;
+      --radius:     10px;
+      --shadow:     0 4px 18px rgba(26,60,94,.10);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      background: #f4f7fb;
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ──────────────────────────────── */
+    .top-bar {
+      background: var(--primary);
+      padding: 14px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+    }
+    .top-bar .logo-txt { color: #fff; font-size: 1.15rem; font-weight: 700; letter-spacing: .3px; }
+    .top-bar .sub-txt  { color: #a8c4e0; font-size: .82rem; }
+
+    /* ── Step progress ────────────────────────── */
+    .step-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 18px 0; }
+    .step-item { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+    .step-circle {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .95rem;
+      background: #e9ecef; color: var(--muted);
+      transition: background .3s, color .3s;
+    }
+    .step-item.active   .step-circle { background: var(--primary); color: #fff; }
+    .step-item.done     .step-circle { background: var(--success); color: #fff; }
+    .step-item.active   .step-label  { color: var(--primary); font-weight: 600; }
+    .step-label { font-size: .78rem; color: var(--muted); text-align: center; max-width: 90px; }
+    .step-connector { flex: 1; height: 2px; background: var(--border); margin-top: -22px; }
+    .step-connector.done { background: var(--success); }
+
+    /* ── Cards ────────────────────────────────── */
+    .card-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .card-section .section-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-section .section-body { padding: 22px 20px; }
+
+    /* ── Form controls ────────────────────────── */
+    label { font-weight: 500; font-size: .93rem; margin-bottom: 5px; }
+    .form-control, .form-select, textarea.form-control {
+      font-size: .97rem;
+      border-color: var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,60,94,.12);
+    }
+    textarea.form-control { resize: vertical; min-height: 110px; }
+    .required-star { color: var(--danger); margin-left: 3px; }
+    .hint-text { font-size: .80rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── File upload zone ─────────────────────── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      background: #fafcff;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-lt);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-zone .icon { font-size: 2rem; color: var(--primary); }
+    .upload-zone .upload-name {
+      font-size: .85rem; color: var(--success); font-weight: 500; margin-top: 6px;
+      display: none;
+    }
+    .upload-zone.has-file { border-color: var(--success); background: #f0fff4; }
+    .upload-zone.required-file { border-color: var(--accent); }
+
+    /* ── AI badge ─────────────────────────────── */
+    .ai-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #1a3c5e, #2a6496);
+      color: #fff; border-radius: 6px;
+      padding: 4px 10px; font-size: .78rem; font-weight: 600;
+    }
+
+    /* ── Buttons ──────────────────────────────── */
+    .btn-primary-custom {
+      background: var(--primary); border: none; color: #fff;
+      padding: 12px 28px; font-size: 1rem; font-weight: 600;
+      border-radius: 8px; transition: background .2s, transform .1s;
+    }
+    .btn-primary-custom:hover  { background: #14304f; transform: translateY(-1px); }
+    .btn-ai {
+      background: linear-gradient(135deg, #1a3c5e, #2a6496);
+      border: none; color: #fff;
+      padding: 9px 18px; font-size: .88rem; font-weight: 600;
+      border-radius: 8px; transition: opacity .2s;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-ai:hover { opacity: .88; color: #fff; }
+    .btn-ai:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-generate {
+      background: linear-gradient(135deg, var(--accent), #e8a040);
+      border: none; color: #fff;
+      padding: 14px 36px; font-size: 1.05rem; font-weight: 700;
+      border-radius: 10px; letter-spacing: .3px;
+      box-shadow: 0 4px 14px rgba(200,144,42,.30);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(200,144,42,.40); }
+    .btn-generate:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* ── API key banner ───────────────────────── */
+    .api-banner {
+      background: #fffbea;
+      border: 1px solid #f0d060;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      font-size: .88rem;
+      margin-bottom: 24px;
+    }
+
+    /* ── Progress overlay ─────────────────────── */
+    #overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,20,40,.55); z-index: 9999;
+      align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+    }
+    #overlay.show { display: flex; }
+    .spinner-ring {
+      width: 56px; height: 56px;
+      border: 5px solid rgba(255,255,255,.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #overlay p { color: #fff; font-size: 1.05rem; font-weight: 500; }
+
+    /* ── Toast ────────────────────────────────── */
+    .toast-stack { position: fixed; bottom: 24px; right: 24px; z-index: 9998; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Preview pane ─────────────────────────── */
+    #previewPane {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      font-size: .9rem; line-height: 1.7;
+      max-height: 70vh; overflow-y: auto;
+      display: none;
+    }
+    #previewPane h2 { font-size: 1rem; font-weight: 700; margin-top: 16px; }
+    #previewPane table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    #previewPane th { background: var(--primary); color: #fff; padding: 7px 10px; }
+    #previewPane td { border: 1px solid #ddd; padding: 6px 10px; }
+
+    /* ── Misc ─────────────────────────────────── */
+    .section-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; background: rgba(255,255,255,.25);
+      border-radius: 50%; font-size: .85rem; font-weight: 700; flex-shrink: 0;
+    }
+    .auto-calc { background: #f0f8ff; font-weight: 600; color: var(--primary); }
+    .clo-row { background: #fafcff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+
+    /* Tài liệu tham khảo */
+    .tl-row {
+      background: #fafcff; border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+      position: relative;
+    }
+    .tl-row .tl-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; background: var(--primary); color: #fff;
+      border-radius: 50%; font-size: .78rem; font-weight: 700; flex-shrink: 0;
+    }
+    .tl-type-badge {
+      font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+    }
+    .tl-type-main  { background: #dbeafe; color: #1e40af; }
+    .tl-type-ref   { background: #dcfce7; color: #166534; }
+    .btn-remove-tl {
+      position: absolute; top: 10px; right: 12px;
+      background: none; border: none; color: #aaa; font-size: 1.1rem; cursor: pointer;
+      line-height: 1; padding: 0;
+    }
+    .btn-remove-tl:hover { color: var(--danger); }
+
+    @media (max-width: 576px) {
+      .section-body { padding: 16px; }
+      .btn-generate { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══════════════════════════════════════════════ -->
+<div class="top-bar">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <div>
+        <div class="logo-txt"><i class="bi bi-mortarboard-fill me-2"></i>Đề Cương Chi Tiết Generator</div>
+        <div class="sub-txt">Trường Đại học Đồng Nai – Khoa Ngoại Ngữ</div>
+      </div>
+      <div class="ms-auto">
+        <button class="btn btn-sm btn-outline-light" onclick="toggleApiPanel()">
+          <i class="bi bi-key me-1"></i>API Key
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STEP BAR ══════════════════════════════════════════════ -->
+<div class="step-bar">
+  <div class="container">
+    <div class="d-flex align-items-center">
+      <div class="step-item active" id="step1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Upload<br>Đề cương chuẩn</div>
+      </div>
+      <div class="step-connector" id="conn1"></div>
+      <div class="step-item" id="step2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Thông tin<br>môn học</div>
+      </div>
+      <div class="step-connector" id="conn2"></div>
+      <div class="step-item" id="step3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Mục tiêu<br>&amp; CLOs</div>
+      </div>
+      <div class="step-connector" id="conn3"></div>
+      <div class="step-item" id="step4">
+        <div class="step-circle">4</div>
+        <div class="step-label">Tạo<br>Đề cương</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ API KEY PANEL ═════════════════════════════════════════ -->
+<div id="apiPanel" class="container mt-3" style="display:none">
+  <div class="api-banner">
+    <strong><i class="bi bi-key-fill text-warning me-2"></i>Gemini API Key</strong>
+    <p class="mb-2 mt-1">Truy cập <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> để tạo API Key miễn phí. Key chỉ lưu trong trình duyệt của bạn, không gửi đến bất kỳ server nào.</p>
+    <div class="d-flex gap-2">
+      <input type="password" id="apiKeyInput" class="form-control" placeholder="AIza..." style="max-width:420px" />
+      <button class="btn btn-warning fw-bold" onclick="saveApiKey()"><i class="bi bi-save me-1"></i>Lưu Key</button>
+    </div>
+    <div id="apiKeyStatus" class="mt-2"></div>
+  </div>
+</div>
+
+<!-- ═══ MAIN FORM ═════════════════════════════════════════════ -->
+<div class="container mt-4 pb-5">
+
+  <!-- ─── BƯỚC 1: Upload đề cương chuẩn ─────────────────────── -->
+  <div class="card-section" id="sectionUpload">
+    <div class="section-header">
+      <span class="section-num">1</span>
+      Upload Đề Cương Chuẩn <span class="badge bg-danger ms-2">BẮT BUỘC</span>
+    </div>
+    <div class="section-body">
+      <p class="text-muted mb-3"><i class="bi bi-info-circle me-1"></i>File Word (.docx) này là <strong>khuôn mẫu định dạng</strong>. Ứng dụng sẽ giữ nguyên 100% định dạng và chỉ điền nội dung mới vào.</p>
+      <div class="upload-zone required-file" id="dropZoneTemplate" ondragover="dragOver(event,'dropZoneTemplate')" ondragleave="dragLeave('dropZoneTemplate')" ondrop="dropFile(event,'templateFile','dropZoneTemplate')">
+        <input type="file" id="templateFile" accept=".docx" onchange="fileSelected(this,'dropZoneTemplate')" />
+        <div class="icon"><i class="bi bi-file-earmark-word"></i></div>
+        <div class="fw-600 mt-2">Kéo thả file vào đây hoặc <span class="text-primary">nhấn để chọn</span></div>
+        <div class="text-muted" style="font-size:.82rem">Chỉ nhận file .docx</div>
+        <div class="upload-name" id="templateFile_name"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── BƯỚC 2: Thông tin chung ──────────────────────────── -->
+  <div class="card-section" id="sectionInfo">
+    <div class="section-header">
+      <span class="section-num">2</span>
+      Phần A – Thông Tin Chung
+    </div>
+    <div class="section-body">
+      <div class="row g-3">
+
+        <!-- Tên môn học -->
+        <div class="col-md-6">
+          <label>Tên môn học (tiếng Việt)<span class="required-star">*</span></label>
+          <input type="text" id="tenMonViet" class="form-control" placeholder="VD: Nói 4" />
+        </div>
+        <div class="col-md-6">
+          <label>Tên môn học (tiếng Anh)<span class="required-star">*</span></label>
+          <input type="text" id="tenMonAnh" class="form-control" placeholder="VD: Speaking 4" />
+        </div>
+
+        <!-- Mã học phần & khối kiến thức -->
+        <div class="col-md-4">
+          <label>Mã học phần<span class="required-star">*</span></label>
+          <input type="text" id="maHP" class="form-control" placeholder="VD: 2110336" />
+        </div>
+        <div class="col-md-4">
+          <label>Học phần thuộc khối kiến thức</label>
+          <select id="khoiKT" class="form-select">
+            <option value="">-- Chọn --</option>
+            <option value="Giáo dục đại cương">Giáo dục đại cương</option>
+            <option value="Cơ sở khối ngành">Cơ sở khối ngành</option>
+            <option value="Cơ sở ngành">Cơ sở ngành</option>
+            <option value="Ngành">Ngành (chuyên ngành)</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label>Số tín chỉ (LT + TH)<span class="required-star">*</span></label>
+          <input type="text" id="soTC" class="form-control" placeholder="VD: 2 (1 LT + 1 TH)" />
+        </div>
+
+        <!-- Số tiết -->
+        <div class="col-md-3">
+          <label>Số tiết lý thuyết<span class="required-star">*</span></label>
+          <input type="number" id="soTietLT" class="form-control" min="0" placeholder="15" oninput="calcHours()" />
+        </div>
+        <div class="col-md-3">
+          <label>Số tiết thực hành<span class="required-star">*</span></label>
+          <input type="number" id="soTietTH" class="form-control" min="0" placeholder="30" oninput="calcHours()" />
+        </div>
+        <div class="col-md-3">
+          <label>Số tiết tự học<span class="required-star">*</span></label>
+          <input type="number" id="soTietTuHoc" class="form-control" min="0" placeholder="55" oninput="calcHours()" />
+        </div>
+        <div class="col-md-3">
+          <label>Tổng số giờ học tập <i class="bi bi-calculator text-primary"></i></label>
+          <input type="text" id="tongGio" class="form-control auto-calc" readonly placeholder="Tự động tính" />
+        </div>
+
+        <!-- Học phần liên quan -->
+        <div class="col-md-4">
+          <label>Học phần tiên quyết</label>
+          <input type="text" id="tienQuyet" class="form-control" placeholder="Không (nếu không có)" />
+        </div>
+        <div class="col-md-4">
+          <label>Học phần học trước</label>
+          <input type="text" id="hocTruoc" class="form-control" placeholder="VD: Nói 3" />
+        </div>
+        <div class="col-md-4">
+          <label>Học phần song hành</label>
+          <input type="text" id="songHanh" class="form-control" placeholder="Không yêu cầu" />
+        </div>
+
+        <!-- Đơn vị phụ trách -->
+        <div class="col-md-4">
+          <label>Khoa<span class="required-star">*</span></label>
+          <input type="text" id="khoa" class="form-control" value="Ngoại Ngữ" />
+        </div>
+        <div class="col-md-4">
+          <label>Bộ môn</label>
+          <input type="text" id="boMon" class="form-control" placeholder="VD: Kỹ năng Tiếng Anh" />
+        </div>
+        <div class="col-md-4">
+          <label>Ngành giảng dạy</label>
+          <input type="text" id="nganh" class="form-control" value="Sư phạm Tiếng Anh" />
+        </div>
+
+        <!-- File upload phụ -->
+        <div class="col-md-4">
+          <label><i class="bi bi-file-text me-1"></i>Đề cương tham khảo <span class="text-muted">(optional)</span></label>
+          <div class="upload-zone" id="dropZoneRef" ondragover="dragOver(event,'dropZoneRef')" ondragleave="dragLeave('dropZoneRef')" ondrop="dropFile(event,'refFile','dropZoneRef')" style="padding:14px">
+            <input type="file" id="refFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZoneRef')" />
+            <div><i class="bi bi-upload text-muted"></i> Chọn file</div>
+            <div class="upload-name" id="refFile_name"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label><i class="bi bi-file-earmark-check me-1"></i>Chuẩn đầu ra chương trình (PLOs) <span class="text-muted">(optional)</span></label>
+          <div class="upload-zone" id="dropZonePLO" ondragover="dragOver(event,'dropZonePLO')" ondragleave="dragLeave('dropZonePLO')" ondrop="dropFile(event,'ploFile','dropZonePLO')" style="padding:14px">
+            <input type="file" id="ploFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZonePLO')" />
+            <div><i class="bi bi-upload text-muted"></i> Chọn file</div>
+            <div class="upload-name" id="ploFile_name"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label><i class="bi bi-book me-1"></i>Giáo trình chính <span class="text-muted">(optional)</span></label>
+          <div class="upload-zone" id="dropZoneBook" ondragover="dragOver(event,'dropZoneBook')" ondragleave="dragLeave('dropZoneBook')" ondrop="dropFile(event,'bookFile','dropZoneBook')" style="padding:14px">
+            <input type="file" id="bookFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZoneBook')" />
+            <div><i class="bi bi-upload text-muted"></i> Chọn file</div>
+            <div class="upload-name" id="bookFile_name"></div>
+          </div>
+        </div>
+
+      </div><!-- /.row -->
+    </div>
+  </div>
+
+  <!-- ─── BƯỚC 3: Mục tiêu & CLOs ──────────────────────────── -->
+  <div class="card-section" id="sectionCLO">
+    <div class="section-header">
+      <span class="section-num">3</span>
+      Phần B – Mục Tiêu &amp; Chuẩn Đầu Ra
+      <span class="ai-badge ms-auto"><i class="bi bi-stars"></i>AI hỗ trợ</span>
+    </div>
+    <div class="section-body">
+
+      <!-- Mục tiêu chung -->
+      <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <label class="mb-0">2.1. Mục tiêu chung của học phần</label>
+          <button class="btn-ai" onclick="aiSuggest('mucTieuChung')">
+            <i class="bi bi-stars"></i>AI Gợi ý
+          </button>
+        </div>
+        <textarea id="mucTieuChung" class="form-control" rows="5" placeholder="Học phần nhằm..."></textarea>
+        <div class="hint-text">80–120 chữ. Bắt đầu bằng "Học phần nhằm…" hoặc "Mục tiêu của học phần là…"</div>
+      </div>
+
+      <!-- Mục tiêu cụ thể -->
+      <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <label class="mb-0">Mục tiêu cụ thể</label>
+          <button class="btn-ai" onclick="aiSuggest('mucTieuCuThe')">
+            <i class="bi bi-stars"></i>AI Gợi ý
+          </button>
+        </div>
+        <textarea id="mucTieuCuThe" class="form-control" rows="6" placeholder="- Về kiến thức: ...&#10;- Về kỹ năng: ...&#10;- Về thái độ: ..."></textarea>
+        <div class="hint-text">3–6 bullet. Mỗi bullet bắt đầu bằng động từ hành động.</div>
+      </div>
+
+      <!-- Số CLOs -->
+      <div class="mb-3">
+        <label>Số lượng CLO cần tạo</label>
+        <div class="d-flex align-items-center gap-3">
+          <input type="number" id="soCLO" class="form-control" style="width:100px" min="2" max="8" value="3" onchange="renderCLOInputs()" />
+          <button class="btn-ai" onclick="aiSuggest('clo')">
+            <i class="bi bi-stars"></i>AI Gợi ý tất cả CLOs
+          </button>
+        </div>
+      </div>
+
+      <!-- CLO inputs (dynamic) -->
+      <div id="cloContainer"><!-- rendered by JS --></div>
+
+      <!-- Ma trận CLO – PLO -->
+      <div class="mb-4 mt-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <label class="mb-0">Ma trận đóng góp CLO → PLO/PI</label>
+          <button class="btn-ai" onclick="aiSuggest('maTranh')">
+            <i class="bi bi-stars"></i>AI Gợi ý
+          </button>
+        </div>
+        <textarea id="maTranh" class="form-control" rows="6" placeholder="Dạng bảng: CLO1/CLO2... × PLO1/PLO2... với mức độ I/R/M/A"></textarea>
+        <div class="hint-text">I = Introduced, R = Reinforced, M = Mastery, A = Assessed</div>
+      </div>
+
+      <!-- Mô tả vắn tắt -->
+      <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <label class="mb-0">Mô tả vắn tắt học phần (Course Description)</label>
+          <button class="btn-ai" onclick="aiSuggest('moTa')">
+            <i class="bi bi-stars"></i>AI Gợi ý
+          </button>
+        </div>
+        <textarea id="moTa" class="form-control" rows="5" placeholder="120–180 chữ. Giới thiệu tên môn, nội dung, kỹ năng, giá trị nghề nghiệp."></textarea>
+      </div>
+
+      <!-- Nội dung chi tiết -->
+      <div class="mb-2">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <label class="mb-0">Nội dung chi tiết từng buổi học</label>
+          <button class="btn-ai" onclick="aiSuggest('noiDung')">
+            <i class="bi bi-stars"></i>AI Gợi ý lịch dạy
+          </button>
+        </div>
+        <textarea id="noiDung" class="form-control" rows="8" placeholder="AI sẽ tạo bảng số buổi = tổng tiết LT + TH&#10;Hoặc bạn có thể nhập thủ công theo định dạng:&#10;Buổi 1 | Nội dung | Tự học | PPDH | Đánh giá"></textarea>
+        <div class="hint-text">Số buổi = tổng tiết LT + TH. AI sẽ tạo bảng đầy đủ 5 cột.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── BƯỚC 4: Thông tin giảng viên & Tài liệu ───────────── -->
+  <div class="card-section" id="sectionGV">
+    <div class="section-header">
+      <span class="section-num">4</span>
+      Phần C – Thông Tin Giảng Viên &amp; Tài Liệu
+    </div>
+    <div class="section-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label>Họ và tên giảng viên<span class="required-star">*</span></label>
+          <input type="text" id="tenGV" class="form-control" placeholder="VD: Dương Thanh Tú" />
+        </div>
+        <div class="col-md-4">
+          <label>Học hàm / Học vị</label>
+          <input type="text" id="hocVi" class="form-control" placeholder="VD: Thạc sĩ" />
+        </div>
+        <div class="col-md-4">
+          <label>Email</label>
+          <input type="email" id="emailGV" class="form-control" placeholder="email@..." />
+        </div>
+        <div class="col-md-4">
+          <label>Điện thoại</label>
+          <input type="text" id="dienThoai" class="form-control" placeholder="09xx..." />
+        </div>
+        <div class="col-md-8">
+          <label>Cách liên lạc</label>
+          <input type="text" id="lienLac" class="form-control" value="Trao đổi qua Zalo, điện thoại" />
+        </div>
+
+        <div class="col-12 mt-2">
+          <label>Giáo trình chính &amp; Tài liệu tham khảo</label>
+          <div id="taiLieuContainer"><!-- rendered by JS --></div>
+          <button class="btn btn-sm btn-outline-primary mt-2" onclick="addTaiLieu()">
+            <i class="bi bi-plus-circle me-1"></i>Thêm tài liệu
+          </button>
+        </div>
+
+        <div class="col-12">
+          <label>Yêu cầu khác / Ghi chú thêm</label>
+          <textarea id="ghiChu" class="form-control" rows="3" placeholder="VD: Phòng học có wifi, máy chiếu, loa..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── BƯỚC 4: Tạo Đề cương ─────────────────────────────── -->
+  <div class="card-section" id="sectionGenerate">
+    <div class="section-header">
+      <span class="section-num">4</span>
+      Tạo &amp; Xuất Đề Cương
+    </div>
+    <div class="section-body">
+      <p class="text-muted"><i class="bi bi-info-circle me-1"></i>Nhấn <strong>Xem trước</strong> để kiểm tra, sau đó nhấn <strong>Tạo Đề Cương (.docx)</strong> để tải file về.</p>
+      <div class="d-flex flex-wrap gap-3 align-items-center">
+        <button class="btn btn-outline-secondary fw-600" onclick="previewSyllabus()">
+          <i class="bi bi-eye me-2"></i>Xem trước
+        </button>
+        <button class="btn-generate" id="btnGenerate" onclick="generateDocx()">
+          <i class="bi bi-file-earmark-word me-2"></i>Tạo Đề Cương (.docx)
+        </button>
+      </div>
+
+      <!-- Preview pane -->
+      <div id="previewPane" class="mt-4"></div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ═══ LOADING OVERLAY ═══════════════════════════════════════ -->
+<div id="overlay">
+  <div class="spinner-ring"></div>
+  <p id="overlayMsg">Đang xử lý…</p>
+</div>
+
+<!-- ═══ TOAST STACK ═══════════════════════════════════════════ -->
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- App Script -->
+<script>
+// ─────────────────────────────────────────────────────────────
+// Detect environment: GAS vs GitHub Pages
+// ─────────────────────────────────────────────────────────────
+const IS_GAS = typeof google !== 'undefined' && typeof google.script !== 'undefined';
+
+// ─────────────────────────────────────────────────────────────
+// GAS endpoint — điền URL sau khi deploy
+// ─────────────────────────────────────────────────────────────
+const GAS_URL = "https://script.google.com/macros/s/AKfycbz0huQfI2aGJ2Fnnl1kQAZOTQ64JkFMs5-5yCBYiuXZBiBNgxJnR-7Qkgxb4tpi_dwVMQ/exec";
+
+// ─────────────────────────────────────────────────────────────
+// API Key management
+// ─────────────────────────────────────────────────────────────
+function toggleApiPanel() {
+  const p = document.getElementById('apiPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  if (p.style.display === 'block') {
+    const saved = localStorage.getItem('gemini_api_key');
+    if (saved) document.getElementById('apiKeyInput').value = saved;
+  }
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) { showToast('Vui lòng nhập API Key!', 'danger'); return; }
+  localStorage.setItem('gemini_api_key', key);
+  document.getElementById('apiKeyStatus').innerHTML =
+    '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu API Key thành công!</span>';
+  showToast('API Key đã được lưu!', 'success');
+}
+
+function getApiKey() {
+  return localStorage.getItem('gemini_api_key') || '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// Auto-calc hours
+// ─────────────────────────────────────────────────────────────
+function calcHours() {
+  const lt = parseInt(document.getElementById('soTietLT').value) || 0;
+  const th = parseInt(document.getElementById('soTietTH').value) || 0;
+  const tu = parseInt(document.getElementById('soTietTuHoc').value) || 0;
+  document.getElementById('tongGio').value = (lt + th + tu) > 0 ? (lt + th + tu) + ' giờ' : '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// File upload helpers
+// ─────────────────────────────────────────────────────────────
+function fileSelected(input, zoneId) {
+  const zone = document.getElementById(zoneId);
+  const nameEl = document.getElementById(input.id + '_name');
+  if (input.files && input.files[0]) {
+    nameEl.textContent = '✓ ' + input.files[0].name;
+    nameEl.style.display = 'block';
+    zone.classList.add('has-file');
+    zone.classList.remove('required-file');
+  }
+}
+function dragOver(e, zoneId) { e.preventDefault(); document.getElementById(zoneId).classList.add('drag-over'); }
+function dragLeave(zoneId) { document.getElementById(zoneId).classList.remove('drag-over'); }
+function dropFile(e, inputId, zoneId) {
+  e.preventDefault();
+  dragLeave(zoneId);
+  const dt = e.dataTransfer;
+  if (dt.files && dt.files[0]) {
+    const input = document.getElementById(inputId);
+    // Create a DataTransfer to assign files
+    const dtr = new DataTransfer();
+    dtr.items.add(dt.files[0]);
+    input.files = dtr.files;
+    fileSelected(input, zoneId);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// CLO inputs (dynamic)
+// ─────────────────────────────────────────────────────────────
+function renderCLOInputs() {
+  const n = parseInt(document.getElementById('soCLO').value) || 3;
+  const container = document.getElementById('cloContainer');
+  const categories = ['Kiến thức', 'Kỹ năng', 'Năng lực tự chủ & trách nhiệm'];
+  let html = '';
+  for (let i = 1; i <= n; i++) {
+    const cat = i <= 1 ? categories[0] : i <= Math.ceil(n * 0.6) ? categories[1] : categories[2];
+    html += `<div class="clo-row">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge" style="background:var(--primary)">CLO${i}</span>
+        <select class="form-select form-select-sm" id="cloCategory${i}" style="width:240px">
+          <option ${cat==='Kiến thức'?'selected':''}>Kiến thức</option>
+          <option ${cat==='Kỹ năng'?'selected':''}>Kỹ năng</option>
+          <option ${cat==='Năng lực tự chủ & trách nhiệm'?'selected':''}>Năng lực tự chủ & trách nhiệm</option>
+        </select>
+      </div>
+      <textarea id="clo${i}" class="form-control" rows="3"
+        placeholder="[Động từ Bloom] + [nội dung kiến thức] + [ngữ cảnh/tiêu chí]. VD: Phân tích được..."></textarea>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+renderCLOInputs();
+
+// ─────────────────────────────────────────────────────────────
+// Tài liệu tham khảo (structured)
+// ─────────────────────────────────────────────────────────────
+let tlCount = 0;
+
+function addTaiLieu(data = {}) {
+  tlCount++;
+  const id = tlCount;
+  const container = document.getElementById('taiLieuContainer');
+  const div = document.createElement('div');
+  div.className = 'tl-row';
+  div.id = `tl_${id}`;
+  div.innerHTML = `
+    <button class="btn-remove-tl" onclick="removeTaiLieu(${id})" title="Xóa"><i class="bi bi-x-circle"></i></button>
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <span class="tl-num">${id}</span>
+      <select class="form-select form-select-sm" id="tlType_${id}" style="width:160px">
+        <option value="main"  ${data.type==='main' ?'selected':''}>📘 Giáo trình chính</option>
+        <option value="ref"   ${data.type==='ref'  ?'selected':''}>📗 Tài liệu tham khảo</option>
+      </select>
+    </div>
+    <div class="row g-2">
+      <div class="col-md-5">
+        <input type="text" id="tlAuthor_${id}" class="form-control form-control-sm"
+          placeholder="Tên tác giả (VD: Harmer, J.)" value="${data.author||''}" />
+      </div>
+      <div class="col-md-2">
+        <input type="text" id="tlYear_${id}" class="form-control form-control-sm"
+          placeholder="Năm (VD: 2023)" value="${data.year||''}" maxlength="4" />
+      </div>
+      <div class="col-md-5">
+        <input type="text" id="tlTitle_${id}" class="form-control form-control-sm"
+          placeholder="Tên sách / tài liệu *" value="${data.title||''}" />
+      </div>
+      <div class="col-md-5">
+        <input type="text" id="tlPub_${id}" class="form-control form-control-sm"
+          placeholder="Nhà xuất bản (VD: Pearson)" value="${data.publisher||''}" />
+      </div>
+      <div class="col-md-4">
+        <input type="text" id="tlEdition_${id}" class="form-control form-control-sm"
+          placeholder="Lần xuất bản (VD: 4th ed.)" value="${data.edition||''}" />
+      </div>
+      <div class="col-md-3">
+        <input type="text" id="tlPlace_${id}" class="form-control form-control-sm"
+          placeholder="Nơi XB (VD: Hà Nội)" value="${data.place||''}" />
+      </div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function removeTaiLieu(id) {
+  const el = document.getElementById(`tl_${id}`);
+  if (el) el.remove();
+}
+
+function getTaiLieuList() {
+  const items = [];
+  document.querySelectorAll('[id^="tl_"]').forEach(row => {
+    const id = row.id.replace('tl_','');
+    const title = document.getElementById(`tlTitle_${id}`)?.value.trim();
+    if (!title) return;
+    items.push({
+      type:      document.getElementById(`tlType_${id}`)?.value || 'ref',
+      author:    document.getElementById(`tlAuthor_${id}`)?.value.trim() || '',
+      year:      document.getElementById(`tlYear_${id}`)?.value.trim()   || '',
+      title,
+      publisher: document.getElementById(`tlPub_${id}`)?.value.trim()    || '',
+      edition:   document.getElementById(`tlEdition_${id}`)?.value.trim()|| '',
+      place:     document.getElementById(`tlPlace_${id}`)?.value.trim()  || '',
+    });
+  });
+  return items;
+}
+
+function formatTaiLieu(item, index) {
+  // APA-style: Author (Year). Title (Edition). Place: Publisher.
+  let s = `${index}. `;
+  if (item.author) s += `${item.author} `;
+  if (item.year)   s += `(${item.year}). `;
+  s += `${item.title}`;
+  if (item.edition) s += ` (${item.edition})`;
+  s += '.';
+  const loc = [item.place, item.publisher].filter(Boolean).join(': ');
+  if (loc) s += ` ${loc}.`;
+  return s;
+}
+
+// Thêm 1 dòng mặc định khi load
+addTaiLieu({ type: 'main' });
+addTaiLieu({ type: 'ref' });
+
+// ─────────────────────────────────────────────────────────────
+// Read file as text via mammoth
+// ─────────────────────────────────────────────────────────────
+async function readDocxText(fileId) {
+  return new Promise((resolve) => {
+    const input = document.getElementById(fileId);
+    if (!input || !input.files || !input.files[0]) { resolve(''); return; }
+    const f = input.files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+        resolve(result.value || '');
+      } catch { resolve(''); }
+    };
+    reader.readAsArrayBuffer(f);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// Collect form data
+// ─────────────────────────────────────────────────────────────
+function collectData() {
+  const n = parseInt(document.getElementById('soCLO').value) || 3;
+  const clos = [];
+  for (let i = 1; i <= n; i++) {
+    clos.push({
+      id: 'CLO' + i,
+      category: document.getElementById('cloCategory' + i)?.value || '',
+      content: document.getElementById('clo' + i)?.value || ''
+    });
+  }
+  return {
+    tenMonViet:    val('tenMonViet'),
+    tenMonAnh:     val('tenMonAnh'),
+    maHP:          val('maHP'),
+    khoiKT:        val('khoiKT'),
+    soTC:          val('soTC'),
+    soTietLT:      val('soTietLT'),
+    soTietTH:      val('soTietTH'),
+    soTietTuHoc:   val('soTietTuHoc'),
+    tongGio:       val('tongGio'),
+    tienQuyet:     val('tienQuyet'),
+    hocTruoc:      val('hocTruoc'),
+    songHanh:      val('songHanh'),
+    khoa:          val('khoa'),
+    boMon:         val('boMon'),
+    nganh:         val('nganh'),
+    mucTieuChung:  val('mucTieuChung'),
+    mucTieuCuThe:  val('mucTieuCuThe'),
+    clos,
+    maTranh:       val('maTranh'),
+    moTa:          val('moTa'),
+    noiDung:       val('noiDung'),
+    tenGV:         val('tenGV'),
+    hocVi:         val('hocVi'),
+    emailGV:       val('emailGV'),
+    dienThoai:     val('dienThoai'),
+    lienLac:       val('lienLac'),
+    taiLieu:       getTaiLieuList(),
+    ghiChu:        val('ghiChu'),
+  };
+}
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// Validate required fields
+// ─────────────────────────────────────────────────────────────
+function validate() {
+  const required = ['tenMonViet','tenMonAnh','maHP','soTC','soTietLT','soTietTH','soTietTuHoc','tenGV'];
+  const templateFile = document.getElementById('templateFile');
+  if (!templateFile.files || !templateFile.files[0]) {
+    showToast('Vui lòng upload file Đề cương chuẩn (.docx)!', 'danger'); return false;
+  }
+  for (const id of required) {
+    if (!val(id)) {
+      showToast('Vui lòng điền đầy đủ các trường bắt buộc (*)', 'danger');
+      document.getElementById(id).focus();
+      return false;
+    }
+  }
+  return true;
+}
+
+// ─────────────────────────────────────────────────────────────
+// AI Suggest
+// ─────────────────────────────────────────────────────────────
+async function aiSuggest(field) {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    showToast('Vui lòng nhập Gemini API Key trước!', 'warning');
+    toggleApiPanel();
+    return;
+  }
+
+  const data = collectData();
+  if (!data.tenMonViet) { showToast('Vui lòng nhập tên môn học trước!', 'warning'); return; }
+
+  // Read uploaded files
+  showOverlay('AI đang đọc tài liệu và tạo nội dung…');
+  const templateText = await readDocxText('templateFile');
+  const refText      = await readDocxText('refFile');
+  const ploText      = await readDocxText('ploFile');
+  const bookText     = await readDocxText('bookFile');
+
+  const contextBlock = `
+=== ĐỀCƯƠNG CHUẨN (template) ===
+${templateText.slice(0, 3000)}
+
+=== ĐỀ CƯƠNG THAM KHẢO ===
+${refText.slice(0, 2000)}
+
+=== CHUẨN ĐẦU RA CHƯƠNG TRÌNH (PLOs) ===
+${ploText.slice(0, 2000)}
+
+=== GIÁO TRÌNH ===
+${bookText.slice(0, 1000)}
+
+=== THÔNG TIN MÔN HỌC ===
+Tên môn (TV): ${data.tenMonViet}
+Tên môn (EN): ${data.tenMonAnh}
+Mã HP: ${data.maHP}
+Số tín chỉ: ${data.soTC}
+Số tiết LT: ${data.soTietLT} | TH: ${data.soTietTH} | Tự học: ${data.soTietTuHoc}
+Khối kiến thức: ${data.khoiKT}
+Khoa: ${data.khoa} | Bộ môn: ${data.boMon} | Ngành: ${data.nganh}
+`.trim();
+
+  const prompts = {
+    mucTieuChung: `Bạn là chuyên gia thiết kế chương trình đào tạo đại học Việt Nam.
+Dựa trên context bên dưới, viết MỤC TIÊU CHUNG của học phần "${data.tenMonViet}" (${data.tenMonAnh}).
+YÊU CẦU:
+- Viết 1 đoạn văn liền mạch, 80–120 chữ
+- Bắt đầu bằng "Học phần ${data.tenMonViet} nhằm…"
+- Ngôn ngữ trang trọng, học thuật
+- Phản ánh vị trí trong CTĐT (${data.khoiKT})
+- Nhấn mạnh giá trị nghề nghiệp và đóng góp vào PLOs
+- KHÔNG liệt kê, viết đoạn văn chảy mượt
+CHỈ TRẢ LỜI phần nội dung mục tiêu chung, không có tiêu đề hay giải thích thêm.
+
+${contextBlock}`,
+
+    mucTieuCuThe: `Bạn là chuyên gia thiết kế chương trình đào tạo.
+Dựa trên context bên dưới, viết MỤC TIÊU CỤ THỂ của học phần "${data.tenMonViet}".
+YÊU CẦU:
+- 3–6 bullet, phân thành 3 nhóm: Kiến thức / Kỹ năng / Thái độ
+- Mỗi bullet bắt đầu: "- Trang bị cho sinh viên…" hoặc "- Giúp sinh viên…" hoặc "- Hình thành cho sinh viên…"
+- Dùng động từ hành động đo lường được (Bloom's Taxonomy)
+- Logic kế thừa từ mục tiêu chung
+Format:
+* Về kiến thức:
+- ...
+* Về kỹ năng:
+- ...
+* Về năng lực tự chủ và trách nhiệm:
+- ...
+
+${contextBlock}`,
+
+    clo: `Bạn là chuyên gia thiết kế chương trình theo tiếp cận CDIO.
+Tạo ${data.clos.length || 3} CLO (Chuẩn đầu ra học phần) cho "${data.tenMonViet}".
+YÊU CẦU MỖI CLO:
+- Công thức: [Động từ Bloom] + [Nội dung kiến thức cụ thể] + [Ngữ cảnh/Tiêu chí]
+- KHÔNG dùng: "hiểu", "biết", "nắm"
+- Phải đo lường, quan sát được
+- Phân loại: CLO1 = Kiến thức, CLO2–3 = Kỹ năng, CLO${data.clos.length || 3} = Năng lực tự chủ
+Format (JSON):
+[
+  {"id":"CLO1","category":"Kiến thức","content":"..."},
+  {"id":"CLO2","category":"Kỹ năng","content":"..."},
+  ...
+]
+Chỉ trả về JSON, không có text thêm.
+
+${contextBlock}`,
+
+    maTranh: `Tạo MA TRẬN đóng góp của CLOs để đạt PLO/PI cho học phần "${data.tenMonViet}".
+CLOs hiện tại:
+${data.clos.map(c => c.id + ': ' + c.content).join('\n')}
+
+YÊU CẦU:
+- Bảng text (dùng | để phân cột)
+- Cột: CLO1, CLO2, CLO3... | Hàng: PLO1, PLO2... (suy luận từ context)
+- Mức độ: I (Introduced), R (Reinforced), M (Mastery), A (Assessed)
+- Thêm chú thích mức độ sau bảng
+Format ví dụ:
+| PLO/CLO | CLO1 | CLO2 | CLO3 |
+|---------|------|------|------|
+| PLO1    |  R   |  M   |  I   |
+...
+Ghi chú: I = ..., R = ..., M = ..., A = ...
+
+${contextBlock}`,
+
+    moTa: `Viết MÔ TẢ VẮN TẮT HỌC PHẦN (Course Description) cho "${data.tenMonViet}" (${data.tenMonAnh}).
+YÊU CẦU:
+- 120–180 chữ, văn xuôi liền mạch
+- Cấu trúc: (1) Giới thiệu tên + tính chất → (2) Nội dung cốt lõi → (3) Kỹ năng + phương pháp → (4) Giá trị nghề nghiệp
+- Hấp dẫn, chuyên nghiệp, KHÔNG liệt kê chương
+CHỈ TRẢ LỜI nội dung mô tả, không có tiêu đề.
+
+${contextBlock}`,
+
+    noiDung: `Tạo KẾ HOẠCH GIẢNG DẠY CHI TIẾT cho "${data.tenMonViet}".
+Số buổi = ${(parseInt(data.soTietLT)||0) + (parseInt(data.soTietTH)||0)} buổi (${data.soTietLT} LT + ${data.soTietTH} TH).
+YÊU CẦU:
+- Bảng 5 cột: Buổi | Nội dung dạy-học | Nội dung tự học | Phương pháp giảng dạy | Đánh giá
+- Phân bổ hợp lý, tăng dần từ cơ bản → nâng cao
+- Nội dung phải chi tiết, cụ thể (không chung chung)
+- PPDH phù hợp: giảng bài, thảo luận nhóm, thực hành, đóng vai, dự án...
+- Có buổi kiểm tra giữa kỳ và ôn tập cuối kỳ
+Format bảng dùng | như markdown:
+| Buổi | Nội dung dạy-học | Nội dung tự học | PPDH | Đánh giá |
+|------|-----------------|-----------------|------|----------|
+| 1    | ...             | ...             | ...  | ...      |
+...
+
+${contextBlock}`
+  };
+
+  try {
+    const prompt = prompts[field];
+    const response = await callGemini(apiKey, prompt);
+
+    if (field === 'clo') {
+      // Parse JSON response
+      try {
+        let jsonStr = response.replace(/```json|```/g, '').trim();
+        const arr = JSON.parse(jsonStr);
+        const n = parseInt(document.getElementById('soCLO').value) || 3;
+        for (let i = 0; i < Math.min(arr.length, n); i++) {
+          const idx = i + 1;
+          const catEl = document.getElementById('cloCategory' + idx);
+          const txtEl = document.getElementById('clo' + idx);
+          if (catEl) catEl.value = arr[i].category || '';
+          if (txtEl) txtEl.value = arr[i].content || '';
+        }
+        showToast('AI đã gợi ý ' + Math.min(arr.length, n) + ' CLOs!', 'success');
+      } catch {
+        // Fallback: dump to first CLO textarea
+        document.getElementById('clo1').value = response;
+        showToast('AI đã gợi ý (raw). Vui lòng chỉnh sửa lại.', 'warning');
+      }
+    } else {
+      document.getElementById(field).value = response.trim();
+      showToast('AI đã gợi ý thành công!', 'success');
+    }
+  } catch (err) {
+    showToast('Lỗi AI: ' + err.message, 'danger');
+  } finally {
+    hideOverlay();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Call Gemini API
+// ─────────────────────────────────────────────────────────────
+async function callGemini(apiKey, prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || 'API error ' + res.status);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// Preview
+// ─────────────────────────────────────────────────────────────
+function previewSyllabus() {
+  const d = collectData();
+  const pane = document.getElementById('previewPane');
+
+  const cloRows = d.clos.map(c =>
+    `<tr><td><strong>${c.id}</strong></td><td><em>${c.category}</em></td><td>${c.content || '—'}</td></tr>`
+  ).join('');
+
+  pane.innerHTML = `
+    <h2 style="color:var(--primary);text-align:center">ĐỀ CƯƠNG CHI TIẾT HỌC PHẦN</h2>
+    <p style="text-align:center;font-size:.88rem;color:var(--muted)">UBND TỈNH ĐỒNG NAI – TRƯỜNG ĐẠI HỌC ĐỒNG NAI – KHOA ${d.khoa.toUpperCase()}</p>
+    <hr/>
+    <h2>1. Thông tin học phần</h2>
+    <table><tbody>
+      <tr><td width="40%"><strong>Tên môn học (TV)</strong></td><td>${d.tenMonViet}</td></tr>
+      <tr><td><strong>Tên môn học (EN)</strong></td><td>${d.tenMonAnh}</td></tr>
+      <tr><td><strong>Mã học phần</strong></td><td>${d.maHP}</td></tr>
+      <tr><td><strong>Số tín chỉ</strong></td><td>${d.soTC}</td></tr>
+      <tr><td><strong>Số tiết LT / TH / Tự học</strong></td><td>${d.soTietLT} / ${d.soTietTH} / ${d.soTietTuHoc} tiết</td></tr>
+      <tr><td><strong>Tổng giờ học</strong></td><td>${d.tongGio}</td></tr>
+      <tr><td><strong>Học phần học trước</strong></td><td>${d.hocTruoc || '—'}</td></tr>
+      <tr><td><strong>Khoa / Bộ môn</strong></td><td>${d.khoa} / ${d.boMon}</td></tr>
+    </tbody></table>
+
+    <h2>2. Mục tiêu học phần</h2>
+    <p><strong>Mục tiêu chung:</strong> ${d.mucTieuChung || '—'}</p>
+    <p><strong>Mục tiêu cụ thể:</strong></p>
+    <pre style="font-family:inherit;white-space:pre-wrap;font-size:.88rem">${d.mucTieuCuThe || '—'}</pre>
+
+    <h2>3. Chuẩn đầu ra (CLOs)</h2>
+    <table><thead><tr><th>Ký hiệu</th><th>Phân loại</th><th>Nội dung CLO</th></tr></thead>
+    <tbody>${cloRows}</tbody></table>
+
+    <h2>4. Ma trận CLO – PLO</h2>
+    <pre style="font-family:monospace;font-size:.82rem;background:#f5f5f5;padding:10px;border-radius:6px">${d.maTranh || '—'}</pre>
+
+    <h2>5. Mô tả vắn tắt</h2>
+    <p>${d.moTa || '—'}</p>
+
+    <h2>6. Nội dung chi tiết từng buổi học</h2>
+    <pre style="font-family:inherit;white-space:pre-wrap;font-size:.82rem">${d.noiDung || '—'}</pre>
+
+    <h2>9. Giáo trình & Tài liệu tham khảo</h2>
+    ${(() => {
+      const list = d.taiLieu || [];
+      if (!list.length) return '<p><em>(Chưa có tài liệu)</em></p>';
+      const main = list.filter(t => t.type === 'main');
+      const ref  = list.filter(t => t.type === 'ref');
+      let html = '';
+      if (main.length) {
+        html += '<p><strong>a. Giáo trình chính</strong></p><ol style="margin-top:4px">';
+        main.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; });
+        html += '</ol>';
+      }
+      if (ref.length) {
+        html += '<p><strong>b. Tài liệu tham khảo</strong></p><ol style="margin-top:4px">';
+        ref.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; });
+        html += '</ol>';
+      }
+      return html;
+    })()}
+
+    <h2>10. Thông tin giảng viên</h2>
+    <p><strong>${d.tenGV}</strong> – ${d.hocVi} | ${d.emailGV} | ${d.dienThoai}</p>
+  `;
+  pane.style.display = 'block';
+  pane.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─────────────────────────────────────────────────────────────
+// Generate .docx
+// ─────────────────────────────────────────────────────────────
+async function generateDocx() {
+  if (!validate()) return;
+  showOverlay('Đang tạo file đề cương…');
+
+  const d = collectData();
+
+  try {
+    const {
+      Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+      AlignmentType, HeadingLevel, BorderStyle, WidthType, ShadingType,
+      VerticalAlign, LevelFormat, PageOrientation
+    } = docx;
+
+    // ── Helpers ──────────────────────────────────────────────
+    const BLUE      = "1a3c5e";
+    const LIGHT_BLU = "d6e4f0";
+    const border    = { style: BorderStyle.SINGLE, size: 4, color: "A0B8D0" };
+    const borders   = { top: border, bottom: border, left: border, right: border };
+    const cellMarg  = { top: 80, bottom: 80, left: 120, right: 120 };
+    const tblW      = { size: 9360, type: WidthType.DXA };
+
+    function hdr(text, level = HeadingLevel.HEADING_2) {
+      return new Paragraph({
+        heading: level,
+        spacing: { before: 200, after: 100 },
+        children: [new TextRun({ text, bold: true, color: BLUE, size: level === HeadingLevel.HEADING_1 ? 28 : 24 })]
+      });
+    }
+    function para(text, opts = {}) {
+      return new Paragraph({
+        spacing: { before: 60, after: 60 },
+        children: [new TextRun({ text, ...opts })]
+      });
+    }
+    function infoRow(label, value, colWidths = [3000, 6360]) {
+      return new TableRow({
+        children: [
+          new TableCell({ borders, width: { size: colWidths[0], type: WidthType.DXA }, margins: cellMarg,
+            shading: { fill: "EBF3FA", type: ShadingType.CLEAR },
+            children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20 })] })] }),
+          new TableCell({ borders, width: { size: colWidths[1], type: WidthType.DXA }, margins: cellMarg,
+            children: [new Paragraph({ children: [new TextRun({ text: value || '—', size: 20 })] })] }),
+        ]
+      });
+    }
+    function sectionTitle(num, title) {
+      return new Paragraph({
+        spacing: { before: 240, after: 120 },
+        children: [
+          new TextRun({ text: `${num}. ${title}`, bold: true, size: 24, color: BLUE })
+        ]
+      });
+    }
+    function makeHeaderRow(labels, widths) {
+      return new TableRow({
+        tableHeader: true,
+        children: labels.map((l, i) => new TableCell({
+          borders,
+          width: { size: widths[i], type: WidthType.DXA },
+          shading: { fill: BLUE, type: ShadingType.CLEAR },
+          margins: cellMarg,
+          verticalAlign: VerticalAlign.CENTER,
+          children: [new Paragraph({ alignment: AlignmentType.CENTER,
+            children: [new TextRun({ text: l, bold: true, color: 'FFFFFF', size: 18 })] })]
+        }))
+      });
+    }
+
+    // Parse session table from noiDung text
+    function parseSessions(text) {
+      const lines = text.split('\n').filter(l => l.includes('|'));
+      const rows = [];
+      for (const line of lines) {
+        const cells = line.split('|').map(c => c.trim()).filter(c => c && c !== '---' && !c.match(/^-+$/));
+        if (cells.length >= 2 && !cells[0].toLowerCase().includes('buổi') && !cells[0].startsWith('---')) {
+          rows.push(cells);
+        }
+      }
+      return rows;
+    }
+
+    // ── Document sections ────────────────────────────────────
+    const children = [];
+
+    // Title block
+    children.push(
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
+        children: [new TextRun({ text: 'UBND TỈNH ĐỒNG NAI', bold: true, size: 20 })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
+        children: [new TextRun({ text: 'TRƯỜNG ĐẠI HỌC ĐỒNG NAI', bold: true, size: 22, color: BLUE })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
+        children: [new TextRun({ text: 'KHOA ' + (d.khoa || '').toUpperCase(), bold: true, size: 20 })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
+        children: [new TextRun({ text: 'NGÀNH: ' + (d.nganh || '').toUpperCase(), size: 20 })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 60 },
+        children: [new TextRun({ text: 'CHƯƠNG TRÌNH GIÁO DỤC ĐẠI HỌC', bold: true, size: 20 })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 240 },
+        children: [new TextRun({ text: 'ĐỀ CƯƠNG HỌC PHẦN', bold: true, size: 32, color: BLUE })] }),
+    );
+
+    // Basic info
+    children.push(
+      para(`Mã học phần: ${d.maHP}`, { bold: true, size: 22 }),
+      para(`Tên học phần (tiếng Việt): ${d.tenMonViet.toUpperCase()}`, { bold: true, size: 22 }),
+      para(`Tên học phần (tiếng Anh): ${d.tenMonAnh.toUpperCase()}`, { bold: true, size: 22 }),
+      new Paragraph({ spacing: { before: 120, after: 60 } }),
+    );
+
+    // Section 1 – Thông tin học phần
+    children.push(sectionTitle('1', 'Thông tin về học phần'));
+
+    const infoTable = new Table({
+      width: tblW,
+      columnWidths: [3000, 6360],
+      rows: [
+        infoRow('1.1. Số tín chỉ', d.soTC),
+        infoRow('1.2. Số giờ hoạt động học tập', d.tongGio),
+        infoRow('Số tiết lý thuyết', d.soTietLT + ' tiết'),
+        infoRow('Số tiết thực hành', d.soTietTH + ' tiết'),
+        infoRow('Số tiết tự học', d.soTietTuHoc + ' tiết'),
+        infoRow('1.3. Khối kiến thức', d.khoiKT),
+        infoRow('1.4. Học phần tiên quyết', d.tienQuyet || 'Không'),
+        infoRow('1.5. Học phần học trước', d.hocTruoc || 'Không'),
+        infoRow('1.6. Học phần song hành', d.songHanh || 'Không yêu cầu'),
+        infoRow('1.7. Ngôn ngữ giảng dạy', 'Tiếng Anh'),
+        infoRow('1.8. Khoa phụ trách', d.khoa),
+        infoRow('Bộ môn', d.boMon),
+        infoRow('Ngành giảng dạy', d.nganh),
+      ]
+    });
+    children.push(infoTable, new Paragraph({ spacing: { before: 160 } }));
+
+    // Section 2 – Mục tiêu & CLOs
+    children.push(sectionTitle('2', 'Mục tiêu và chuẩn đầu ra học phần'));
+    children.push(para('2.1. Mục tiêu của học phần', { bold: true, size: 22 }));
+    children.push(para('* Mục tiêu chung', { bold: true, italics: true }));
+    children.push(para(d.mucTieuChung || ''));
+    children.push(para('* Mục tiêu cụ thể', { bold: true, italics: true, spacing: { before: 80 } }));
+
+    // Bullet points for specific objectives
+    const objLines = (d.mucTieuCuThe || '').split('\n').filter(l => l.trim());
+    for (const line of objLines) {
+      const isHeader = line.startsWith('*') || line.startsWith('-  ') || line.startsWith('# ');
+      children.push(new Paragraph({
+        spacing: { before: 40, after: 40 },
+        indent: isHeader ? { left: 0 } : { left: 360, hanging: 0 },
+        children: [new TextRun({ text: line.replace(/^[\*\-]\s*/, ''), bold: isHeader, size: 20 })]
+      }));
+    }
+
+    children.push(new Paragraph({ spacing: { before: 120 } }));
+    children.push(para('2.2. Chuẩn đầu ra của học phần (PLO) và ma trận đóng góp CLO để đạt PLO/PI', { bold: true, size: 22 }));
+    children.push(para('a. Mô tả chuẩn đầu ra của học phần (CLO)', { bold: true }));
+
+    // CLO table
+    const cloTable = new Table({
+      width: tblW,
+      columnWidths: [1200, 2400, 5760],
+      rows: [
+        makeHeaderRow(['Ký hiệu', 'Phân loại', 'Chuẩn đầu ra học phần (CLOs)'], [1200, 2400, 5760]),
+        ...d.clos.map(c => new TableRow({
+          children: [
+            new TableCell({ borders, width: { size: 1200, type: WidthType.DXA }, margins: cellMarg, verticalAlign: VerticalAlign.CENTER,
+              shading: { fill: LIGHT_BLU, type: ShadingType.CLEAR },
+              children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: c.id, bold: true, size: 20 })] })] }),
+            new TableCell({ borders, width: { size: 2400, type: WidthType.DXA }, margins: cellMarg,
+              children: [new Paragraph({ children: [new TextRun({ text: c.category, italics: true, size: 20 })] })] }),
+            new TableCell({ borders, width: { size: 5760, type: WidthType.DXA }, margins: cellMarg,
+              children: [new Paragraph({ children: [new TextRun({ text: c.content || '—', size: 20 })] })] }),
+          ]
+        }))
+      ]
+    });
+    children.push(cloTable, new Paragraph({ spacing: { before: 120 } }));
+
+    // Matrix
+    children.push(para('b. Ma trận đóng góp CLO để đạt PLO/PI', { bold: true }));
+    const matrixLines = (d.maTranh || '').split('\n');
+    for (const line of matrixLines) {
+      children.push(new Paragraph({
+        spacing: { before: 20, after: 20 },
+        children: [new TextRun({ text: line, size: 18, font: 'Courier New' })]
+      }));
+    }
+
+    children.push(new Paragraph({ spacing: { before: 120 } }));
+
+    // Section 3 – Mô tả vắn tắt
+    children.push(sectionTitle('3', 'Mô tả vắn tắt nội dung học phần'));
+    children.push(para(d.moTa || ''));
+
+    // Section 4 – Rubric placeholder
+    children.push(sectionTitle('4', 'Rubric đánh giá chuẩn đầu ra'));
+    children.push(para('(Giữ nguyên từ đề cương chuẩn – xem file gốc)', { italics: true, color: '888888' }));
+
+    // Section 5 – Kế hoạch đánh giá
+    children.push(sectionTitle('5', 'Kế hoạch đánh giá học phần'));
+    children.push(para('(Giữ nguyên từ đề cương chuẩn – xem file gốc)', { italics: true, color: '888888' }));
+
+    // Section 6 – Nội dung chi tiết
+    children.push(sectionTitle('6', 'Nội dung chi tiết và kế hoạch giảng dạy'));
+
+    const sessions = parseSessions(d.noiDung || '');
+    if (sessions.length > 0) {
+      const colW = [900, 3200, 1800, 1800, 1660];
+      const sessionTable = new Table({
+        width: tblW,
+        columnWidths: colW,
+        rows: [
+          makeHeaderRow(['Buổi', 'Nội dung dạy – học', 'Nội dung tự học', 'PPDH', 'Đánh giá'], colW),
+          ...sessions.map(row => new TableRow({
+            children: colW.map((w, i) => new TableCell({
+              borders, width: { size: w, type: WidthType.DXA }, margins: cellMarg,
+              children: [new Paragraph({ children: [new TextRun({ text: row[i] || '', size: 18 })] })]
+            }))
+          }))
+        ]
+      });
+      children.push(sessionTable);
+    } else {
+      // Fallback: raw text
+      const ndLines = (d.noiDung || '').split('\n');
+      for (const line of ndLines) {
+        children.push(new Paragraph({ spacing: { before: 20, after: 20 }, children: [new TextRun({ text: line, size: 18 })] }));
+      }
+    }
+
+    children.push(new Paragraph({ spacing: { before: 120 } }));
+
+    // Section 7 – Yêu cầu GV
+    children.push(sectionTitle('7', 'Yêu cầu của giảng viên đối với học phần'));
+    children.push(para(d.ghiChu || 'Phòng học có wifi, máy chiếu, loa.'));
+
+    // Section 8 – Nhiệm vụ SV
+    children.push(sectionTitle('8', 'Nhiệm vụ của sinh viên'));
+    const svTasks = [
+      'Tham gia đầy đủ các buổi học trên lớp.',
+      'Chuẩn bị đầy đủ tài liệu học tập theo quy định của giảng viên.',
+      'Tự đọc, nghiên cứu tài liệu trước khi đến lớp.',
+      'Thể hiện tinh thần trách nhiệm, kỷ luật trong học tập và làm việc nhóm.',
+    ];
+    for (const t of svTasks) {
+      children.push(new Paragraph({
+        spacing: { before: 40, after: 40 },
+        indent: { left: 360 },
+        children: [new TextRun({ text: '– ' + t, size: 20 })]
+      }));
+    }
+
+    // Section 9 – Tài liệu
+    children.push(sectionTitle('9', 'Giáo trình và tài liệu tham khảo'));
+
+    const mainBooks = (d.taiLieu || []).filter(t => t.type === 'main');
+    const refBooks  = (d.taiLieu || []).filter(t => t.type === 'ref');
+
+    // Helper: render 1 book list
+    function renderBookList(label, books, startIdx) {
+      if (books.length === 0) return;
+      children.push(para(label, { bold: true, size: 20 }));
+
+      // Build table: STT | Thông tin tài liệu | Ghi chú
+      const bookTable = new Table({
+        width: tblW,
+        columnWidths: [700, 7160, 1500],
+        rows: [
+          makeHeaderRow(['STT', 'Thông tin tài liệu', 'Ghi chú'], [700, 7160, 1500]),
+          ...books.map((item, i) => new TableRow({
+            children: [
+              new TableCell({ borders, width: { size: 700, type: WidthType.DXA }, margins: cellMarg,
+                verticalAlign: VerticalAlign.CENTER,
+                children: [new Paragraph({ alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: String(startIdx + i), bold: true, size: 20 })] })] }),
+              new TableCell({ borders, width: { size: 7160, type: WidthType.DXA }, margins: cellMarg,
+                children: [new Paragraph({ children: [
+                  new TextRun({ text: formatTaiLieu(item, ''), size: 20 })
+                ]})] }),
+              new TableCell({ borders, width: { size: 1500, type: WidthType.DXA }, margins: cellMarg,
+                children: [new Paragraph({ children: [
+                  new TextRun({ text: item.type === 'main' ? 'Bắt buộc' : 'Tham khảo', italics: true, size: 18, color: '555555' })
+                ]})] }),
+            ]
+          }))
+        ]
+      });
+      children.push(bookTable, new Paragraph({ spacing: { before: 80 } }));
+    }
+
+    renderBookList('a. Giáo trình chính', mainBooks, 1);
+    renderBookList('b. Tài liệu tham khảo', refBooks, mainBooks.length + 1);
+
+    if ((d.taiLieu || []).length === 0) {
+      children.push(para('(Chưa điền tài liệu tham khảo)', { italics: true, color: '888888' }));
+    }
+
+    // Section 10 – Thông tin GV
+    children.push(sectionTitle('10', 'Thông tin giảng viên phụ trách học phần'));
+    const gvTable = new Table({
+      width: tblW,
+      columnWidths: [4680, 4680],
+      rows: [
+        new TableRow({ children: [
+          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
+            children: [para(`Họ và tên: ${d.tenGV}`, { bold: true })] }),
+          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
+            children: [para(`Học hàm, học vị: ${d.hocVi}`)] }),
+        ]}),
+        new TableRow({ children: [
+          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
+            children: [para(`Địa chỉ cơ quan: Số 9 Lê Quý Đôn, p. Tam Hiệp, Đồng Nai`)] }),
+          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
+            children: [para(`Điện thoại: ${d.dienThoai}`)] }),
+        ]}),
+        new TableRow({ children: [
+          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
+            children: [para(`Email: ${d.emailGV}`)] }),
+          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
+            children: [para(`Cách liên lạc: ${d.lienLac}`)] }),
+        ]}),
+      ]
+    });
+    children.push(gvTable, new Paragraph({ spacing: { before: 200 } }));
+
+    // Signature block
+    const today = new Date();
+    children.push(
+      new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 120, after: 40 },
+        children: [new TextRun({ text: `Đồng Nai, ngày ${today.getDate()} tháng ${today.getMonth()+1} năm ${today.getFullYear()}`, italics: true, size: 20 })] })
+    );
+
+    const sigTable = new Table({
+      width: tblW,
+      columnWidths: [3120, 3120, 3120],
+      rows: [
+        new TableRow({ children: [
+          new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
+            width: { size: 3120, type: WidthType.DXA }, margins: cellMarg,
+            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'TRƯỞNG KHOA', bold: true, size: 20 })] })] }),
+          new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
+            width: { size: 3120, type: WidthType.DXA }, margins: cellMarg,
+            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'TRƯỞNG BỘ MÔN', bold: true, size: 20 })] })] }),
+          new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
+            width: { size: 3120, type: WidthType.DXA }, margins: cellMarg,
+            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'NGƯỜI BIÊN SOẠN', bold: true, size: 20 })] }),
+              new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 360 }, children: [new TextRun({ text: `${d.hocVi}. ${d.tenGV}`, size: 20 })] })] }),
+        ]})
+      ]
+    });
+    children.push(sigTable);
+
+    // ── Build Document ────────────────────────────────────────
+    const document = new Document({
+      styles: {
+        default: {
+          document: { run: { font: 'Times New Roman', size: 22 } }
+        },
+        paragraphStyles: [
+          { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+            run: { size: 28, bold: true, font: 'Times New Roman', color: BLUE },
+            paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 } },
+          { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+            run: { size: 24, bold: true, font: 'Times New Roman', color: BLUE },
+            paragraph: { spacing: { before: 180, after: 100 }, outlineLevel: 1 } },
+        ]
+      },
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 11906, height: 16838 },
+            margin: { top: 1134, right: 851, bottom: 1134, left: 1701 } // A4 Vietnamese margins
+          }
+        },
+        children
+      }]
+    });
+
+    const blob = await Packer.toBlob(document);
+    const safeHP = d.maHP.replace(/[^a-zA-Z0-9]/g, '_');
+    const safeMonHoc = d.tenMonViet.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+    const fileName = `${safeHP}_${safeMonHoc}_DeCuongChiTiet.docx`;
+
+    saveAs(blob, fileName);
+    showToast('✅ Tạo đề cương thành công! File đang tải xuống.', 'success');
+
+    // ── Gửi log + file lên GAS (âm thầm, không báo GV) ──────
+    //  • Trong GAS Web App  → gọi google.script.run trực tiếp
+    //  • Ngoài GAS (GitHub Pages) → POST fetch đến GAS_URL nếu đã cấu hình
+    try {
+      // Chuyển blob sang base64
+      const arrayBuf  = await blob.arrayBuffer();
+      const uint8     = new Uint8Array(arrayBuf);
+      let binary = '';
+      uint8.forEach(b => binary += String.fromCharCode(b));
+      const docxBase64 = btoa(binary);
+
+      const payload = {
+        ...d,
+        docxBase64,
+        userAgent: navigator.userAgent
+      };
+
+      if (IS_GAS) {
+        google.script.run
+          .withSuccessHandler(() => {})
+          .withFailureHandler(() => {})
+          ._processLog(payload);
+      } else if (GAS_URL) {
+        fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload)
+        }).catch(() => {}); // silent fail
+      }
+    } catch (_) {
+      // Silent fail – tuyệt đối không hiện lỗi cho GV
+    }
+
+  } catch (err) {
+    showToast('Lỗi tạo file: ' + err.message, 'danger');
+    console.error(err);
+  } finally {
+    hideOverlay();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// UI Helpers
+// ─────────────────────────────────────────────────────────────
+function showOverlay(msg = 'Đang xử lý…') {
+  document.getElementById('overlayMsg').textContent = msg;
+  document.getElementById('overlay').classList.add('show');
+}
+function hideOverlay() { document.getElementById('overlay').classList.remove('show'); }
+
+function showToast(msg, type = 'info') {
+  const stack = document.getElementById('toastStack');
+  const id = 'toast_' + Date.now();
+  const colors = { success: '#198754', danger: '#dc3545', warning: '#f0ad4e', info: '#0d6efd' };
+  const icons  = { success: 'check-circle-fill', danger: 'x-circle-fill', warning: 'exclamation-triangle-fill', info: 'info-circle-fill' };
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = `background:#fff;border-left:4px solid ${colors[type]};padding:12px 16px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);display:flex;align-items:center;gap:10px;min-width:280px;max-width:380px;font-size:.9rem;animation:slideIn .25s ease`;
+  div.innerHTML = `<i class="bi bi-${icons[type]}" style="color:${colors[type]};font-size:1.1rem;flex-shrink:0"></i><span style="flex:1">${msg}</span><button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;cursor:pointer;color:#888;font-size:1.1rem">×</button>`;
+  stack.appendChild(div);
+  setTimeout(() => { if (document.getElementById(id)) document.getElementById(id).remove(); }, 5000);
+}
+
+// Inject slideIn animation
+const style = document.createElement('style');
+style.textContent = '@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}';
+document.head.appendChild(style);
+
+// ─────────────────────────────────────────────────────────────
+// Step progress update on scroll
+// ─────────────────────────────────────────────────────────────
+const sections = ['sectionUpload','sectionInfo','sectionCLO','sectionGV'];
+const steps    = ['step1','step2','step3','step4'];
+const conns    = ['conn1','conn2','conn3'];
+
+function updateSteps() {
+  let active = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.6) active = i;
+  });
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'step-item' + (i < active ? ' done' : i === active ? ' active' : '');
+  });
+  conns.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'step-connector' + (i < active ? ' done' : '');
+  });
+}
+window.addEventListener('scroll', updateSteps);
+updateSteps();
+
+// Show API panel on load if no key saved
+window.addEventListener('load', () => {
+  if (!getApiKey()) {
+    setTimeout(() => showToast('💡 Tip: Nhấn "API Key" để nhập Gemini API Key cho tính năng AI Gợi ý.', 'info'), 1000);
+  }
+});
+</script>
+
+</body>
+</html>
