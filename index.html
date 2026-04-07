@@ -938,27 +938,19 @@ async function aiSuggest(field) {
     templateText = refText = ploText = bookText = '';
   }
 
+  // Cắt ngắn context để tránh rate limit (tổng ~3000 tokens)
   const contextBlock = `
-=== ĐỀCƯƠNG CHUẨN (template) ===
-${templateText.slice(0, 3000)}
-
-=== ĐỀ CƯƠNG THAM KHẢO ===
-${refText.slice(0, 2000)}
-
-=== CHUẨN ĐẦU RA CHƯƠNG TRÌNH (PLOs) ===
-${ploText.slice(0, 2000)}
-
-=== GIÁO TRÌNH ===
-${bookText.slice(0, 1000)}
-
 === THÔNG TIN MÔN HỌC ===
 Tên môn (TV): ${data.tenMonViet}
 Tên môn (EN): ${data.tenMonAnh}
-Mã HP: ${data.maHP}
-Số tín chỉ: ${data.soTC}
+Mã HP: ${data.maHP} | Số TC: ${data.soTC}
 Số tiết LT: ${data.soTietLT} | TH: ${data.soTietTH} | Tự học: ${data.soTietTuHoc}
 Khối kiến thức: ${data.khoiKT}
 Khoa: ${data.khoa} | Bộ môn: ${data.boMon} | Ngành: ${data.nganh}
+${templateText ? `\n=== ĐỀ CƯƠNG CHUẨN (tóm tắt) ===\n${templateText.slice(0, 1200)}` : ''}
+${ploText      ? `\n=== CHUẨN ĐẦU RA CHƯƠNG TRÌNH (PLOs) ===\n${ploText.slice(0, 800)}`  : ''}
+${refText      ? `\n=== ĐỀ CƯƠNG THAM KHẢO ===\n${refText.slice(0, 600)}`                 : ''}
+${bookText     ? `\n=== GIÁO TRÌNH ===\n${bookText.slice(0, 400)}`                         : ''}
 `.trim();
 
   const prompts = {
@@ -1090,16 +1082,15 @@ ${contextBlock}`
 // ─────────────────────────────────────────────────────────────
 // Call Gemini API
 // ─────────────────────────────────────────────────────────────
-async function callGemini(apiKey, prompt) {
+async function callGemini(apiKey, prompt, retryCount = 0) {
   if (!apiKey) throw new Error('Chưa có API Key. Nhấn nút "API Key" ở góc trên phải để nhập.');
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+    generationConfig: { temperature: 0.6, maxOutputTokens: 2048 }
   };
 
-  // Timeout 30 giây
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30000);
 
@@ -1119,18 +1110,16 @@ async function callGemini(apiKey, prompt) {
   }
 
   if (!res.ok) {
+    // Tự retry 1 lần sau 8 giây nếu bị 429
+    if (res.status === 429 && retryCount < 1) {
+      showOverlay('API bận, tự động thử lại sau 8 giây…');
+      await new Promise(r => setTimeout(r, 8000));
+      return callGemini(apiKey, prompt, retryCount + 1);
+    }
+    if (res.status === 429) throw new Error('API Key đang bị rate limit. Vui lòng chờ 1–2 phút rồi thử lại.');
+    if (res.status === 400) throw new Error('API Key không hợp lệ. Vui lòng kiểm tra lại.');
     let msg = `Lỗi API (${res.status})`;
-    try {
-      const errBody = await res.json();
-      msg = errBody.error?.message || msg;
-    } catch (_) {}
-
-    if (res.status === 429) {
-      throw new Error('⚠️ API Key đã hết quota hoặc bị rate limit. Vui lòng chờ 1–2 phút rồi thử lại, hoặc kiểm tra hạn mức tại aistudio.google.com.');
-    }
-    if (res.status === 400) {
-      throw new Error('API Key không hợp lệ. Vui lòng kiểm tra lại.');
-    }
+    try { const e = await res.json(); msg = e.error?.message || msg; } catch (_) {}
     throw new Error(msg);
   }
 
