@@ -489,13 +489,41 @@
             <div><i class="bi bi-upload text-muted"></i> Chọn file</div>
             <div class="upload-name" id="bookFile_name"></div>
           </div>
-        </div>
-
       </div><!-- /.row -->
+
+      <!-- Thông tin giáo trình (thay upload file) -->
+      <div class="row g-3 mt-1">
+        <div class="col-12">
+          <div style="background:#f0f7ff;border:1px solid #b8d4f0;border-radius:10px;padding:16px 18px">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-book-fill text-primary"></i>
+              <strong>Thông tin Giáo trình chính</strong>
+              <span class="badge bg-primary ms-1" style="font-size:.7rem">Thay vì upload file — tiết kiệm token</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="fw-500">
+                  📋 Mục lục sách (Table of Contents)
+                  <span class="hint-text ms-1">— copy từ đầu sách</span>
+                </label>
+                <textarea id="bookTOC" class="form-control" rows="8"
+                  placeholder="Unit 1: Urban & Rural Life (pp. 25–29)&#10;Unit 2: Health and Diet (pp. 47–51)&#10;Unit 3: Art and Artists (pp. 69–72)&#10;Unit 4: Personal Finance (pp. 91–95)&#10;..."></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="fw-500">
+                  🎯 Learning Outcomes / Scope & Sequence
+                  <span class="hint-text ms-1">— copy từ teacher book</span>
+                </label>
+                <textarea id="bookOutcomes" class="form-control" rows="8"
+                  placeholder="Unit 1 – Learning outcomes:&#10;- Vocabulary: house/apartment, urban/rural, public transport&#10;- Grammar: Future time conditionals&#10;- Speaking: Part 1 (describe hometown), Part 2 (cue card)&#10;&#10;Unit 2 – Learning outcomes:&#10;..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <!-- ─── BƯỚC 3: Mục tiêu & CLOs ──────────────────────────── -->
   <div class="card-section" id="sectionCLO">
     <div class="section-header">
       <span class="section-num">3</span>
@@ -504,79 +532,135 @@
     </div>
     <div class="section-body">
 
-      <!-- Mục tiêu chung -->
+      <!-- 2.1 Mục tiêu chung -->
       <div class="mb-4">
         <div class="d-flex align-items-center justify-content-between mb-2">
-          <label class="mb-0">2.1. Mục tiêu chung của học phần</label>
-          <button class="btn-ai" onclick="aiSuggest('mucTieuChung')">
-            <i class="bi bi-stars"></i>AI Gợi ý
-          </button>
+          <label class="mb-0"><strong>2.1.</strong> Mục tiêu chung của học phần</label>
+          <button class="btn-ai" onclick="aiSuggest('mucTieuChung')"><i class="bi bi-stars"></i>AI Gợi ý</button>
         </div>
-        <textarea id="mucTieuChung" class="form-control" rows="5" placeholder="Học phần nhằm..."></textarea>
-        <div class="hint-text">80–120 chữ. Bắt đầu bằng "Học phần nhằm…" hoặc "Mục tiêu của học phần là…"</div>
+        <textarea id="mucTieuChung" class="form-control" rows="5"
+          placeholder="Học phần nhằm trang bị cho sinh viên...&#10;(AI sẽ bám sát nội dung giáo trình bạn đã upload)"></textarea>
+        <div class="hint-text">80–120 chữ. AI sẽ dựa vào nội dung giáo trình để viết cụ thể, không chung chung.</div>
       </div>
 
-      <!-- Mục tiêu cụ thể -->
+      <!-- 2.1 Mục tiêu cụ thể -->
       <div class="mb-4">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <label class="mb-0">Mục tiêu cụ thể</label>
-          <button class="btn-ai" onclick="aiSuggest('mucTieuCuThe')">
-            <i class="bi bi-stars"></i>AI Gợi ý
-          </button>
+          <button class="btn-ai" onclick="aiSuggest('mucTieuCuThe')"><i class="bi bi-stars"></i>AI Gợi ý</button>
         </div>
-        <textarea id="mucTieuCuThe" class="form-control" rows="6" placeholder="- Về kiến thức: ...&#10;- Về kỹ năng: ...&#10;- Về thái độ: ..."></textarea>
-        <div class="hint-text">3–6 bullet. Mỗi bullet bắt đầu bằng động từ hành động.</div>
+        <textarea id="mucTieuCuThe" class="form-control" rows="7"
+          placeholder="* Về kiến thức:&#10;- ...&#10;* Về kỹ năng:&#10;- ...&#10;* Về năng lực tự chủ và trách nhiệm:&#10;- ..."></textarea>
+        <div class="hint-text">AI sẽ liệt kê các chủ đề/kỹ năng cụ thể từ giáo trình, không chung chung.</div>
       </div>
 
-      <!-- Số CLOs -->
+      <!-- 2.2 CLOs -->
       <div class="mb-3">
-        <label>Số lượng CLO cần tạo</label>
+        <label><strong>2.2.</strong> Số lượng CLO cần tạo</label>
         <div class="d-flex align-items-center gap-3">
           <input type="number" id="soCLO" class="form-control" style="width:100px" min="2" max="8" value="3" onchange="renderCLOInputs()" />
-          <button class="btn-ai" onclick="aiSuggest('clo')">
-            <i class="bi bi-stars"></i>AI Gợi ý tất cả CLOs
-          </button>
+          <button class="btn-ai" onclick="aiSuggest('clo')"><i class="bi bi-stars"></i>AI Gợi ý tất cả CLOs</button>
         </div>
       </div>
+      <div id="cloContainer"></div>
 
-      <!-- CLO inputs (dynamic) -->
-      <div id="cloContainer"><!-- rendered by JS --></div>
-
-      <!-- Ma trận CLO – PLO -->
-      <div class="mb-4 mt-3">
+      <!-- Ma trận CLO–PLO dạng bảng -->
+      <div class="mb-4 mt-4">
         <div class="d-flex align-items-center justify-content-between mb-2">
-          <label class="mb-0">Ma trận đóng góp CLO → PLO/PI</label>
-          <button class="btn-ai" onclick="aiSuggest('maTranh')">
-            <i class="bi bi-stars"></i>AI Gợi ý
-          </button>
+          <label class="mb-0"><strong>Ma trận đóng góp CLO → PLO/PI</strong>
+            <span class="hint-text ms-2">(I = Introduced, R = Reinforced, M = Mastery, A = Assessed)</span>
+          </label>
+          <button class="btn-ai" onclick="aiSuggest('maTranh')"><i class="bi bi-stars"></i>AI Gợi ý</button>
         </div>
-        <textarea id="maTranh" class="form-control" rows="6" placeholder="Dạng bảng: CLO1/CLO2... × PLO1/PLO2... với mức độ I/R/M/A"></textarea>
-        <div class="hint-text">I = Introduced, R = Reinforced, M = Mastery, A = Assessed</div>
+        <!-- Dynamic matrix table -->
+        <div id="matrixWrapper" style="overflow-x:auto">
+          <table id="matrixTable" class="table table-bordered table-sm" style="font-size:.85rem;min-width:500px">
+            <!-- rendered by JS -->
+          </table>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-sm btn-outline-secondary" onclick="addMatrixPLO()"><i class="bi bi-plus me-1"></i>Thêm PLO/PI</button>
+          <button class="btn btn-sm btn-outline-danger"   onclick="resetMatrix()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+        </div>
+        <div class="hint-text mt-1">Nhấn vào ô trong bảng để điền mức độ (I / R / M / A). Để trống nếu không liên quan.</div>
       </div>
 
       <!-- Mô tả vắn tắt -->
       <div class="mb-4">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <label class="mb-0">Mô tả vắn tắt học phần (Course Description)</label>
-          <button class="btn-ai" onclick="aiSuggest('moTa')">
-            <i class="bi bi-stars"></i>AI Gợi ý
-          </button>
+          <button class="btn-ai" onclick="aiSuggest('moTa')"><i class="bi bi-stars"></i>AI Gợi ý</button>
         </div>
-        <textarea id="moTa" class="form-control" rows="5" placeholder="120–180 chữ. Giới thiệu tên môn, nội dung, kỹ năng, giá trị nghề nghiệp."></textarea>
+        <textarea id="moTa" class="form-control" rows="5"
+          placeholder="120–180 chữ. Giới thiệu tên môn, nội dung, kỹ năng, giá trị nghề nghiệp."></textarea>
       </div>
 
-      <!-- Nội dung chi tiết -->
+      <!-- Nội dung chi tiết từng buổi -->
       <div class="mb-2">
         <div class="d-flex align-items-center justify-content-between mb-2">
-          <label class="mb-0">Nội dung chi tiết từng buổi học</label>
-          <button class="btn-ai" onclick="aiSuggest('noiDung')">
-            <i class="bi bi-stars"></i>AI Gợi ý lịch dạy
-          </button>
+          <label class="mb-0">Nội dung chi tiết &amp; kế hoạch giảng dạy từng buổi</label>
+          <button class="btn-ai" onclick="aiSuggest('noiDung')"><i class="bi bi-stars"></i>AI Gợi ý lịch dạy</button>
         </div>
-        <textarea id="noiDung" class="form-control" rows="8" placeholder="AI sẽ tạo bảng số buổi = tổng tiết LT + TH&#10;Hoặc bạn có thể nhập thủ công theo định dạng:&#10;Buổi 1 | Nội dung | Tự học | PPDH | Đánh giá"></textarea>
-        <div class="hint-text">Số buổi = tổng tiết LT + TH. AI sẽ tạo bảng đầy đủ 5 cột.</div>
+        <div class="hint-text mb-2">
+          <i class="bi bi-info-circle me-1"></i>AI sẽ dùng <strong>cấu trúc bảng từ đề cương mẫu</strong> và điền nội dung từ giáo trình.
+        </div>
+        <textarea id="noiDung" class="form-control" rows="10"
+          placeholder="AI sẽ tạo kế hoạch theo đúng format đề cương mẫu, dựa vào nội dung sách giáo trình..."></textarea>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ─── Rubric & Đánh giá ──────────────────────────────────── -->
+  <div class="card-section" id="sectionRubric">
+    <div class="section-header">
+      <span class="section-num">3b</span>
+      Thang Điểm, Rubric &amp; Kế Hoạch Đánh Giá
+    </div>
+    <div class="section-body">
+      <div class="mb-3">
+        <label class="fw-600 mb-2">Nguồn nội dung đánh giá:</label>
+        <div class="d-flex gap-3 flex-wrap">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rubricSource" id="rubricManual" value="manual" checked onchange="toggleRubricSource()">
+            <label class="form-check-label" for="rubricManual">✏️ Nhập tay</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rubricSource" id="rubricFromTemplate" value="template" onchange="toggleRubricSource()">
+            <label class="form-check-label" for="rubricFromTemplate">📄 Copy từ Đề cương mẫu</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="rubricSource" id="rubricFromRef" value="ref" onchange="toggleRubricSource()">
+            <label class="form-check-label" for="rubricFromRef">📋 Copy từ Đề cương tham khảo</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="rubricManualArea">
+        <div class="mb-3">
+          <label>Thang điểm &amp; Kế hoạch đánh giá</label>
+          <div class="hint-text mb-1">Nhập từng tiêu chí trên một dòng riêng.</div>
+          <textarea id="rubricText" class="form-control" rows="8"
+            placeholder="- Chuyên cần: 10%&#10;- Kiểm tra giữa kỳ: 25% (Speaking test – IELTS format)&#10;- Bài tập / thực hành: 15%&#10;- Thi cuối kỳ: 50%"></textarea>
+        </div>
+        <div class="mb-3">
+          <label>Rubric chi tiết (mô tả tiêu chí đánh giá)</label>
+          <div class="hint-text mb-1">Mỗi tiêu chí một dòng.</div>
+          <textarea id="rubricDetail" class="form-control" rows="6"
+            placeholder="CLO1 – Đánh giá qua bài thi nói (IELTS format): Band 6.0–6.5&#10;CLO2 – Đánh giá qua bài tập pair/group work hàng tuần&#10;CLO3 – Đánh giá chuyên cần và thái độ học tập"></textarea>
+        </div>
+      </div>
+
+      <div id="rubricCopyArea" style="display:none">
+        <div class="alert alert-info" style="font-size:.88rem">
+          <i class="bi bi-info-circle me-1"></i>
+          Nội dung sẽ được tự động trích xuất từ file bạn đã upload khi nhấn <strong>Tạo Đề Cương</strong>.
+          <button class="btn btn-sm btn-outline-primary ms-2" onclick="previewRubricSource()">
+            <i class="bi bi-eye me-1"></i>Xem trước
+          </button>
+        </div>
+        <div id="rubricPreview" style="display:none;background:#f8f9fa;padding:12px;border-radius:8px;font-size:.83rem;white-space:pre-wrap;max-height:200px;overflow-y:auto"></div>
+      </div>
     </div>
   </div>
 
@@ -611,15 +695,17 @@
 
         <div class="col-12 mt-2">
           <label>Giáo trình chính &amp; Tài liệu tham khảo</label>
-          <div id="taiLieuContainer"><!-- rendered by JS --></div>
+          <div id="taiLieuContainer"></div>
           <button class="btn btn-sm btn-outline-primary mt-2" onclick="addTaiLieu()">
             <i class="bi bi-plus-circle me-1"></i>Thêm tài liệu
           </button>
         </div>
 
         <div class="col-12">
-          <label>Yêu cầu khác / Ghi chú thêm</label>
-          <textarea id="ghiChu" class="form-control" rows="3" placeholder="VD: Phòng học có wifi, máy chiếu, loa..."></textarea>
+          <label>Yêu cầu của giảng viên / Điều kiện phòng học</label>
+          <div class="hint-text mb-1">Mỗi yêu cầu một dòng riêng.</div>
+          <textarea id="ghiChu" class="form-control" rows="4"
+            placeholder="- Phòng học có wifi, máy chiếu, loa.&#10;- Sinh viên cần có tai nghe để luyện tập speaking.&#10;- Yêu cầu ứng dụng ghi âm trên điện thoại."></textarea>
         </div>
       </div>
     </div>
@@ -805,6 +891,8 @@ function renderCLOInputs() {
     </div>`;
   }
   container.innerHTML = html;
+  // Re-render matrix when CLO count changes
+  if (document.getElementById('matrixTable')) renderMatrix();
 }
 renderCLOInputs();
 
@@ -895,9 +983,162 @@ function formatTaiLieu(item, index) {
   return s;
 }
 
-// Thêm 1 dòng mặc định khi load
+// ─── Init ────────────────────────────────────────────────────
 addTaiLieu({ type: 'main' });
-addTaiLieu({ type: 'ref' });
+addTaiLieu({ type: 'ref'  });
+
+// ─────────────────────────────────────────────────────────────
+// Matrix table (CLO × PLO)
+// ─────────────────────────────────────────────────────────────
+let matrixData = {}; // { "CLO1_PLO1": "M", ... }
+let matrixPLOs = ['PLO1\nPI 1.1','PLO2\nPI 2.2','PLO3\nPI 3.1'];
+
+function renderMatrix() {
+  const n = parseInt(document.getElementById('soCLO').value) || 3;
+  const clos = Array.from({length: n}, (_, i) => `CLO${i+1}`);
+  const levels = ['', 'I', 'R', 'M', 'A'];
+
+  let html = '<thead><tr><th style="background:var(--primary);color:#fff;min-width:80px">CLO \\ PLO</th>';
+  matrixPLOs.forEach((p,i) => {
+    html += `<th style="background:var(--primary);color:#fff;text-align:center;white-space:pre-line;min-width:70px;font-size:.78rem">${p}
+      <button onclick="removePLO(${i})" style="background:none;border:none;color:#ffaaaa;cursor:pointer;font-size:.7rem;padding:0;margin-left:2px">✕</button></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  clos.forEach(clo => {
+    html += `<tr><td style="font-weight:bold;background:#eef3f8;text-align:center">${clo}</td>`;
+    matrixPLOs.forEach((p,pi) => {
+      const key = `${clo}_${pi}`;
+      const val = matrixData[key] || '';
+      const color = {I:'#d1ecf1',R:'#d4edda',M:'#fff3cd',A:'#f8d7da'}[val] || '#fff';
+      html += `<td style="text-align:center;padding:4px;background:${color}">
+        <select onchange="setMatrix('${clo}',${pi},this.value)" style="border:none;background:transparent;font-weight:bold;width:52px;text-align:center;cursor:pointer">
+          ${levels.map(l => `<option value="${l}" ${l===val?'selected':''}>${l||'—'}</option>`).join('')}
+        </select></td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  document.getElementById('matrixTable').innerHTML = html;
+}
+
+function setMatrix(clo, ploIdx, val) {
+  matrixData[`${clo}_${ploIdx}`] = val;
+  // re-color cell
+  renderMatrix();
+}
+
+function addMatrixPLO() {
+  const label = prompt('Nhập tên PLO/PI (VD: PLO4\\nPI 4.1):','PLO' + (matrixPLOs.length+1) + '\nPI ' + (matrixPLOs.length+1) + '.1');
+  if (label) { matrixPLOs.push(label.replace(/\\n/g,'\n')); renderMatrix(); }
+}
+
+function removePLO(idx) {
+  matrixPLOs.splice(idx, 1);
+  // clean up data keys for this index
+  Object.keys(matrixData).forEach(k => {
+    const parts = k.split('_');
+    if (parseInt(parts[1]) === idx) delete matrixData[k];
+  });
+  renderMatrix();
+}
+
+function resetMatrix() {
+  matrixData = {};
+  matrixPLOs = ['PLO1\nPI 1.1','PLO2\nPI 2.2','PLO3\nPI 3.1'];
+  renderMatrix();
+}
+
+function getMatrixData() {
+  // Returns { clos, plos, data } for docx generation
+  const n = parseInt(document.getElementById('soCLO').value) || 3;
+  return {
+    clos: Array.from({length: n}, (_, i) => `CLO${i+1}`),
+    plos: matrixPLOs,
+    data: {...matrixData}
+  };
+}
+
+// Fill matrix from AI response (JSON)
+function fillMatrixFromAI(aiData) {
+  // aiData: { plos: [...], cells: { CLO1: { PLO1: "M", ... }, ... } }
+  try {
+    if (aiData.plos) matrixPLOs = aiData.plos;
+    if (aiData.cells) {
+      const n = parseInt(document.getElementById('soCLO').value) || 3;
+      for (let i = 1; i <= n; i++) {
+        const cloKey = `CLO${i}`;
+        if (aiData.cells[cloKey]) {
+          matrixPLOs.forEach((p, pi) => {
+            const ploLabel = p.split('\n')[0];
+            const val = aiData.cells[cloKey][ploLabel] || aiData.cells[cloKey][`PLO${pi+1}`] || '';
+            if (val) matrixData[`${cloKey}_${pi}`] = val;
+          });
+        }
+      }
+    }
+    renderMatrix();
+  } catch(_) { renderMatrix(); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Rubric source toggle
+// ─────────────────────────────────────────────────────────────
+function toggleRubricSource() {
+  const val = document.querySelector('input[name="rubricSource"]:checked')?.value || 'manual';
+  document.getElementById('rubricManualArea').style.display = val === 'manual' ? 'block' : 'none';
+  document.getElementById('rubricCopyArea').style.display  = val !== 'manual' ? 'block' : 'none';
+}
+
+async function previewRubricSource() {
+  const val = document.querySelector('input[name="rubricSource"]:checked')?.value;
+  const fileId = val === 'template' ? 'templateFile' : 'refFile';
+  showOverlay('Đang đọc file…');
+  let text = '';
+  try { text = await readDocxText(fileId); } catch(_) {}
+  hideOverlay();
+  // Extract rubric-related section (rough heuristic)
+  const rubricSection = extractSection(text, ['rubric','thang điểm','kế hoạch đánh giá','4.','5.']);
+  const preview = document.getElementById('rubricPreview');
+  preview.textContent = rubricSection || text.slice(0, 800) + '…';
+  preview.style.display = 'block';
+}
+
+function getRubricContent() {
+  const source = document.querySelector('input[name="rubricSource"]:checked')?.value || 'manual';
+  if (source === 'manual') {
+    const lines1 = (document.getElementById('rubricText')?.value   || '').split('\n').filter(l=>l.trim()).join('\n');
+    const lines2 = (document.getElementById('rubricDetail')?.value || '').split('\n').filter(l=>l.trim()).join('\n');
+    return { source: 'manual', text: lines1, detail: lines2 };
+  }
+  return { source, fileId: source === 'template' ? 'templateFile' : 'refFile' };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Section extractor helper
+// ─────────────────────────────────────────────────────────────
+function extractSection(text, keywords) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let start = -1, end = lines.length;
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i].toLowerCase();
+    if (start === -1 && keywords.some(k => l.includes(k.toLowerCase()))) {
+      start = i; continue;
+    }
+    if (start > -1 && i > start + 2) {
+      // Stop at next numbered section
+      if (/^\d+[.\s]/.test(lines[i].trim()) && !keywords.some(k => lines[i].toLowerCase().includes(k))) {
+        end = i; break;
+      }
+    }
+  }
+  if (start === -1) return '';
+  return lines.slice(start, Math.min(end, start + 60)).join('\n');
+}
+
+
 
 // ─────────────────────────────────────────────────────────────
 // Read file as text via mammoth
@@ -950,7 +1191,8 @@ function collectData() {
     mucTieuChung:  val('mucTieuChung'),
     mucTieuCuThe:  val('mucTieuCuThe'),
     clos,
-    maTranh:       val('maTranh'),
+    matrix:        getMatrixData(),   // { clos, plos, data }
+    rubric:        getRubricContent(), // { source, text, detail } | { source, fileId }
     moTa:          val('moTa'),
     noiDung:       val('noiDung'),
     tenGV:         val('tenGV'),
@@ -960,6 +1202,8 @@ function collectData() {
     lienLac:       val('lienLac'),
     taiLieu:       getTaiLieuList(),
     ghiChu:        val('ghiChu'),
+    bookTOC:       (document.getElementById('bookTOC')?.value     || '').trim(),
+    bookOutcomes:  (document.getElementById('bookOutcomes')?.value || '').trim(),
   };
 }
 function val(id) {
@@ -1003,55 +1247,62 @@ async function aiSuggest(field) {
 
   showOverlay('AI đang đọc tài liệu và tạo nội dung…');
 
-  let templateText, refText, ploText, bookText;
+  let templateText, refText, ploText;
   try {
     templateText = await readDocxText('templateFile');
     refText      = await readDocxText('refFile');
     ploText      = await readDocxText('ploFile');
-    bookText     = await readDocxText('bookFile');
   } catch (_) {
-    templateText = refText = ploText = bookText = '';
+    templateText = refText = ploText = '';
   }
 
-  // Cắt ngắn context để tránh rate limit (tổng ~3000 tokens)
-  const contextBlock = `
-=== THÔNG TIN MÔN HỌC ===
-Tên môn (TV): ${data.tenMonViet}
-Tên môn (EN): ${data.tenMonAnh}
-Mã HP: ${data.maHP} | Số TC: ${data.soTC}
-Số tiết LT: ${data.soTietLT} | TH: ${data.soTietTH} | Tự học: ${data.soTietTuHoc}
-Khối kiến thức: ${data.khoiKT}
-Khoa: ${data.khoa} | Bộ môn: ${data.boMon} | Ngành: ${data.nganh}
-${templateText ? `\n=== ĐỀ CƯƠNG CHUẨN (tóm tắt) ===\n${templateText.slice(0, 1200)}` : ''}
-${ploText      ? `\n=== CHUẨN ĐẦU RA CHƯƠNG TRÌNH (PLOs) ===\n${ploText.slice(0, 800)}`  : ''}
-${refText      ? `\n=== ĐỀ CƯƠNG THAM KHẢO ===\n${refText.slice(0, 600)}`                 : ''}
-${bookText     ? `\n=== GIÁO TRÌNH ===\n${bookText.slice(0, 400)}`                         : ''}
-`.trim();
+  // Giáo trình: lấy từ textarea thay vì upload file
+  const bookTOC      = (document.getElementById('bookTOC')?.value      || '').trim();
+  const bookOutcomes = (document.getElementById('bookOutcomes')?.value  || '').trim();
+
+  // Context gọn — ưu tiên mục lục + outcomes, cắt ngắn các file upload
+  const bookSummary  = bookTOC      ? `\n=== MỤC LỤC GIÁO TRÌNH ===\n${bookTOC}`                                    : '';
+  const outcomesSumm = bookOutcomes ? `\n=== LEARNING OUTCOMES / SCOPE & SEQUENCE ===\n${bookOutcomes}`               : '';
+  const ploSummary   = ploText      ? `\n=== CHUẨN ĐẦU RA CHƯƠNG TRÌNH (PLOs) ===\n${ploText.slice(0, 700)}`         : '';
+  const templateSumm = templateText ? `\n=== ĐỀ CƯƠNG MẪU (cấu trúc) ===\n${templateText.slice(0, 700)}`             : '';
+  const refSummary   = refText      ? `\n=== ĐỀ CƯƠNG THAM KHẢO ===\n${refText.slice(0, 400)}`                       : '';
+
+  const baseInfo = `=== THÔNG TIN MÔN HỌC ===
+Tên: ${data.tenMonViet} (${data.tenMonAnh}) | Mã: ${data.maHP} | TC: ${data.soTC}
+Tiết LT: ${data.soTietLT} | TH: ${data.soTietTH} | Tự học: ${data.soTietTuHoc}
+Khối KT: ${data.khoiKT} | Khoa: ${data.khoa} | Ngành: ${data.nganh}`;
+
+  // Thứ tự ưu tiên: thông tin môn → mục lục → outcomes → PLO → đề cương mẫu → tham khảo
+  const contextBlock = [baseInfo, bookSummary, outcomesSumm, ploSummary, templateSumm, refSummary].filter(Boolean).join('\n').trim();
 
   const prompts = {
     mucTieuChung: `Bạn là chuyên gia thiết kế chương trình đào tạo đại học Việt Nam.
-Dựa trên context bên dưới, viết MỤC TIÊU CHUNG của học phần "${data.tenMonViet}" (${data.tenMonAnh}).
-YÊU CẦU:
-- Viết 1 đoạn văn liền mạch, 80–120 chữ
-- Bắt đầu bằng "Học phần ${data.tenMonViet} nhằm…"
-- Ngôn ngữ trang trọng, học thuật
-- Phản ánh vị trí trong CTĐT (${data.khoiKT})
-- Nhấn mạnh giá trị nghề nghiệp và đóng góp vào PLOs
-- KHÔNG liệt kê, viết đoạn văn chảy mượt
-CHỈ TRẢ LỜI phần nội dung mục tiêu chung, không có tiêu đề hay giải thích thêm.
+Viết MỤC TIÊU CHUNG học phần "${data.tenMonViet}" (${data.tenMonAnh}).
+
+YÊU CẦU BẮT BUỘC:
+- 80–120 chữ, 1 đoạn liền mạch
+- Bắt đầu: "Học phần ${data.tenMonViet} nhằm…"
+- PHẢI đề cập cụ thể các chủ đề/kỹ năng CÓ TRONG GIÁO TRÌNH (không được chung chung)
+- Nêu rõ mức trình độ đầu ra (VD: IELTS Band X, CEFR BX...)
+- Phản ánh vị trí trong CTĐT: ${data.khoiKT}
+- Nhấn mạnh đóng góp vào PLOs và giá trị nghề nghiệp
+- KHÔNG liệt kê, viết văn xuôi chảy
+
+CHỈ TRẢ LỜI nội dung, không có tiêu đề.
 
 ${contextBlock}`,
 
-    mucTieuCuThe: `Bạn là chuyên gia thiết kế chương trình đào tạo.
-Dựa trên context bên dưới, viết MỤC TIÊU CỤ THỂ của học phần "${data.tenMonViet}".
-YÊU CẦU:
-- 3–6 bullet, phân thành 3 nhóm: Kiến thức / Kỹ năng / Thái độ
-- Mỗi bullet bắt đầu: "- Trang bị cho sinh viên…" hoặc "- Giúp sinh viên…" hoặc "- Hình thành cho sinh viên…"
-- Dùng động từ hành động đo lường được (Bloom's Taxonomy)
-- Logic kế thừa từ mục tiêu chung
+    mucTieuCuThe: `Viết MỤC TIÊU CỤ THỂ học phần "${data.tenMonViet}" dựa trên nội dung GIÁO TRÌNH bên dưới.
+
+YÊU CẦU BẮT BUỘC:
+- Phân 3 nhóm: Kiến thức / Kỹ năng / Năng lực tự chủ & trách nhiệm
+- Mỗi nhóm 2–3 bullet, bắt đầu bằng động từ Bloom (Trang bị / Giúp / Hình thành / Rèn luyện)
+- PHẢI đề cập tên chủ đề, kỹ năng, hoặc nội dung CỤ THỂ từ giáo trình (VD: tên unit, chủ đề, band score cụ thể)
+- KHÔNG viết chung chung như "kỹ năng nghe nói đọc viết"
+
 Format:
 * Về kiến thức:
-- ...
+- [động từ] + [nội dung cụ thể từ sách]
 * Về kỹ năng:
 - ...
 * Về năng lực tự chủ và trách nhiệm:
@@ -1059,63 +1310,99 @@ Format:
 
 ${contextBlock}`,
 
-    clo: `Bạn là chuyên gia thiết kế chương trình theo tiếp cận CDIO.
-Tạo ${data.clos.length || 3} CLO (Chuẩn đầu ra học phần) cho "${data.tenMonViet}".
-YÊU CẦU MỖI CLO:
-- Công thức: [Động từ Bloom] + [Nội dung kiến thức cụ thể] + [Ngữ cảnh/Tiêu chí]
-- KHÔNG dùng: "hiểu", "biết", "nắm"
-- Phải đo lường, quan sát được
-- Phân loại: CLO1 = Kiến thức, CLO2–3 = Kỹ năng, CLO${data.clos.length || 3} = Năng lực tự chủ
-Format (JSON):
+    clo: `Tạo ${data.clos.length || 3} CLO cho học phần "${data.tenMonViet}" theo tiếp cận CDIO.
+
+YÊU CẦU BẮT BUỘC:
+- Công thức: [Động từ Bloom cụ thể] + [Nội dung kiến thức/kỹ năng từ GIÁO TRÌNH] + [Ngữ cảnh đánh giá]
+- TUYỆT ĐỐI KHÔNG dùng: "hiểu", "biết", "nắm được", "có kiến thức về"
+- Phải đo lường được, quan sát được
+- Phải đề cập nội dung cụ thể từ sách (tên chủ đề, kỹ năng, band score...)
+- CLO1: Kiến thức | CLO2: Kỹ năng | CLO${data.clos.length||3}: Năng lực tự chủ
+
+Trả về JSON duy nhất, không có text thêm:
 [
-  {"id":"CLO1","category":"Kiến thức","content":"..."},
+  {"id":"CLO1","category":"Kiến thức","content":"[Nội dung CLO1 cụ thể từ sách]"},
   {"id":"CLO2","category":"Kỹ năng","content":"..."},
-  ...
+  {"id":"CLO3","category":"Năng lực tự chủ & trách nhiệm","content":"..."}
 ]
-Chỉ trả về JSON, không có text thêm.
 
 ${contextBlock}`,
 
-    maTranh: `Tạo MA TRẬN đóng góp của CLOs để đạt PLO/PI cho học phần "${data.tenMonViet}".
-CLOs hiện tại:
-${data.clos.map(c => c.id + ': ' + c.content).join('\n')}
+    maTranh: `Tạo MA TRẬN CLO–PLO/PI cho học phần "${data.tenMonViet}".
+CLOs:
+${data.clos.map(c => `${c.id}: ${c.content}`).join('\n')}
 
 YÊU CẦU:
-- Bảng text (dùng | để phân cột)
-- Cột: CLO1, CLO2, CLO3... | Hàng: PLO1, PLO2... (suy luận từ context)
+- Dựa vào danh sách PLO/PI từ file CHUẨN ĐẦU RA CHƯƠNG TRÌNH
 - Mức độ: I (Introduced), R (Reinforced), M (Mastery), A (Assessed)
-- Thêm chú thích mức độ sau bảng
-Format ví dụ:
-| PLO/CLO | CLO1 | CLO2 | CLO3 |
-|---------|------|------|------|
-| PLO1    |  R   |  M   |  I   |
-...
-Ghi chú: I = ..., R = ..., M = ..., A = ...
+- Mỗi CLO phải liên quan ít nhất 2 PLO
+
+Trả về JSON duy nhất:
+{
+  "plos": ["PLO1\\nPI 1.1", "PLO2\\nPI 2.2", ...],
+  "cells": {
+    "CLO1": {"PLO1": "M", "PLO2": "R", ...},
+    "CLO2": {...},
+    ...
+  }
+}
 
 ${contextBlock}`,
 
-    moTa: `Viết MÔ TẢ VẮN TẮT HỌC PHẦN (Course Description) cho "${data.tenMonViet}" (${data.tenMonAnh}).
-YÊU CẦU:
-- 120–180 chữ, văn xuôi liền mạch
-- Cấu trúc: (1) Giới thiệu tên + tính chất → (2) Nội dung cốt lõi → (3) Kỹ năng + phương pháp → (4) Giá trị nghề nghiệp
-- Hấp dẫn, chuyên nghiệp, KHÔNG liệt kê chương
-CHỈ TRẢ LỜI nội dung mô tả, không có tiêu đề.
+    moTa: `Viết MÔ TẢ VẮN TẮT (Course Description) cho "${data.tenMonViet}" (${data.tenMonAnh}).
+- 120–180 chữ, văn xuôi liền mạch, chuyên nghiệp
+- Đề cập CỤ THỂ các chủ đề/kỹ năng từ giáo trình
+- Cấu trúc: Giới thiệu → Nội dung cốt lõi → Phương pháp học → Giá trị nghề nghiệp
+- KHÔNG liệt kê chương/unit
+CHỈ TRẢ LỜI nội dung mô tả.
 
 ${contextBlock}`,
 
-    noiDung: `Tạo KẾ HOẠCH GIẢNG DẠY CHI TIẾT cho "${data.tenMonViet}".
-Số buổi = ${(parseInt(data.soTietLT)||0) + (parseInt(data.soTietTH)||0)} buổi (${data.soTietLT} LT + ${data.soTietTH} TH).
-YÊU CẦU:
-- Bảng 5 cột: Buổi | Nội dung dạy-học | Nội dung tự học | Phương pháp giảng dạy | Đánh giá
-- Phân bổ hợp lý, tăng dần từ cơ bản → nâng cao
-- Nội dung phải chi tiết, cụ thể (không chung chung)
-- PPDH phù hợp: giảng bài, thảo luận nhóm, thực hành, đóng vai, dự án...
-- Có buổi kiểm tra giữa kỳ và ôn tập cuối kỳ
-Format bảng dùng | như markdown:
-| Buổi | Nội dung dạy-học | Nội dung tự học | PPDH | Đánh giá |
-|------|-----------------|-----------------|------|----------|
-| 1    | ...             | ...             | ...  | ...      |
-...
+    noiDung: `Bạn là giảng viên đại học chuyên thiết kế kế hoạch giảng dạy chi tiết.
+Tạo KẾ HOẠCH GIẢNG DẠY CHI TIẾT cho học phần "${data.tenMonViet}" (${data.tenMonAnh}).
+
+═══ THÔNG SỐ BẮT BUỘC ═══
+- Tổng số buổi = ${(parseInt(data.soTietLT)||0) + (parseInt(data.soTietTH)||0)} buổi
+- Tiết LT = ${data.soTietLT} | TH = ${data.soTietTH} | Tự học = ${data.soTietTuHoc}
+- Buổi thường: TONG=9, LT=1, TH=3, TuHoc=5
+- Buổi kiểm tra GK: TONG=3, LT=0, TH=3, TuHoc=0
+- Buổi ôn tập cuối: TONG=7, LT=1, TH=1, TuHoc=5
+- Tổng cộng tất cả buổi PHẢI = LT:${data.soTietLT} / TH:${data.soTietTH} / TuHoc:${data.soTietTuHoc}
+
+═══ NGUỒN NỘI DUNG ═══
+- Dàn ý cấu trúc: lấy từ ĐỀ CƯƠNG MẪU (cách tổ chức buổi học, format trình bày)
+- Nội dung cụ thể: lấy từ ĐỀ CƯƠNG THAM KHẢO + MỤC LỤC + LEARNING OUTCOMES của sách
+- Nếu không có đề cương tham khảo: tự tạo nội dung phù hợp theo mục lục và outcomes
+
+═══ CẤU TRÚC BẮT BUỘC MỖI BUỔI ═══
+Mỗi buổi PHẢI có đầy đủ 4 mục sau, KHÔNG được bỏ mục nào:
+
+=== Buổi [N] | TONG:[X] | LT:[X] | TH:[X] | TuHoc:[X] | CLO:CLO1,CLO2,CLO3 ===
+**[Tên Unit/Chủ đề từ giáo trình] (pp. XX–XX)**
+
+**1. Nội dung dạy – học tại lớp:**
+Lý thuyết:
++ [nội dung lý thuyết cụ thể — từ vựng, ngữ pháp, cấu trúc, kiến thức...]
++ [...]
+Thực hành:
++ [hoạt động thực hành — pair work, role play, drilling, discussion...]
++ [...]
+
+**2. Nội dung tự học:**
++ [nhiệm vụ tự học cụ thể — xem video, ghi âm, làm bài tập, đọc tài liệu...]
++ [...]
+
+**3. Phương pháp giảng dạy:**
+[Liệt kê các PPDH phù hợp với nội dung buổi đó — VD: Thuyết trình, Video analysis, Pair practice, Drilling, Group discussion, Role play, Peer feedback...]
+
+**4. Đánh giá:**
+[Cách kiểm tra kiến thức trong buổi đó — VD: Chuyên cần, Bài tập ghi âm, Quan sát pair work, Kiểm tra từ vựng đầu giờ...]
+
+═══ LƯU Ý ═══
+- Nội dung PHẢI cụ thể, bám sát tên unit/chủ đề/trang sách từ MỤC LỤC
+- PPDH phải đa dạng và phù hợp từng bài (không dùng cùng 1 PPDH cho tất cả buổi)
+- Khoảng buổi ${Math.ceil(((parseInt(data.soTietLT)||0) + (parseInt(data.soTietTH)||0)) / 2)}: Kiểm tra giữa kỳ (TONG=3, LT=0, TH=3, TuHoc=0)
+- Buổi cuối: Ôn tập tổng kết + hướng dẫn thi cuối kỳ
 
 ${contextBlock}`
   };
@@ -1125,7 +1412,6 @@ ${contextBlock}`
     const response = await callAI(prompt);
 
     if (field === 'clo') {
-      // Parse JSON response
       try {
         let jsonStr = response.replace(/```json|```/g, '').trim();
         const arr = JSON.parse(jsonStr);
@@ -1139,9 +1425,31 @@ ${contextBlock}`
         }
         showToast('AI đã gợi ý ' + Math.min(arr.length, n) + ' CLOs!', 'success');
       } catch {
-        // Fallback: dump to first CLO textarea
         document.getElementById('clo1').value = response;
         showToast('AI đã gợi ý (raw). Vui lòng chỉnh sửa lại.', 'warning');
+      }
+    } else if (field === 'maTranh') {
+      try {
+        let jsonStr = response.replace(/```json|```/g, '').trim();
+        const aiData = JSON.parse(jsonStr);
+        fillMatrixFromAI(aiData);
+        showToast('AI đã điền ma trận CLO–PLO!', 'success');
+      } catch {
+        showToast('AI gợi ý xong nhưng không parse được JSON. Điền tay vào bảng nhé.', 'warning');
+      }
+    } else if (field === 'noiDung') {
+      document.getElementById('noiDung').value = response.trim();
+      showToast('✅ AI đã tạo kế hoạch giảng dạy!', 'success');
+      // Warning banner
+      const warningId = 'noiDungWarning';
+      if (!document.getElementById(warningId)) {
+        const warn = document.createElement('div');
+        warn.id = warningId;
+        warn.style.cssText = 'background:#fff8e1;border:1px solid #f0c040;border-radius:8px;padding:12px 16px;margin-top:10px;font-size:.85rem;line-height:1.6';
+        warn.innerHTML = `<strong>⚠️ Lưu ý quan trọng:</strong> Đây là <em>sườn bài gợi ý</em> dựa trên mục lục và learning outcomes của sách.
+          Bạn cần <strong>kiểm tra và bổ sung</strong> các ý chính, hoạt động dạy – học cụ thể cho phù hợp với từng bài và đối tượng sinh viên.
+          <button onclick="document.getElementById('${warningId}').remove()" style="float:right;background:none;border:none;cursor:pointer;color:#888">✕</button>`;
+        document.getElementById('noiDung').after(warn);
       }
     } else {
       document.getElementById(field).value = response.trim();
@@ -1408,17 +1716,299 @@ async function generateDocx() {
       });
     }
 
-    // Parse session table from noiDung text
+    // ── Parse AI session text into structured objects ────────
     function parseSessions(text) {
-      const lines = text.split('\n').filter(l => l.includes('|'));
-      const rows = [];
-      for (const line of lines) {
-        const cells = line.split('|').map(c => c.trim()).filter(c => c && c !== '---' && !c.match(/^-+$/));
-        if (cells.length >= 2 && !cells[0].toLowerCase().includes('buổi') && !cells[0].startsWith('---')) {
-          rows.push(cells);
+      if (!text) return [];
+      const sessions = [];
+
+      // Split by === Buổi N | ... === markers
+      const blockRegex = /={3,}\s*Buổi\s*(\d+)\s*\|([^=]+)={3,}/gi;
+      const parts = text.split(/(?==== Buổi)/i);
+
+      for (const part of parts) {
+        const headerMatch = part.match(/Buổi\s*(\d+)\s*\|\s*TONG[:\s]*(\d*)\s*\|\s*LT[:\s]*(\d*)\s*\|\s*TH[:\s]*(\d*)\s*\|\s*TuHoc[:\s]*(\d*)/i);
+        if (!headerMatch) continue;
+
+        const buoiNum = headerMatch[1];
+        const tong    = headerMatch[2] || '';
+        const lt      = headerMatch[3] || '';
+        const th      = headerMatch[4] || '';
+        const tuHocH  = headerMatch[5] || '';
+
+        const cloMatch = part.match(/CLO[:\s]*([\w,\s]+?)(?:\s*===|\s*\n)/i);
+        const cloText  = cloMatch ? cloMatch[1].trim().replace(/,/g, '\n') : d.clos.map(c => c.id).join('\n');
+
+        // Remove header line, work with body
+        const body = part.replace(/^.*?===\s*\n*/s, '').trim();
+        const lines = body.split('\n');
+
+        // Extract title (bold line at start)
+        let title = '';
+        let bodyStart = 0;
+        if (lines[0] && (lines[0].startsWith('**') || lines[0].match(/^Unit|^Buổi|^Chủ đề/i))) {
+          title = lines[0].replace(/\*\*/g, '').trim();
+          bodyStart = 1;
+        }
+
+        // Parse 4 sections
+        let section = '';
+        const sections = { noidung: '', tuhoc: '', ppdh: '', danhgia: '' };
+        if (title) sections.noidung = title + '\n';
+
+        for (let i = bodyStart; i < lines.length; i++) {
+          const l = lines[i];
+          const lt = l.toLowerCase().replace(/\*/g,'').trim();
+          if      (lt.startsWith('1.') || lt.includes('nội dung dạy') || lt.includes('lý thuyết:') || lt.includes('thực hành:')) section = 'noidung';
+          else if (lt.startsWith('2.') || lt.includes('tự học'))       section = 'tuhoc';
+          else if (lt.startsWith('3.') || lt.includes('phương pháp') || lt.startsWith('ppdh')) section = 'ppdh';
+          else if (lt.startsWith('4.') || lt.includes('đánh giá'))     section = 'danhgia';
+
+          if (section && l.trim()) sections[section] += l + '\n';
+          else if (!section && l.trim()) sections.noidung += l + '\n';
+        }
+
+        sessions.push({
+          buoi:    `Buổi ${buoiNum}`,
+          noidung: sections.noidung.trim(),
+          tuhoc:   sections.tuhoc.trim(),
+          ppdh:    sections.ppdh.replace(/^.*phương pháp.*?:\s*/im,'').trim(),
+          danhgia: sections.danhgia.replace(/^.*đánh giá.*?:\s*/im,'').trim(),
+          tong, lt, th,
+          thuHoc:  tuHocH,
+          clo:     cloText,
+        });
+      }
+
+      if (sessions.length > 0) return sessions;
+
+      // Fallback: markdown table
+      const tableRows = text.split('\n').filter(l => l.includes('|') && !l.match(/^[\s|:\-]+$/));
+      if (tableRows.length > 1) {
+        for (const line of tableRows) {
+          const cells = line.split('|').map(c => c.trim()).filter(Boolean);
+          if (cells.length < 2) continue;
+          if (cells[0].toLowerCase().replace(/\s/g,'').startsWith('buổi') && cells[0].length < 10) continue;
+          if (cells[0].match(/^[-:]+$/)) continue;
+          sessions.push({
+            buoi: cells[0], noidung: cells[1] || '', tuhoc: cells[2] || '',
+            ppdh: cells[3] || '', danhgia: cells[4] || '',
+            tong: '', lt: '', th: '', thuHoc: '',
+            clo: d.clos.map(c => c.id).join('\n'),
+          });
         }
       }
-      return rows;
+      return sessions;
+    }
+
+    // ── Build rich multi-paragraph cell content ──────────────
+    function richCell(text, w, opts = {}) {
+      const { bold = false, center = false, vertMerge = null, rowSpan = false } = opts;
+      const paragraphs = [];
+      const lines = (text || '').split('\n').filter(l => l.trim());
+
+      if (lines.length === 0) {
+        paragraphs.push(new Paragraph({ children: [new TextRun({ text: '', size: 18 })] }));
+      } else {
+        for (const line of lines) {
+          const isBold = bold || /^\*\*.*\*\*$/.test(line) || /^(Nội dung:|Hoạt động|Tự học:|PPDH:|Đánh giá:)/.test(line);
+          const cleanLine = line.replace(/^\*\*(.*)\*\*$/, '$1').replace(/^[+\-•]\s*/, '');
+          const isPlus = line.startsWith('+') || line.startsWith('•');
+          paragraphs.push(new Paragraph({
+            alignment: center ? AlignmentType.CENTER : AlignmentType.LEFT,
+            spacing: { before: 20, after: 20 },
+            indent: isPlus ? { left: 200 } : {},
+            children: [new TextRun({ text: (isPlus ? '+ ' : '') + cleanLine, bold: isBold, size: 18 })]
+          }));
+        }
+      }
+
+      const cellProps = {
+        borders,
+        width: { size: w, type: WidthType.DXA },
+        margins: { top: 60, bottom: 60, left: 100, right: 100 },
+        verticalAlign: VerticalAlign.TOP,
+        children: paragraphs,
+      };
+      if (rowSpan) cellProps.rowSpan = rowSpan;
+      return new TableCell(cellProps);
+    }
+
+    function headerCell(text, w, opts = {}) {
+      const { colSpan, rowSpan, center = true } = opts;
+      const props = {
+        borders,
+        width: { size: w, type: WidthType.DXA },
+        margins: { top: 60, bottom: 60, left: 80, right: 80 },
+        shading: { fill: BLUE, type: ShadingType.CLEAR },
+        verticalAlign: VerticalAlign.CENTER,
+        children: [new Paragraph({
+          alignment: center ? AlignmentType.CENTER : AlignmentType.LEFT,
+          children: [new TextRun({ text, bold: true, color: 'FFFFFF', size: 18 })]
+        })]
+      };
+      if (colSpan) props.columnSpan = colSpan;
+      if (rowSpan) props.rowSpan = rowSpan;
+      return new TableCell(props);
+    }
+
+    // ── Column widths: Buổi|Nội dung|Tổng|LT|TH|TuHoc|CLO ───
+    //    Total = 9360 DXA
+    const sColW = [700, 4200, 600, 700, 700, 700, 760];
+
+    function buildSessionTable(sessions) {
+      const rows = [];
+
+      // Header row 1: Buổi | Nội dung | Số giờ (colspan 4) | Đóng góp CLO
+      rows.push(new TableRow({
+        tableHeader: true,
+        children: [
+          headerCell('Buổi',               sColW[0], { rowSpan: 2 }),
+          headerCell('Nội dung dạy – học', sColW[1], { rowSpan: 2 }),
+          headerCell('Số giờ thiết kế',    sColW[2]+sColW[3]+sColW[4]+sColW[5], { colSpan: 4 }),
+          headerCell('Đóng góp\ncho\nCLO', sColW[6], { rowSpan: 2 }),
+        ]
+      }));
+
+      // Header row 2: sub-headers for hours
+      rows.push(new TableRow({
+        tableHeader: true,
+        children: [
+          headerCell('Tổng', sColW[2]),
+          headerCell('Lý\nthuyết', sColW[3]),
+          headerCell('Thực\nhành', sColW[4]),
+          headerCell('Tự\nhọc', sColW[5]),
+        ]
+      }));
+
+      // Data rows
+      sessions.forEach((s, idx) => {
+        const buoiLabel = s.buoi || `Buổi ${idx+1}`;
+        const tong    = s.tong   || '';
+        const lt      = s.lt     || '';
+        const th      = s.th     || '';
+        const tuHoc   = s.thuHoc || '';
+        const cloText = s.clo    || d.clos.map(c => c.id).join('\n');
+
+        // Build combined content cell: noidung + tuhoc + ppdh + danhgia
+        function buildContentParagraphs() {
+          const paras = [];
+          function addSection(label, text, labelBold = true) {
+            if (!text || !text.trim()) return;
+            // Section label
+            paras.push(new Paragraph({
+              spacing: { before: 60, after: 20 },
+              children: [new TextRun({ text: label, bold: true, size: 18 })]
+            }));
+            // Lines
+            text.split('\n').filter(l => l.trim()).forEach(line => {
+              const clean  = line.replace(/^\*\*(.*)\*\*$/, '$1').trim();
+              const isHead = /^\*\*|^(Lý thuyết:|Thực hành:|1\.|2\.|3\.|4\.)/.test(line);
+              const isPlus = /^[+•\-]/.test(clean);
+              const txt    = clean.replace(/^[+•\-]\s*/, '');
+              paras.push(new Paragraph({
+                spacing: { before: 15, after: 15 },
+                indent: isPlus ? { left: 220 } : {},
+                children: [new TextRun({ text: (isPlus ? '+ ' : '') + txt, bold: isHead, size: 18 })]
+              }));
+            });
+          }
+
+          // 1. Nội dung dạy – học tại lớp
+          addSection('Nội dung:', s.noidung || '');
+          // 2. Tự học
+          addSection('Tự học:', s.tuhoc || '');
+          // 3. PPDH
+          if (s.ppdh && s.ppdh.trim()) {
+            paras.push(new Paragraph({
+              spacing: { before: 60, after: 15 },
+              children: [
+                new TextRun({ text: 'PPDH: ', bold: true, size: 18 }),
+                new TextRun({ text: s.ppdh.replace(/^[+•\-]\s*/,'').trim(), size: 18 })
+              ]
+            }));
+          }
+          // 4. Đánh giá
+          if (s.danhgia && s.danhgia.trim()) {
+            paras.push(new Paragraph({
+              spacing: { before: 20, after: 15 },
+              children: [
+                new TextRun({ text: 'Đánh giá: ', bold: true, size: 18 }),
+                new TextRun({ text: s.danhgia.replace(/^[+•\-]\s*/,'').trim(), size: 18 })
+              ]
+            }));
+          }
+          if (paras.length === 0) paras.push(new Paragraph({ children: [new TextRun({ text: '', size: 18 })] }));
+          return paras;
+        }
+
+        rows.push(new TableRow({
+          children: [
+            richCell(buoiLabel, sColW[0], { bold: true, center: true }),
+            new TableCell({
+              borders,
+              width: { size: sColW[1], type: WidthType.DXA },
+              margins: { top: 60, bottom: 60, left: 100, right: 100 },
+              verticalAlign: VerticalAlign.TOP,
+              children: buildContentParagraphs(),
+            }),
+            richCell(tong,    sColW[2], { center: true }),
+            richCell(lt,      sColW[3], { center: true }),
+            richCell(th,      sColW[4], { center: true }),
+            richCell(tuHoc,   sColW[5], { center: true }),
+            richCell(cloText, sColW[6], { center: true }),
+          ]
+        }));
+      });
+
+      return new Table({ width: tblW, columnWidths: sColW, rows });
+    }
+
+    // ── Build matrix table from interactive data ──────────────
+    function buildMatrixTable(matrix) {
+      if (!matrix || !matrix.plos || !matrix.clos) return null;
+      const { clos, plos, data: mdata } = matrix;
+      // Clean PLO labels (remove \n PI x.x → two lines)
+      const ploLabels = plos.map(p => p.replace(/\n/g, ' '));
+
+      const mColW = [1200, ...plos.map(() => Math.floor(8160 / plos.length))];
+      // Adjust last col to fill exactly
+      const sumCols = mColW.slice(1).reduce((a,b)=>a+b,0);
+      if (mColW.length > 1) mColW[mColW.length-1] += (8160 - sumCols);
+
+      const mRows = [];
+
+      // Header row: CLO\PLO | PLO1 | PLO2 | ...
+      mRows.push(new TableRow({
+        tableHeader: true,
+        children: [
+          headerCell('CLO \\ PLO', mColW[0]),
+          ...ploLabels.map((p, i) => headerCell(p, mColW[i+1]))
+        ]
+      }));
+
+      // Data rows
+      clos.forEach((clo, ci) => {
+        const levelColors = { I:'D1ECF1', R:'D4EDDA', M:'FFF3CD', A:'F8D7DA' };
+        mRows.push(new TableRow({
+          children: [
+            new TableCell({ borders, width:{ size: mColW[0], type: WidthType.DXA }, margins: cellMarg,
+              shading:{ fill: LIGHT_BLU, type: ShadingType.CLEAR },
+              children:[new Paragraph({ alignment: AlignmentType.CENTER,
+                children:[new TextRun({ text: clo, bold: true, size: 18 })] })] }),
+            ...plos.map((_, pi) => {
+              const key = `${clo}_${pi}`;
+              const level = mdata[key] || '';
+              const fill = level ? levelColors[level] || 'FFFFFF' : 'FFFFFF';
+              return new TableCell({ borders, width:{ size: mColW[pi+1], type: WidthType.DXA }, margins: cellMarg,
+                shading:{ fill, type: ShadingType.CLEAR }, verticalAlign: VerticalAlign.CENTER,
+                children:[new Paragraph({ alignment: AlignmentType.CENTER,
+                  children:[new TextRun({ text: level, bold: !!level, size: 18 })] })] });
+            })
+          ]
+        }));
+      });
+
+      return new Table({ width: tblW, columnWidths: mColW, rows: mRows });
     }
 
     // ── Document sections ────────────────────────────────────
@@ -1477,15 +2067,14 @@ async function generateDocx() {
     children.push(para('2.1. Mục tiêu của học phần', { bold: true, size: 22 }));
     children.push(para('* Mục tiêu chung', { bold: true, italics: true }));
     children.push(para(d.mucTieuChung || ''));
-    children.push(para('* Mục tiêu cụ thể', { bold: true, italics: true, spacing: { before: 80 } }));
+    children.push(para('* Mục tiêu cụ thể', { bold: true, italics: true }));
 
-    // Bullet points for specific objectives
     const objLines = (d.mucTieuCuThe || '').split('\n').filter(l => l.trim());
     for (const line of objLines) {
-      const isHeader = line.startsWith('*') || line.startsWith('-  ') || line.startsWith('# ');
+      const isHeader = line.startsWith('*');
       children.push(new Paragraph({
         spacing: { before: 40, after: 40 },
-        indent: isHeader ? { left: 0 } : { left: 360, hanging: 0 },
+        indent: isHeader ? {} : { left: 360 },
         children: [new TextRun({ text: line.replace(/^[\*\-]\s*/, ''), bold: isHeader, size: 20 })]
       }));
     }
@@ -1515,58 +2104,53 @@ async function generateDocx() {
     });
     children.push(cloTable, new Paragraph({ spacing: { before: 120 } }));
 
-    // Matrix
+    // Matrix – proper table
     children.push(para('b. Ma trận đóng góp CLO để đạt PLO/PI', { bold: true }));
-    const matrixLines = (d.maTranh || '').split('\n');
-    for (const line of matrixLines) {
-      children.push(new Paragraph({
-        spacing: { before: 20, after: 20 },
-        children: [new TextRun({ text: line, size: 18, font: 'Courier New' })]
-      }));
+    const matrixTable = buildMatrixTable(d.matrix);
+    if (matrixTable) {
+      children.push(matrixTable);
+      children.push(para('Ghi chú: I = Introduced (Giới thiệu), R = Reinforced (Củng cố), M = Mastery (Thành thạo), A = Assessed (Đánh giá)', { italics: true, size: 16 }));
     }
-
     children.push(new Paragraph({ spacing: { before: 120 } }));
 
     // Section 3 – Mô tả vắn tắt
     children.push(sectionTitle('3', 'Mô tả vắn tắt nội dung học phần'));
     children.push(para(d.moTa || ''));
 
-    // Section 4 – Rubric placeholder
+    // Section 4 – Rubric & Thang điểm
     children.push(sectionTitle('4', 'Rubric đánh giá chuẩn đầu ra'));
-    children.push(para('(Giữ nguyên từ đề cương chuẩn – xem file gốc)', { italics: true, color: '888888' }));
+    if (d.rubric && d.rubric.source === 'manual') {
+      const rubricLines = (d.rubric.detail || '').split('\n').filter(l => l.trim());
+      for (const line of rubricLines) {
+        children.push(new Paragraph({ spacing: { before: 40, after: 40 }, indent: { left: 360 },
+          children: [new TextRun({ text: '– ' + line.replace(/^[-–]\s*/, ''), size: 20 })] }));
+      }
+      if (!rubricLines.length) children.push(para('(Xem đề cương mẫu)', { italics: true, color: '888888' }));
+    } else {
+      children.push(para('(Copy từ đề cương mẫu/tham khảo theo lựa chọn của giảng viên)', { italics: true, color: '888888' }));
+    }
 
     // Section 5 – Kế hoạch đánh giá
     children.push(sectionTitle('5', 'Kế hoạch đánh giá học phần'));
-    children.push(para('(Giữ nguyên từ đề cương chuẩn – xem file gốc)', { italics: true, color: '888888' }));
+    if (d.rubric && d.rubric.source === 'manual' && d.rubric.text) {
+      const thangLines = d.rubric.text.split('\n').filter(l => l.trim());
+      for (const line of thangLines) {
+        children.push(new Paragraph({ spacing: { before: 40, after: 40 }, indent: { left: 360 },
+          children: [new TextRun({ text: '– ' + line.replace(/^[-–]\s*/, ''), size: 20 })] }));
+      }
+    } else {
+      children.push(para('(Copy từ đề cương mẫu/tham khảo theo lựa chọn của giảng viên)', { italics: true, color: '888888' }));
+    }
 
-    // Section 6 – Nội dung chi tiết
-    children.push(sectionTitle('6', 'Nội dung chi tiết và kế hoạch giảng dạy'));
+    // Section 6 – Nội dung chi tiết (proper merged-header table)
+    children.push(sectionTitle('6', 'Nội dung chi tiết học phần, phương pháp giảng dạy, tiến độ và hoạt động dạy – học'));
 
     const sessions = parseSessions(d.noiDung || '');
     if (sessions.length > 0) {
-      const colW = [900, 3200, 1800, 1800, 1660];
-      const sessionTable = new Table({
-        width: tblW,
-        columnWidths: colW,
-        rows: [
-          makeHeaderRow(['Buổi', 'Nội dung dạy – học', 'Nội dung tự học', 'PPDH', 'Đánh giá'], colW),
-          ...sessions.map(row => new TableRow({
-            children: colW.map((w, i) => new TableCell({
-              borders, width: { size: w, type: WidthType.DXA }, margins: cellMarg,
-              children: [new Paragraph({ children: [new TextRun({ text: row[i] || '', size: 18 })] })]
-            }))
-          }))
-        ]
-      });
-      children.push(sessionTable);
+      children.push(buildSessionTable(sessions));
     } else {
-      // Fallback: raw text
-      const ndLines = (d.noiDung || '').split('\n');
-      for (const line of ndLines) {
-        children.push(new Paragraph({ spacing: { before: 20, after: 20 }, children: [new TextRun({ text: line, size: 18 })] }));
-      }
+      children.push(para('(Chưa có nội dung. Nhấn "AI Gợi ý lịch dạy" để tạo.)', { italics: true, color: '888888' }));
     }
-
     children.push(new Paragraph({ spacing: { before: 120 } }));
 
     // Section 7 – Yêu cầu GV
