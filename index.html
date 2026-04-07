@@ -643,14 +643,29 @@ function toggleApiPanel() {
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) { showToast('Vui lòng nhập API Key!', 'danger'); return; }
-  localStorage.setItem('gemini_api_key', key);
-  document.getElementById('apiKeyStatus').innerHTML =
-    '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu API Key thành công!</span>';
-  showToast('API Key đã được lưu!', 'success');
+  if (_saveToStorage('gemini_api_key', key)) {
+    document.getElementById('apiKeyStatus').innerHTML =
+      '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu API Key thành công!</span>';
+    showToast('API Key đã được lưu!', 'success');
+  }
 }
 
 function getApiKey() {
-  return localStorage.getItem('gemini_api_key') || '';
+  try {
+    return localStorage.getItem('gemini_api_key') || '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function _saveToStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (_) {
+    showToast('⚠️ Trình duyệt đang chặn lưu trữ dữ liệu. Hãy tắt "Tracking Prevention" hoặc dùng Chrome.', 'warning');
+    return false;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -911,12 +926,17 @@ async function aiSuggest(field) {
   const data = collectData();
   if (!data.tenMonViet) { showToast('Vui lòng nhập tên môn học trước!', 'warning'); return; }
 
-  // Read uploaded files
   showOverlay('AI đang đọc tài liệu và tạo nội dung…');
-  const templateText = await readDocxText('templateFile');
-  const refText      = await readDocxText('refFile');
-  const ploText      = await readDocxText('ploFile');
-  const bookText     = await readDocxText('bookFile');
+
+  let templateText, refText, ploText, bookText;
+  try {
+    templateText = await readDocxText('templateFile');
+    refText      = await readDocxText('refFile');
+    ploText      = await readDocxText('ploFile');
+    bookText     = await readDocxText('bookFile');
+  } catch (_) {
+    templateText = refText = ploText = bookText = '';
+  }
 
   const contextBlock = `
 === ĐỀCƯƠNG CHUẨN (template) ===
@@ -1071,20 +1091,49 @@ ${contextBlock}`
 // Call Gemini API
 // ─────────────────────────────────────────────────────────────
 async function callGemini(apiKey, prompt) {
+  if (!apiKey) throw new Error('Chưa có API Key. Nhấn nút "API Key" ở góc trên phải để nhập.');
+
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
   };
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || 'API error ' + res.status);
+
+  // Timeout 30 giây
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+  } catch (fetchErr) {
+    if (fetchErr.name === 'AbortError') throw new Error('Quá 30 giây không có phản hồi. Vui lòng thử lại.');
+    throw fetchErr;
+  } finally {
+    clearTimeout(timer);
   }
+
+  if (!res.ok) {
+    let msg = `Lỗi API (${res.status})`;
+    try {
+      const errBody = await res.json();
+      msg = errBody.error?.message || msg;
+    } catch (_) {}
+
+    if (res.status === 429) {
+      throw new Error('⚠️ API Key đã hết quota hoặc bị rate limit. Vui lòng chờ 1–2 phút rồi thử lại, hoặc kiểm tra hạn mức tại aistudio.google.com.');
+    }
+    if (res.status === 400) {
+      throw new Error('API Key không hợp lệ. Vui lòng kiểm tra lại.');
+    }
+    throw new Error(msg);
+  }
+
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
