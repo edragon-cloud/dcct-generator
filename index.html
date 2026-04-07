@@ -894,6 +894,10 @@ function renderCLOInputs() {
   // Re-render matrix when CLO count changes
   if (document.getElementById('matrixTable')) renderMatrix();
 }
+// ─── Matrix state — khai báo sớm để renderCLOInputs dùng được ─
+let matrixData = {};
+let matrixPLOs = ['PLO1\nPI 1.1','PLO2\nPI 2.2','PLO3\nPI 3.1'];
+
 renderCLOInputs();
 
 // ─────────────────────────────────────────────────────────────
@@ -990,8 +994,6 @@ addTaiLieu({ type: 'ref'  });
 // ─────────────────────────────────────────────────────────────
 // Matrix table (CLO × PLO)
 // ─────────────────────────────────────────────────────────────
-let matrixData = {}; // { "CLO1_PLO1": "M", ... }
-let matrixPLOs = ['PLO1\nPI 1.1','PLO2\nPI 2.2','PLO3\nPI 3.1'];
 
 function renderMatrix() {
   const n = parseInt(document.getElementById('soCLO').value) || 3;
