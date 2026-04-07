@@ -304,12 +304,57 @@
 <!-- ═══ API KEY PANEL ═════════════════════════════════════════ -->
 <div id="apiPanel" class="container mt-3" style="display:none">
   <div class="api-banner">
-    <strong><i class="bi bi-key-fill text-warning me-2"></i>Gemini API Key</strong>
-    <p class="mb-2 mt-1">Truy cập <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> để tạo API Key miễn phí. Key chỉ lưu trong trình duyệt của bạn, không gửi đến bất kỳ server nào.</p>
-    <div class="d-flex gap-2">
-      <input type="password" id="apiKeyInput" class="form-control" placeholder="AIza..." style="max-width:420px" />
-      <button class="btn btn-warning fw-bold" onclick="saveApiKey()"><i class="bi bi-save me-1"></i>Lưu Key</button>
+    <strong><i class="bi bi-key-fill text-warning me-2"></i>Cài đặt AI API Keys</strong>
+    <p class="mb-3 mt-1" style="font-size:.88rem">Key chỉ lưu trong trình duyệt của bạn, không gửi đến server nào ngoài Google/OpenAI.</p>
+
+    <div class="row g-3">
+      <!-- Gemini -->
+      <div class="col-md-6">
+        <div style="background:#fff;border:1px solid #e0c060;border-radius:8px;padding:14px">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg" width="20" onerror="this.style.display='none'">
+            <strong>Google Gemini</strong>
+            <span class="badge bg-success" style="font-size:.7rem">Miễn phí</span>
+            <span id="geminiStatus" class="ms-auto" style="font-size:.78rem"></span>
+          </div>
+          <div class="d-flex gap-2">
+            <input type="password" id="apiKeyInput" class="form-control form-control-sm"
+              placeholder="AIza..." />
+            <button class="btn btn-sm btn-warning fw-bold" onclick="saveApiKey()">
+              <i class="bi bi-save me-1"></i>Lưu
+            </button>
+          </div>
+          <div style="font-size:.75rem;color:#888;margin-top:6px">
+            Lấy key tại <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>
+            · 60 req/phút (free)
+          </div>
+        </div>
+      </div>
+
+      <!-- OpenAI -->
+      <div class="col-md-6">
+        <div style="background:#fff;border:1px solid #74aa9c;border-radius:8px;padding:14px">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#10a37f"><path d="M22.28 9.28a5.81 5.81 0 0 0-.5-4.77 5.93 5.93 0 0 0-6.38-2.85A5.82 5.82 0 0 0 11 0a5.93 5.93 0 0 0-5.65 4.1 5.82 5.82 0 0 0-3.89 2.82 5.93 5.93 0 0 0 .73 6.95 5.82 5.82 0 0 0 .5 4.78 5.93 5.93 0 0 0 6.38 2.84A5.81 5.81 0 0 0 13 24a5.93 5.93 0 0 0 5.65-4.1 5.82 5.82 0 0 0 3.89-2.82 5.93 5.93 0 0 0-.73-6.95z"/></svg>
+            <strong>OpenAI GPT-4o mini</strong>
+            <span class="badge bg-secondary" style="font-size:.7rem">Dự phòng</span>
+            <span id="openaiStatus" class="ms-auto" style="font-size:.78rem"></span>
+          </div>
+          <div class="d-flex gap-2">
+            <input type="password" id="openaiKeyInput" class="form-control form-control-sm"
+              placeholder="sk-..." />
+            <button class="btn btn-sm fw-bold" style="background:#10a37f;color:#fff" onclick="saveOpenAIKey()">
+              <i class="bi bi-save me-1"></i>Lưu
+            </button>
+          </div>
+          <div style="font-size:.75rem;color:#888;margin-top:6px">
+            Lấy key tại <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
+            · Tự động dùng khi Gemini bị rate limit
+          </div>
+        </div>
+      </div>
     </div>
+
     <div id="apiKeyStatus" class="mt-2"></div>
   </div>
 </div>
@@ -635,39 +680,66 @@ function toggleApiPanel() {
   const p = document.getElementById('apiPanel');
   p.style.display = p.style.display === 'none' ? 'block' : 'none';
   if (p.style.display === 'block') {
-    const saved = localStorage.getItem('gemini_api_key');
-    if (saved) document.getElementById('apiKeyInput').value = saved;
+    try {
+      const gk = localStorage.getItem('gemini_api_key');
+      if (gk) { document.getElementById('apiKeyInput').value = gk; _apiKeyMemory = gk;
+        document.getElementById('geminiStatus').innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu</span>'; }
+      const ok = localStorage.getItem('openai_api_key');
+      if (ok) { document.getElementById('openaiKeyInput').value = ok; _openaiKeyMemory = ok;
+        document.getElementById('openaiStatus').innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu</span>'; }
+    } catch (_) {}
   }
 }
 
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key) { showToast('Vui lòng nhập API Key!', 'danger'); return; }
-  _apiKeyMemory = key; // luôn lưu vào memory trước
-  _saveToStorage('gemini_api_key', key); // cố lưu localStorage (có thể bị chặn)
-  document.getElementById('apiKeyStatus').innerHTML =
-    '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu API Key thành công!</span>';
-  showToast('API Key đã được lưu!', 'success');
+  if (!key) { showToast('Vui lòng nhập Gemini API Key!', 'danger'); return; }
+  _apiKeyMemory = key;
+  _saveToStorage('gemini_api_key', key);
+  document.getElementById('geminiStatus').innerHTML =
+    '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu</span>';
+  document.getElementById('apiKeyStatus').innerHTML = '';
+  showToast('Gemini API Key đã lưu!', 'success');
 }
 
 // ─────────────────────────────────────────────────────────────
-// API Key — lưu cả trong memory lẫn localStorage
+// API Key — Gemini + OpenAI, lưu memory + localStorage
 // ─────────────────────────────────────────────────────────────
-let _apiKeyMemory = ''; // fallback khi browser chặn localStorage
+let _apiKeyMemory    = '';
+let _openaiKeyMemory = '';
 
-function getApiKey() {
-  if (_apiKeyMemory) return _apiKeyMemory;
+function getApiKey()    {
+  if (_apiKeyMemory)    return _apiKeyMemory;
   try { return localStorage.getItem('gemini_api_key') || ''; } catch (_) { return ''; }
+}
+function getOpenAIKey() {
+  if (_openaiKeyMemory) return _openaiKeyMemory;
+  try { return localStorage.getItem('openai_api_key') || ''; } catch (_) { return ''; }
 }
 
 function _saveToStorage(key, value) {
-  try {
-    localStorage.setItem(key, value);
-    return true;
-  } catch (_) {
-    showToast('⚠️ Trình duyệt đang chặn lưu trữ. Hãy tắt "Tracking Prevention" hoặc dùng Chrome.', 'warning');
-    return false;
-  }
+  try { localStorage.setItem(key, value); return true; }
+  catch (_) { return false; }
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) { showToast('Vui lòng nhập Gemini API Key!', 'danger'); return; }
+  _apiKeyMemory = key;
+  _saveToStorage('gemini_api_key', key);
+  document.getElementById('geminiStatus').innerHTML =
+    '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu</span>';
+  showToast('Gemini API Key đã lưu!', 'success');
+}
+
+function saveOpenAIKey() {
+  const key = document.getElementById('openaiKeyInput').value.trim();
+  if (!key) { showToast('Vui lòng nhập OpenAI API Key!', 'danger'); return; }
+  _openaiKeyMemory = key;
+  _saveToStorage('openai_api_key', key);
+  document.getElementById('openaiStatus').innerHTML =
+    '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã lưu</span>';
+  showToast('OpenAI API Key đã lưu!', 'success');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -918,9 +990,10 @@ function validate() {
 // AI Suggest
 // ─────────────────────────────────────────────────────────────
 async function aiSuggest(field) {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    showToast('Vui lòng nhập Gemini API Key trước!', 'warning');
+  const geminiKey = getApiKey();
+  const openaiKey = getOpenAIKey();
+  if (!geminiKey && !openaiKey) {
+    showToast('Vui lòng nhập ít nhất 1 API Key (Gemini hoặc OpenAI)!', 'warning');
     toggleApiPanel();
     return;
   }
@@ -1049,7 +1122,7 @@ ${contextBlock}`
 
   try {
     const prompt = prompts[field];
-    const response = await callGemini(apiKey, prompt);
+    const response = await callAI(prompt);
 
     if (field === 'clo') {
       // Parse JSON response
@@ -1084,9 +1157,36 @@ ${contextBlock}`
 // ─────────────────────────────────────────────────────────────
 // Call Gemini API
 // ─────────────────────────────────────────────────────────────
-async function callGemini(apiKey, prompt, retryCount = 0) {
-  if (!apiKey) throw new Error('Chưa có API Key. Nhấn nút "API Key" ở góc trên phải để nhập.');
+// ─────────────────────────────────────────────────────────────
+// Call Gemini — tự fallback sang OpenAI nếu 429
+// ─────────────────────────────────────────────────────────────
+async function callAI(prompt) {
+  const geminiKey = getApiKey();
+  const openaiKey = getOpenAIKey();
 
+  if (!geminiKey && !openaiKey) {
+    throw new Error('Chưa có API Key. Nhấn nút "API Key" ở góc trên phải để nhập.');
+  }
+
+  // Thử Gemini trước
+  if (geminiKey) {
+    try {
+      return await callGemini(geminiKey, prompt);
+    } catch (err) {
+      const is429 = err.message.includes('rate limit') || err.message.includes('429') || err.message.includes('quota');
+      if (is429 && openaiKey) {
+        showOverlay('Gemini bị rate limit, đang chuyển sang GPT-4o mini…');
+        return await callOpenAI(openaiKey, prompt);
+      }
+      throw err; // lỗi khác thì vẫn throw
+    }
+  }
+
+  // Chỉ có OpenAI key
+  return await callOpenAI(openaiKey, prompt);
+}
+
+async function callGemini(apiKey, prompt, retryCount = 0) {
   const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -1095,7 +1195,6 @@ async function callGemini(apiKey, prompt, retryCount = 0) {
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30000);
-
   let res;
   try {
     res = await fetch(url, {
@@ -1112,21 +1211,58 @@ async function callGemini(apiKey, prompt, retryCount = 0) {
   }
 
   if (!res.ok) {
-    // Tự retry 1 lần sau 8 giây nếu bị 429
     if (res.status === 429 && retryCount < 1) {
-      showOverlay('API bận, tự động thử lại sau 8 giây…');
-      await new Promise(r => setTimeout(r, 8000));
+      showOverlay('Gemini bận, thử lại sau 5 giây…');
+      await new Promise(r => setTimeout(r, 5000));
       return callGemini(apiKey, prompt, retryCount + 1);
     }
-    if (res.status === 429) throw new Error('API Key đang bị rate limit. Vui lòng chờ 1–2 phút rồi thử lại.');
-    if (res.status === 400) throw new Error('API Key không hợp lệ. Vui lòng kiểm tra lại.');
-    let msg = `Lỗi API (${res.status})`;
+    if (res.status === 429) throw new Error('rate limit 429');
+    if (res.status === 400) throw new Error('Gemini API Key không hợp lệ.');
+    let msg = `Lỗi Gemini (${res.status})`;
     try { const e = await res.json(); msg = e.error?.message || msg; } catch (_) {}
     throw new Error(msg);
   }
 
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callOpenAI(apiKey, prompt) {
+  const url = 'https://api.openai.com/v1/chat/completions';
+  const body = {
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.6,
+    max_tokens: 2048
+  };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+  } catch (fetchErr) {
+    if (fetchErr.name === 'AbortError') throw new Error('OpenAI: Quá 30 giây không phản hồi.');
+    throw fetchErr;
+  } finally {
+    clearTimeout(timer);
+  }
+
+  if (!res.ok) {
+    if (res.status === 429) throw new Error('OpenAI cũng đang bị rate limit. Vui lòng thử lại sau.');
+    if (res.status === 401) throw new Error('OpenAI API Key không hợp lệ.');
+    let msg = `Lỗi OpenAI (${res.status})`;
+    try { const e = await res.json(); msg = e.error?.message || msg; } catch (_) {}
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || '';
 }
 
 // ─────────────────────────────────────────────────────────────
