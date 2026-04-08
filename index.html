@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tạo Đề Cương Chi Tiết – DNU</title>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts – Nunito Sans (clean, professional, Vietnamese-friendly) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=Barlow:wght@500;700&display=swap" rel="stylesheet" />
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -30,34 +30,91 @@
     *, *::before, *::after { box-sizing: border-box; }
 
     :root {
-      --primary:    #1a3c5e;
-      --primary-lt: #e8f0f8;
-      --accent:     #c8902a;
-      --success:    #198754;
+      /* DNU Brand Colors */
+      --primary:    #1B3A6B;   /* Deep Navy (from logo DNU text) */
+      --primary-lt: #E8EDF5;
+      --primary-mid: #2B5BA8;  /* Medium blue */
+      --accent:     #E05C1A;   /* DNU Orange-Red */
+      --accent2:    #C0391A;   /* Deeper red */
+      --success:    #1a8754;
       --danger:     #dc3545;
-      --text:       #1e2a38;
-      --muted:      #6c757d;
-      --border:     #d0dae6;
+      --text:       #1a2640;
+      --muted:      #6c7a8d;
+      --border:     #cfd8e8;
       --radius:     10px;
-      --shadow:     0 4px 18px rgba(26,60,94,.10);
+      --shadow:     0 4px 18px rgba(27,58,107,.10);
+      --gradient:   linear-gradient(135deg, #1B3A6B 0%, #2B5BA8 50%, #E05C1A 100%);
     }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Nunito Sans', sans-serif;
       font-size: 16px;
       color: var(--text);
-      background: #f4f7fb;
+      background: #f0f4fa;
       min-height: 100vh;
     }
 
     /* ── Top bar ──────────────────────────────── */
     .top-bar {
-      background: var(--primary);
-      padding: 14px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+      background: linear-gradient(135deg, #1B3A6B 0%, #1e4fa8 60%, #b8340f 100%);
+      padding: 0;
+      box-shadow: 0 3px 12px rgba(0,0,0,.25);
+      position: relative;
+      overflow: hidden;
     }
-    .top-bar .logo-txt { color: #fff; font-size: 1.15rem; font-weight: 700; letter-spacing: .3px; }
-    .top-bar .sub-txt  { color: #a8c4e0; font-size: .82rem; }
+    /* DNU decorative pattern overlay */
+    .top-bar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 1px, transparent 40px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 1px, transparent 40px);
+      pointer-events: none;
+    }
+    .top-bar::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 200px;
+      background: linear-gradient(135deg, transparent, rgba(224,92,26,.25));
+      clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%);
+      pointer-events: none;
+    }
+    .top-bar .inner {
+      position: relative;
+      z-index: 1;
+      padding: 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    /* DNU Logo SVG inline */
+    .dnu-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .dnu-logo-svg {
+      height: 46px;
+      width: auto;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.3));
+    }
+    .logo-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,.3);
+    }
+    .logo-txt {
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: .3px;
+      font-family: 'Barlow', sans-serif;
+      text-transform: uppercase;
+    }
+    .sub-txt { color: rgba(255,255,255,.75); font-size: .78rem; margin-top: 1px; }
 
     /* ── Step progress ────────────────────────── */
     .step-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 18px 0; }
@@ -164,14 +221,14 @@
     .btn-ai:hover { opacity: .88; color: #fff; }
     .btn-ai:disabled { opacity: .5; cursor: not-allowed; }
     .btn-generate {
-      background: linear-gradient(135deg, var(--accent), #e8a040);
+      background: linear-gradient(135deg, var(--accent), #c0391a);
       border: none; color: #fff;
       padding: 14px 36px; font-size: 1.05rem; font-weight: 700;
       border-radius: 10px; letter-spacing: .3px;
-      box-shadow: 0 4px 14px rgba(200,144,42,.30);
+      box-shadow: 0 4px 14px rgba(224,92,26,.35);
       transition: transform .15s, box-shadow .15s;
     }
-    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(200,144,42,.40); }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(224,92,26,.45); }
     .btn-generate:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
     /* ── API key banner ───────────────────────── */
@@ -295,6 +352,19 @@
     }
     .btn-ai-sm:hover { opacity: .85; }
 
+    /* Placeholder: mờ và nghiêng để GV biết là ví dụ */
+    ::placeholder { color: #adb5bd !important; font-style: italic; opacity: 1; }
+    ::-webkit-input-placeholder { color: #adb5bd; font-style: italic; }
+    ::-moz-placeholder { color: #adb5bd; font-style: italic; }
+
+    /* ── Placeholder italic mờ ────────────────── */
+    input::placeholder, textarea::placeholder {
+      color: #aab4c4;
+      font-style: italic;
+      font-size: .88em;
+    }
+    .auto-calc::placeholder { font-style: normal; color: #aab4c4; }
+
     @media (max-width: 576px) {
       .section-body { padding: 16px; }
       .btn-generate { width: 100%; }
@@ -306,10 +376,30 @@
 <!-- ═══ TOP BAR ═══════════════════════════════════════════════ -->
 <div class="top-bar">
   <div class="container">
-    <div class="d-flex align-items-center gap-3">
+    <div class="inner">
+      <!-- DNU Logo SVG (transparent background, works in dark/light) -->
+      <div class="dnu-logo-wrap">
+        <svg class="dnu-logo-svg" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg">
+          <!-- Book/D shape left -->
+          <rect x="4" y="8" width="28" height="34" rx="4" fill="#E05C1A"/>
+          <rect x="4" y="8" width="20" height="34" rx="4" fill="#1B3A6B"/>
+          <rect x="8" y="12" width="12" height="26" rx="2" fill="white"/>
+          <!-- Book/N shape right -->
+          <rect x="36" y="8" width="28" height="34" rx="4" fill="#E05C1A"/>
+          <rect x="40" y="12" width="5" height="26" fill="white"/>
+          <rect x="55" y="12" width="5" height="26" fill="white"/>
+          <polygon points="45,12 59,38 59,12" fill="white" opacity=".85"/>
+          <!-- Bottom bar connecting -->
+          <rect x="4" y="46" width="60" height="5" rx="2" fill="rgba(255,255,255,.4)"/>
+          <!-- Text DNU -->
+          <text x="75" y="42" font-family="Barlow,sans-serif" font-weight="700" font-size="32" fill="white" letter-spacing="1">DNU</text>
+          <text x="76" y="58" font-family="Nunito Sans,sans-serif" font-weight="400" font-size="12" fill="rgba(255,255,255,.75)" letter-spacing="3">UNIVERSITY</text>
+        </svg>
+      </div>
+      <div class="logo-divider"></div>
       <div>
-        <div class="logo-txt"><i class="bi bi-mortarboard-fill me-2"></i>Đề Cương Chi Tiết Generator</div>
-        <div class="sub-txt">Trường Đại học Đồng Nai – Khoa Ngoại Ngữ</div>
+        <div class="logo-txt">Đề Cương Chi Tiết Generator</div>
+        <div class="sub-txt">Khoa Ngoại Ngữ – Trường Đại học Đồng Nai</div>
       </div>
       <div class="ms-auto">
         <button class="btn btn-sm btn-outline-light" onclick="toggleApiPanel()">
@@ -435,20 +525,14 @@
     <div class="section-body">
       <div class="row g-3">
 
-        <!-- Tên môn học -->
-        <div class="col-md-6">
-          <label>Tên môn học (tiếng Việt)<span class="required-star">*</span></label>
-          <input type="text" id="tenMonViet" class="form-control" placeholder="VD: Nói 4" />
-        </div>
-        <div class="col-md-6">
-          <label>Tên môn học (tiếng Anh)<span class="required-star">*</span></label>
-          <input type="text" id="tenMonAnh" class="form-control" placeholder="VD: Speaking 4" />
-        </div>
-
-        <!-- Mã học phần & khối kiến thức -->
+        <!-- Hàng 1: Tên môn học (TV) | Tên môn học (EN) | Khối kiến thức -->
         <div class="col-md-4">
-          <label>Mã học phần<span class="required-star">*</span></label>
-          <input type="text" id="maHP" class="form-control" placeholder="VD: 2110336" />
+          <label>Tên môn học (tiếng Việt)<span class="required-star">*</span></label>
+          <input type="text" id="tenMonViet" class="form-control" placeholder="Nói 4" />
+        </div>
+        <div class="col-md-4">
+          <label>Tên môn học (tiếng Anh)<span class="required-star">*</span></label>
+          <input type="text" id="tenMonAnh" class="form-control" placeholder="Speaking 4" />
         </div>
         <div class="col-md-4">
           <label>Học phần thuộc khối kiến thức</label>
@@ -460,114 +544,118 @@
             <option value="Ngành">Ngành (chuyên ngành)</option>
           </select>
         </div>
-        <div class="col-md-4">
-          <label>Số tín chỉ (LT + TH)<span class="required-star">*</span></label>
-          <input type="text" id="soTC" class="form-control" placeholder="VD: 2 (1 LT + 1 TH)" />
-        </div>
 
-        <!-- Số tiết -->
-        <div class="col-md-3">
+        <!-- Hàng 2: Mã học phần | Số TC lý thuyết | Số TC thực hành -->
+        <div class="col-md-4">
+          <label>Mã học phần<span class="required-star">*</span></label>
+          <input type="text" id="maHP" class="form-control" placeholder="2110336" />
+        </div>
+        <div class="col-md-4">
+          <label>Số tín chỉ lý thuyết<span class="required-star">*</span></label>
+          <input type="number" id="soTCLT" class="form-control" min="0" max="10" placeholder="1" oninput="updateSoTC()" />
+        </div>
+        <div class="col-md-4">
+          <label>Số tín chỉ thực hành<span class="required-star">*</span></label>
+          <input type="number" id="soTCTH" class="form-control" min="0" max="10" placeholder="1" oninput="updateSoTC()" />
+        </div>
+        <!-- hidden soTC for backward compat -->
+        <input type="hidden" id="soTC" value="" />
+
+        <!-- Hàng 3: Số tiết LT | TH | Tự học | Tổng giờ | Số buổi -->
+        <div class="col">
           <label>Số tiết lý thuyết<span class="required-star">*</span></label>
           <input type="number" id="soTietLT" class="form-control" min="0" placeholder="15" oninput="calcHours()" />
         </div>
-        <div class="col-md-3">
+        <div class="col">
           <label>Số tiết thực hành<span class="required-star">*</span></label>
           <input type="number" id="soTietTH" class="form-control" min="0" placeholder="30" oninput="calcHours()" />
         </div>
-        <div class="col-md-3">
+        <div class="col">
           <label>Số tiết tự học<span class="required-star">*</span></label>
           <input type="number" id="soTietTuHoc" class="form-control" min="0" placeholder="55" oninput="calcHours()" />
         </div>
-        <div class="col-md-3">
-          <label>Tổng số giờ học tập <i class="bi bi-calculator text-primary"></i></label>
-          <input type="text" id="tongGio" class="form-control auto-calc" readonly placeholder="Tự động tính" />
+        <div class="col">
+          <label>Tổng giờ <i class="bi bi-calculator text-primary"></i></label>
+          <input type="text" id="tongGio" class="form-control auto-calc" readonly placeholder="Tự tính" />
         </div>
-        <div class="col-md-3">
-          <label>Số buổi học <i class="bi bi-calendar3 text-primary"></i></label>
-          <input type="number" id="soBuoi" class="form-control auto-calc" min="1" max="30" placeholder="Tự động tính"
-            oninput="renderSessionFrames()" />
-          <div class="hint-text">= LT + TH tiết (tự điền hoặc nhập tay)</div>
+        <div class="col">
+          <label>Số buổi học</label>
+          <input type="number" id="soBuoi" class="form-control" min="1" max="30" placeholder="Tự tính"
+            oninput="soBuoiManual()" />
+          <div id="soBuoiHint" class="hint-text" style="font-size:.75rem;color:#888"></div>
         </div>
 
-        <!-- Học phần liên quan -->
+        <!-- Hàng 4: Tiên quyết | Học trước | Song hành -->
         <div class="col-md-4">
           <label>Học phần tiên quyết</label>
-          <input type="text" id="tienQuyet" class="form-control" placeholder="Không (nếu không có)" />
+          <input type="text" id="tienQuyet" class="form-control" placeholder="Không" />
         </div>
         <div class="col-md-4">
           <label>Học phần học trước</label>
-          <input type="text" id="hocTruoc" class="form-control" placeholder="VD: Nói 3" />
+          <input type="text" id="hocTruoc" class="form-control" placeholder="Nói 3" />
         </div>
         <div class="col-md-4">
           <label>Học phần song hành</label>
           <input type="text" id="songHanh" class="form-control" placeholder="Không yêu cầu" />
         </div>
 
-        <!-- Đơn vị phụ trách -->
-        <div class="col-md-4">
+        <!-- Hàng 5: Khoa | Bộ môn | Ngành | Upload đề cương tham khảo -->
+        <div class="col-md-3">
           <label>Khoa<span class="required-star">*</span></label>
           <input type="text" id="khoa" class="form-control" value="Ngoại Ngữ" />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label>Bộ môn</label>
-          <input type="text" id="boMon" class="form-control" placeholder="VD: Kỹ năng Tiếng Anh" />
+          <input type="text" id="boMon" class="form-control" placeholder="Kỹ năng Tiếng Anh" />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label>Ngành giảng dạy</label>
           <input type="text" id="nganh" class="form-control" value="Sư phạm Tiếng Anh" />
         </div>
-
-        <!-- File upload phụ -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label><i class="bi bi-file-text me-1"></i>Đề cương tham khảo <span class="text-muted">(optional)</span></label>
-          <div class="upload-zone" id="dropZoneRef" ondragover="dragOver(event,'dropZoneRef')" ondragleave="dragLeave('dropZoneRef')" ondrop="dropFile(event,'refFile','dropZoneRef')" style="padding:14px">
+          <div class="upload-zone" id="dropZoneRef" ondragover="dragOver(event,'dropZoneRef')" ondragleave="dragLeave('dropZoneRef')" ondrop="dropFile(event,'refFile','dropZoneRef')" style="padding:10px">
             <input type="file" id="refFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZoneRef')" />
-            <div><i class="bi bi-upload text-muted"></i> Chọn file</div>
+            <div style="font-size:.82rem"><i class="bi bi-upload text-muted"></i> Chọn file</div>
             <div class="upload-name" id="refFile_name"></div>
           </div>
         </div>
-        <div class="col-md-4">
-          <label><i class="bi bi-file-earmark-check me-1"></i>Chuẩn đầu ra chương trình (PLOs) <span class="text-muted">(optional)</span></label>
-          <div class="upload-zone" id="dropZonePLO" ondragover="dragOver(event,'dropZonePLO')" ondragleave="dragLeave('dropZonePLO')" ondrop="dropFile(event,'ploFile','dropZonePLO')" style="padding:14px">
-            <input type="file" id="ploFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZonePLO')" />
-            <div><i class="bi bi-upload text-muted"></i> Chọn file</div>
-            <div class="upload-name" id="ploFile_name"></div>
-          </div>
+
+        <!-- Hàng 6: Chuẩn đầu ra chương trình (PLOs textarea) -->
+        <div class="col-12">
+          <label><i class="bi bi-file-earmark-check me-1 text-primary"></i>
+            Chuẩn đầu ra chương trình – PLOs &amp; PIs
+            <span class="text-muted" style="font-weight:400;font-size:.82rem"> — copy từ tài liệu chương trình đào tạo</span>
+          </label>
+          <textarea id="ploText" class="form-control" rows="5"
+            placeholder="PLO1 (PI 1.1): Có kiến thức nền tảng về ngôn ngữ học, phương pháp giảng dạy tiếng Anh...&#10;PLO2 (PI 2.1): Sử dụng thành thạo tiếng Anh ở trình độ B2–C1...&#10;PLO3 (PI 3.1): Thiết kế và tổ chức các hoạt động dạy học tiếng Anh..."></textarea>
+          <div class="hint-text">Dán nội dung PLOs trực tiếp — AI sẽ dùng để tạo CLOs và ma trận phù hợp</div>
         </div>
-        <div class="col-md-4">
-          <label><i class="bi bi-book me-1"></i>Giáo trình chính <span class="text-muted">(optional)</span></label>
-          <div class="upload-zone" id="dropZoneBook" ondragover="dragOver(event,'dropZoneBook')" ondragleave="dragLeave('dropZoneBook')" ondrop="dropFile(event,'bookFile','dropZoneBook')" style="padding:14px">
-            <input type="file" id="bookFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZoneBook')" />
-            <div><i class="bi bi-upload text-muted"></i> Chọn file</div>
-            <div class="upload-name" id="bookFile_name"></div>
-          </div>
+
       </div><!-- /.row -->
 
-      <!-- Thông tin giáo trình (thay upload file) -->
+      <!-- Thông tin Giáo trình chính -->
       <div class="row g-3 mt-1">
         <div class="col-12">
           <div style="background:#f0f7ff;border:1px solid #b8d4f0;border-radius:10px;padding:16px 18px">
             <div class="d-flex align-items-center gap-2 mb-3">
               <i class="bi bi-book-fill text-primary"></i>
               <strong>Thông tin Giáo trình chính</strong>
-              <span class="badge bg-primary ms-1" style="font-size:.7rem">Thay vì upload file — tiết kiệm token</span>
             </div>
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="fw-500">
-                  📋 Mục lục sách (Table of Contents)
+                <label class="fw-500">📋 Mục lục sách (Table of Contents)
                   <span class="hint-text ms-1">— copy từ đầu sách</span>
                 </label>
-                <textarea id="bookTOC" class="form-control" rows="8"
-                  placeholder="Unit 1: Urban & Rural Life (pp. 25–29)&#10;Unit 2: Health and Diet (pp. 47–51)&#10;Unit 3: Art and Artists (pp. 69–72)&#10;Unit 4: Personal Finance (pp. 91–95)&#10;..."></textarea>
+                <textarea id="bookTOC" class="form-control" rows="7"
+                  placeholder="Unit 1: Urban &amp; Rural Life (pp. 25–29)&#10;Unit 2: Health and Diet (pp. 47–51)&#10;Unit 3: Art and Artists (pp. 69–72)&#10;..."></textarea>
               </div>
               <div class="col-md-6">
-                <label class="fw-500">
-                  🎯 Learning Outcomes / Scope & Sequence
+                <label class="fw-500">🎯 Learning Outcomes / Scope &amp; Sequence
                   <span class="hint-text ms-1">— copy từ teacher book</span>
                 </label>
-                <textarea id="bookOutcomes" class="form-control" rows="8"
-                  placeholder="Unit 1 – Learning outcomes:&#10;- Vocabulary: house/apartment, urban/rural, public transport&#10;- Grammar: Future time conditionals&#10;- Speaking: Part 1 (describe hometown), Part 2 (cue card)&#10;&#10;Unit 2 – Learning outcomes:&#10;..."></textarea>
+                <textarea id="bookOutcomes" class="form-control" rows="7"
+                  placeholder="Unit 1 – Outcomes:&#10;- Vocabulary: house/apartment, urban/rural...&#10;- Grammar: Future time conditionals&#10;- Speaking: Part 1, Part 2 cue card&#10;&#10;Unit 2 – Outcomes:&#10;..."></textarea>
               </div>
             </div>
           </div>
@@ -893,18 +981,51 @@ function saveOpenAIKey() {
 // ─────────────────────────────────────────────────────────────
 // Auto-calc hours
 // ─────────────────────────────────────────────────────────────
+function updateSoTC() {
+  const lt = parseInt(document.getElementById('soTCLT')?.value) || 0;
+  const th = parseInt(document.getElementById('soTCTH')?.value) || 0;
+  const soTCEl = document.getElementById('soTC');
+  if (soTCEl && (lt || th)) soTCEl.value = `${lt+th} (${lt} LT + ${th} TH)`;
+}
+
 function calcHours() {
-  const lt = parseInt(document.getElementById('soTietLT').value) || 0;
-  const th = parseInt(document.getElementById('soTietTH').value) || 0;
-  const tu = parseInt(document.getElementById('soTietTuHoc').value) || 0;
-  document.getElementById('tongGio').value = (lt + th + tu) > 0 ? (lt + th + tu) + ' giờ' : '';
-  // Tự tính số buổi nếu chưa nhập tay
+  const lt  = parseInt(document.getElementById('soTietLT').value)    || 0;
+  const th  = parseInt(document.getElementById('soTietTH').value)    || 0;
+  const tu  = parseInt(document.getElementById('soTietTuHoc').value) || 0;
+  const total = lt + th + tu;
+  document.getElementById('tongGio').value = total > 0 ? total + ' giờ' : '';
+
+  const tongTiet = lt + th;
+  if (tongTiet < 1) return;
+
+  // Gợi ý số buổi hợp lệ (3, 4, hoặc 5 tiết/buổi)
+  const hints = [];
+  [3, 4, 5].forEach(tietPerBuoi => {
+    const buoi = Math.round(tongTiet / tietPerBuoi);
+    if (buoi > 0) hints.push(`${buoi} buổi (${tietPerBuoi} tiết/buổi)`);
+  });
+  const hintEl = document.getElementById('soBuoiHint');
+  if (hintEl) hintEl.innerHTML = `Gợi ý: <span class="text-primary" style="cursor:pointer" onclick="setSoBuoi(${Math.round(tongTiet/3)})">${hints[0]}</span>
+    · <span class="text-primary" style="cursor:pointer" onclick="setSoBuoi(${Math.round(tongTiet/4)})">${hints[1]}</span>
+    · <span class="text-primary" style="cursor:pointer" onclick="setSoBuoi(${Math.round(tongTiet/5)})">${hints[2]}</span>`;
+
+  // Tự điền nếu chưa nhập tay
   const soBuoiEl = document.getElementById('soBuoi');
   if (soBuoiEl && (!soBuoiEl.value || soBuoiEl.dataset.auto === 'true')) {
-    const total = lt + th;
-    if (total > 0) { soBuoiEl.value = total; soBuoiEl.dataset.auto = 'true'; }
+    soBuoiEl.value = Math.round(tongTiet / 3);
+    soBuoiEl.dataset.auto = 'true';
     renderSessionFrames();
   }
+}
+
+function setSoBuoi(n) {
+  const el = document.getElementById('soBuoi');
+  if (el) { el.value = n; el.dataset.auto = 'false'; renderSessionFrames(); }
+}
+
+function soBuoiManual() {
+  const el = document.getElementById('soBuoi');
+  if (el) { el.dataset.auto = 'false'; renderSessionFrames(); }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1187,54 +1308,60 @@ async function aiSuggestSession(idx) {
 
 THÔNG SỐ BUỔI: Tổng=${tong} giờ | LT=${lt} tiết | TH=${th} tiết | Tự học=${tuHoc} tiết
 
-YÊU CẦU — viết đủ 4 phần, ngắn gọn súc tích:
+VIẾT ĐỦ 4 PHẦN SAU, ĐÚNG NHÃN, KHÔNG BỎ SÓT:
 
 1. NỘI DUNG DẠY – HỌC TẠI LỚP:
-Lý thuyết: [nội dung từ mục lục/outcomes, cụ thể tên unit, trang sách]
-+ ...
-Thực hành: [hoạt động pair/group/drilling phù hợp]
-+ ...
+Lý thuyết: [tên unit/chủ đề cụ thể, trang sách, kiến thức chính]
++ [điểm ngữ pháp / từ vựng / kỹ năng cụ thể]
+Thực hành: [hoạt động cụ thể tại lớp]
++ [pair work / drilling / role play / discussion...]
 
 2. NỘI DUNG TỰ HỌC:
-+ [nhiệm vụ cụ thể]
-+ ...
++ [nhiệm vụ cụ thể: xem video, ghi âm, làm bài tập, đọc tài liệu...]
 
 3. PHƯƠNG PHÁP GIẢNG DẠY:
-[2–3 PPDH phù hợp nội dung buổi này]
+[Liệt kê 2–4 PPDH cách nhau bởi dấu phẩy. Chọn từ: Thuyết trình, Video analysis, Pair practice, Drilling, Group discussion, Role play, Task-based learning, Peer feedback, Flipped classroom, Guided practice, Error correction, Q&A]
 
 4. ĐÁNH GIÁ:
-[cách kiểm tra kiến thức buổi này]
+[Cách kiểm tra trong buổi: Chuyên cần / Bài tập ghi âm / Quan sát pair work / Quiz từ vựng / Peer assessment...]
 
 === NGUỒN NỘI DUNG ===
-${toc ? `MỤC LỤC:\n${toc.slice(0,800)}` : ''}
-${outc ? `OUTCOMES:\n${outc.slice(0,600)}` : ''}
-${refTxt ? `ĐỀ CƯƠNG THAM KHẢO (buổi ${idx}):\n${refTxt.slice(0,400)}` : ''}
+${toc  ? `MỤC LỤC:\n${toc.slice(0,800)}`  : '(Không có mục lục)'}
+${outc ? `OUTCOMES:\n${outc.slice(0,600)}` : '(Không có outcomes)'}
+${refTxt ? `ĐỀ CƯƠNG THAM KHẢO:\n${refTxt.slice(0,400)}` : ''}
 
-CHỈ viết 4 phần trên, không giải thích thêm.`;
+QUAN TRỌNG: Phần 3 (PHƯƠNG PHÁP GIẢNG DẠY) BẮT BUỘC phải có nội dung, không được để trống.`;
 
   showOverlay(`AI đang soạn nội dung Buổi ${idx}…`);
   try {
     const response = await callAI(prompt);
-    // Parse và điền vào 4 ô
+    // Parse 4 sections
     const lines = response.split('\n');
     let sec = '', noidung = '', tuhoc = '', ppdh = '', danhgia = '';
     for (const line of lines) {
-      const l = line.toLowerCase().replace(/\*|\d+\./g,'').trim();
-      if (l.includes('nội dung dạy') || l.includes('tại lớp'))   sec = 'nd';
-      else if (l.includes('tự học'))                              sec = 'th';
-      else if (l.includes('phương pháp') || l.startsWith('ppdh')) sec = 'pp';
-      else if (l.includes('đánh giá'))                            sec = 'dg';
-      else if (line.trim()) {
-        if (sec === 'nd') noidung  += line + '\n';
-        else if (sec === 'th') tuhoc += line + '\n';
-        else if (sec === 'pp') ppdh  += line + '\n';
-        else if (sec === 'dg') danhgia += line + '\n';
-      }
+      const lc = line.toLowerCase().replace(/[*#\d.]/g,'').trim();
+      if      (lc.startsWith('nội dung dạy') || lc.startsWith('tại lớp') || lc.startsWith('nội dung:')) sec = 'nd';
+      else if (lc.startsWith('tự học') || lc.startsWith('nội dung tự học'))     sec = 'th';
+      else if (lc.startsWith('phương pháp') || lc.startsWith('ppdh') || lc.startsWith('pp:')) sec = 'pp';
+      else if (lc.startsWith('đánh giá'))   sec = 'dg';
+
+      const clean = line.replace(/^\*\*|\*\*$/g,'').trim();
+      if (!clean) continue;
+      if      (sec === 'nd') noidung  += clean + '\n';
+      else if (sec === 'th') tuhoc    += clean + '\n';
+      else if (sec === 'pp') ppdh     += clean + '\n';
+      else if (sec === 'dg') danhgia  += clean + '\n';
+      else if (!sec)         noidung  += clean + '\n';
     }
-    frame.querySelector('.sf-noidung').value  = noidung.trim()  || response.slice(0,300);
-    frame.querySelector('.sf-tuhoc').value    = tuhoc.trim()    || '';
-    frame.querySelector('.sf-ppdh').value     = ppdh.trim()     || '';
-    frame.querySelector('.sf-danhgia').value  = danhgia.trim()  || '';
+    // If ppdh still empty, try extracting from any line with PPDH keyword
+    if (!ppdh.trim()) {
+      const ppLine = lines.find(l => /ppdh|phương pháp/i.test(l));
+      if (ppLine) ppdh = ppLine.replace(/.*(?:ppdh|phương pháp)[:\s]*/i,'').trim();
+    }
+    frame.querySelector('.sf-noidung').value  = noidung.trim()  || response.slice(0,400);
+    frame.querySelector('.sf-tuhoc').value    = tuhoc.trim();
+    frame.querySelector('.sf-ppdh').value     = ppdh.trim();
+    frame.querySelector('.sf-danhgia').value  = danhgia.trim();
     showToast(`✅ Đã gợi ý Buổi ${idx}!`, 'success');
   } catch(err) {
     showToast('Lỗi: ' + err.message, 'danger');
