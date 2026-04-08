@@ -249,6 +249,52 @@
     }
     .btn-remove-tl:hover { color: var(--danger); }
 
+    .session-frame {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .session-frame .sf-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+    .session-frame .sf-body {
+      padding: 12px 14px;
+      background: #fafcff;
+    }
+    .session-frame .sf-body label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 3px;
+    }
+    .session-frame textarea {
+      font-size: .84rem;
+      resize: vertical;
+      min-height: 70px;
+    }
+    .session-hours input {
+      width: 60px;
+      font-size: .82rem;
+      text-align: center;
+      padding: 4px 6px;
+    }
+    .btn-ai-sm {
+      background: linear-gradient(135deg, #1a3c5e, #2a6496);
+      border: none; color: #fff;
+      padding: 5px 12px; font-size: .78rem; font-weight: 600;
+      border-radius: 6px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-ai-sm:hover { opacity: .85; }
+
     @media (max-width: 576px) {
       .section-body { padding: 16px; }
       .btn-generate { width: 100%; }
@@ -436,6 +482,12 @@
           <label>Tổng số giờ học tập <i class="bi bi-calculator text-primary"></i></label>
           <input type="text" id="tongGio" class="form-control auto-calc" readonly placeholder="Tự động tính" />
         </div>
+        <div class="col-md-3">
+          <label>Số buổi học <i class="bi bi-calendar3 text-primary"></i></label>
+          <input type="number" id="soBuoi" class="form-control auto-calc" min="1" max="30" placeholder="Tự động tính"
+            oninput="renderSessionFrames()" />
+          <div class="hint-text">= LT + TH tiết (tự điền hoặc nhập tay)</div>
+        </div>
 
         <!-- Học phần liên quan -->
         <div class="col-md-4">
@@ -599,13 +651,23 @@
       <div class="mb-2">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <label class="mb-0">Nội dung chi tiết &amp; kế hoạch giảng dạy từng buổi</label>
-          <button class="btn-ai" onclick="aiSuggest('noiDung')"><i class="bi bi-stars"></i>AI Gợi ý lịch dạy</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" onclick="renderSessionFrames()">
+              <i class="bi bi-grid me-1"></i>Tạo khung buổi
+            </button>
+            <button class="btn-ai" onclick="aiSuggestAllSessions()">
+              <i class="bi bi-stars"></i>AI Gợi ý tất cả
+            </button>
+          </div>
         </div>
         <div class="hint-text mb-2">
-          <i class="bi bi-info-circle me-1"></i>AI sẽ dùng <strong>cấu trúc bảng từ đề cương mẫu</strong> và điền nội dung từ giáo trình.
+          <i class="bi bi-info-circle me-1"></i>Mỗi buổi có nút <strong>AI Gợi ý</strong> riêng — AI chỉ tạo 1 buổi mỗi lần, tránh timeout. Hoặc nhấn <strong>AI Gợi ý tất cả</strong> để tạo tuần tự.
         </div>
-        <textarea id="noiDung" class="form-control" rows="10"
-          placeholder="AI sẽ tạo kế hoạch theo đúng format đề cương mẫu, dựa vào nội dung sách giáo trình..."></textarea>
+        <div id="sessionFrames">
+          <div class="text-muted p-3 text-center" style="border:1px dashed #ccc;border-radius:8px">
+            Nhập số tiết LT + TH ở Phần A → số buổi sẽ tự động tạo khung bên dưới
+          </div>
+        </div>
       </div>
 
     </div>
@@ -836,6 +898,13 @@ function calcHours() {
   const th = parseInt(document.getElementById('soTietTH').value) || 0;
   const tu = parseInt(document.getElementById('soTietTuHoc').value) || 0;
   document.getElementById('tongGio').value = (lt + th + tu) > 0 ? (lt + th + tu) + ' giờ' : '';
+  // Tự tính số buổi nếu chưa nhập tay
+  const soBuoiEl = document.getElementById('soBuoi');
+  if (soBuoiEl && (!soBuoiEl.value || soBuoiEl.dataset.auto === 'true')) {
+    const total = lt + th;
+    if (total > 0) { soBuoiEl.value = total; soBuoiEl.dataset.auto = 'true'; }
+    renderSessionFrames();
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -987,8 +1056,207 @@ function formatTaiLieu(item, index) {
   return s;
 }
 
-// ─── Init ────────────────────────────────────────────────────
-addTaiLieu({ type: 'main' });
+// ─────────────────────────────────────────────────────────────
+// Session Frames — dynamic per-session input
+// ─────────────────────────────────────────────────────────────
+function renderSessionFrames() {
+  const n = parseInt(document.getElementById('soBuoi')?.value) || 0;
+  const container = document.getElementById('sessionFrames');
+  if (!n || n < 1) return;
+
+  // Keep existing data if already rendered
+  const existing = {};
+  container.querySelectorAll('.session-frame').forEach(f => {
+    const idx = f.dataset.idx;
+    existing[idx] = {
+      noidung: f.querySelector('.sf-noidung')?.value || '',
+      tuhoc:   f.querySelector('.sf-tuhoc')?.value   || '',
+      ppdh:    f.querySelector('.sf-ppdh')?.value    || '',
+      danhgia: f.querySelector('.sf-danhgia')?.value || '',
+      tong:    f.querySelector('.sf-tong')?.value    || '',
+      lt:      f.querySelector('.sf-lt')?.value      || '',
+      th:      f.querySelector('.sf-th')?.value      || '',
+      tuHoc:   f.querySelector('.sf-tuhoc-h')?.value || '',
+    };
+  });
+
+  // Default hours: buoi thường 9|1|3|5, GK ~buổi giữa
+  const mid = Math.ceil(n / 2);
+  let html = '';
+  for (let i = 1; i <= n; i++) {
+    const isGK = (i === mid);
+    const d = existing[i] || {};
+    const defTong = isGK ? '3' : '9';
+    const defLT   = isGK ? '0' : '1';
+    const defTH   = isGK ? '3' : '3';
+    const defTuH  = isGK ? '0' : '5';
+    html += `
+    <div class="session-frame" data-idx="${i}">
+      <div class="sf-header">
+        <span><i class="bi bi-calendar-week me-2"></i>Buổi ${i}${isGK ? ' — Kiểm tra giữa kỳ' : ''}</span>
+        <div class="d-flex align-items-center gap-2">
+          <div class="session-hours d-flex align-items-center gap-1">
+            <span style="font-size:.75rem;opacity:.8">Tổng</span>
+            <input class="form-control sf-tong" value="${d.tong||defTong}" title="Tổng giờ">
+            <span style="font-size:.75rem;opacity:.8">LT</span>
+            <input class="form-control sf-lt" value="${d.lt||defLT}" title="Lý thuyết">
+            <span style="font-size:.75rem;opacity:.8">TH</span>
+            <input class="form-control sf-th" value="${d.th||defTH}" title="Thực hành">
+            <span style="font-size:.75rem;opacity:.8">TuH</span>
+            <input class="form-control sf-tuhoc-h" value="${d.tuHoc||defTuH}" title="Tự học">
+          </div>
+          <button class="btn-ai-sm" onclick="aiSuggestSession(${i})">
+            <i class="bi bi-stars"></i>AI Gợi ý
+          </button>
+        </div>
+      </div>
+      <div class="sf-body">
+        <div class="row g-2">
+          <div class="col-12">
+            <label>📚 Nội dung dạy – học tại lớp</label>
+            <textarea class="form-control sf-noidung" rows="3"
+              placeholder="Tên Unit/Chủ đề (pp. XX)&#10;+ Lý thuyết: từ vựng, ngữ pháp, cấu trúc...&#10;+ Thực hành: pair work, role play, drilling...">${d.noidung||''}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label>📖 Nội dung tự học</label>
+            <textarea class="form-control sf-tuhoc" rows="2"
+              placeholder="+ Xem video...&#10;+ Làm bài tập...&#10;+ Ghi âm...">${d.tuhoc||''}</textarea>
+          </div>
+          <div class="col-md-3">
+            <label>🎯 Phương pháp GD</label>
+            <textarea class="form-control sf-ppdh" rows="2"
+              placeholder="Thuyết trình&#10;Pair practice&#10;Drilling...">${d.ppdh||''}</textarea>
+          </div>
+          <div class="col-md-3">
+            <label>✅ Đánh giá</label>
+            <textarea class="form-control sf-danhgia" rows="2"
+              placeholder="Chuyên cần&#10;Bài tập ghi âm&#10;Quan sát...">${d.danhgia||''}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function getSessionsData() {
+  const sessions = [];
+  document.querySelectorAll('.session-frame').forEach(f => {
+    sessions.push({
+      buoi:    `Buổi ${f.dataset.idx}`,
+      noidung: f.querySelector('.sf-noidung')?.value.trim() || '',
+      tuhoc:   f.querySelector('.sf-tuhoc')?.value.trim()   || '',
+      ppdh:    f.querySelector('.sf-ppdh')?.value.trim()    || '',
+      danhgia: f.querySelector('.sf-danhgia')?.value.trim() || '',
+      tong:    f.querySelector('.sf-tong')?.value.trim()    || '',
+      lt:      f.querySelector('.sf-lt')?.value.trim()      || '',
+      th:      f.querySelector('.sf-th')?.value.trim()      || '',
+      thuHoc:  f.querySelector('.sf-tuhoc-h')?.value.trim() || '',
+      clo:     d_clos_ids(),
+    });
+  });
+  return sessions;
+}
+
+function d_clos_ids() {
+  const n = parseInt(document.getElementById('soCLO')?.value) || 3;
+  return Array.from({length:n},(_,i)=>`CLO${i+1}`).join('\n');
+}
+
+// AI gợi ý 1 buổi
+async function aiSuggestSession(idx) {
+  const geminiKey = getApiKey();
+  const openaiKey = getOpenAIKey();
+  if (!geminiKey && !openaiKey) {
+    showToast('Vui lòng nhập API Key trước!', 'warning'); toggleApiPanel(); return;
+  }
+  const frame = document.querySelector(`.session-frame[data-idx="${idx}"]`);
+  if (!frame) return;
+
+  const tenMon = val('tenMonViet') || 'môn học';
+  const toc    = (document.getElementById('bookTOC')?.value      || '').trim();
+  const outc   = (document.getElementById('bookOutcomes')?.value || '').trim();
+  const refTxt = await readDocxText('refFile').catch(() => '');
+  const n      = parseInt(document.getElementById('soBuoi')?.value) || 12;
+  const tong   = frame.querySelector('.sf-tong')?.value || '9';
+  const lt     = frame.querySelector('.sf-lt')?.value   || '1';
+  const th     = frame.querySelector('.sf-th')?.value   || '3';
+  const tuHoc  = frame.querySelector('.sf-tuhoc-h')?.value || '5';
+
+  const prompt = `Tạo nội dung chi tiết cho Buổi ${idx}/${n} của học phần "${tenMon}".
+
+THÔNG SỐ BUỔI: Tổng=${tong} giờ | LT=${lt} tiết | TH=${th} tiết | Tự học=${tuHoc} tiết
+
+YÊU CẦU — viết đủ 4 phần, ngắn gọn súc tích:
+
+1. NỘI DUNG DẠY – HỌC TẠI LỚP:
+Lý thuyết: [nội dung từ mục lục/outcomes, cụ thể tên unit, trang sách]
++ ...
+Thực hành: [hoạt động pair/group/drilling phù hợp]
++ ...
+
+2. NỘI DUNG TỰ HỌC:
++ [nhiệm vụ cụ thể]
++ ...
+
+3. PHƯƠNG PHÁP GIẢNG DẠY:
+[2–3 PPDH phù hợp nội dung buổi này]
+
+4. ĐÁNH GIÁ:
+[cách kiểm tra kiến thức buổi này]
+
+=== NGUỒN NỘI DUNG ===
+${toc ? `MỤC LỤC:\n${toc.slice(0,800)}` : ''}
+${outc ? `OUTCOMES:\n${outc.slice(0,600)}` : ''}
+${refTxt ? `ĐỀ CƯƠNG THAM KHẢO (buổi ${idx}):\n${refTxt.slice(0,400)}` : ''}
+
+CHỈ viết 4 phần trên, không giải thích thêm.`;
+
+  showOverlay(`AI đang soạn nội dung Buổi ${idx}…`);
+  try {
+    const response = await callAI(prompt);
+    // Parse và điền vào 4 ô
+    const lines = response.split('\n');
+    let sec = '', noidung = '', tuhoc = '', ppdh = '', danhgia = '';
+    for (const line of lines) {
+      const l = line.toLowerCase().replace(/\*|\d+\./g,'').trim();
+      if (l.includes('nội dung dạy') || l.includes('tại lớp'))   sec = 'nd';
+      else if (l.includes('tự học'))                              sec = 'th';
+      else if (l.includes('phương pháp') || l.startsWith('ppdh')) sec = 'pp';
+      else if (l.includes('đánh giá'))                            sec = 'dg';
+      else if (line.trim()) {
+        if (sec === 'nd') noidung  += line + '\n';
+        else if (sec === 'th') tuhoc += line + '\n';
+        else if (sec === 'pp') ppdh  += line + '\n';
+        else if (sec === 'dg') danhgia += line + '\n';
+      }
+    }
+    frame.querySelector('.sf-noidung').value  = noidung.trim()  || response.slice(0,300);
+    frame.querySelector('.sf-tuhoc').value    = tuhoc.trim()    || '';
+    frame.querySelector('.sf-ppdh').value     = ppdh.trim()     || '';
+    frame.querySelector('.sf-danhgia').value  = danhgia.trim()  || '';
+    showToast(`✅ Đã gợi ý Buổi ${idx}!`, 'success');
+  } catch(err) {
+    showToast('Lỗi: ' + err.message, 'danger');
+  } finally {
+    hideOverlay();
+  }
+}
+
+// AI gợi ý tất cả buổi (tuần tự, delay giữa các request)
+async function aiSuggestAllSessions() {
+  const frames = document.querySelectorAll('.session-frame');
+  if (!frames.length) { showToast('Nhấn "Tạo khung buổi" trước!', 'warning'); return; }
+  showToast(`Đang gợi ý ${frames.length} buổi tuần tự (mỗi buổi ~5 giây)…`, 'info');
+  for (const frame of frames) {
+    const idx = parseInt(frame.dataset.idx);
+    await aiSuggestSession(idx);
+    if (idx < frames.length) await new Promise(r => setTimeout(r, 3000)); // delay tránh rate limit
+  }
+  showToast('🎉 Đã hoàn thành tất cả buổi!', 'success');
+}
+
+
 addTaiLieu({ type: 'ref'  });
 
 // ─────────────────────────────────────────────────────────────
@@ -1193,10 +1461,12 @@ function collectData() {
     mucTieuChung:  val('mucTieuChung'),
     mucTieuCuThe:  val('mucTieuCuThe'),
     clos,
-    matrix:        getMatrixData(),   // { clos, plos, data }
-    rubric:        getRubricContent(), // { source, text, detail } | { source, fileId }
+    matrix:        getMatrixData(),
+    rubric:        getRubricContent(),
     moTa:          val('moTa'),
-    noiDung:       val('noiDung'),
+    sessions:      getSessionsData(),   // array từ session frames
+    noiDung:       '',                  // legacy fallback
+    soBuoi:        val('soBuoi'),
     tenGV:         val('tenGV'),
     hocVi:         val('hocVi'),
     emailGV:       val('emailGV'),
@@ -1586,9 +1856,60 @@ function previewSyllabus() {
     `<tr><td><strong>${c.id}</strong></td><td><em>${c.category}</em></td><td>${c.content || '—'}</td></tr>`
   ).join('');
 
+  // Build matrix HTML
+  let matrixHtml = '<p><em>(Chưa có dữ liệu ma trận)</em></p>';
+  if (d.matrix && d.matrix.plos && d.matrix.plos.length) {
+    const { clos: mClos, plos, data: mdata } = d.matrix;
+    const levelColors = { I:'#d1ecf1', R:'#d4edda', M:'#fff3cd', A:'#f8d7da' };
+    matrixHtml = `<table style="border-collapse:collapse;font-size:.82rem;width:100%">
+      <thead><tr>
+        <th style="background:#1a3c5e;color:#fff;padding:6px 10px;border:1px solid #aaa">CLO \\ PLO</th>
+        ${plos.map(p=>`<th style="background:#1a3c5e;color:#fff;padding:6px 8px;border:1px solid #aaa;text-align:center;white-space:pre-line">${p}</th>`).join('')}
+      </tr></thead><tbody>
+      ${mClos.map(clo=>`<tr>
+        <td style="background:#eef3f8;font-weight:bold;padding:5px 10px;border:1px solid #ccc;text-align:center">${clo}</td>
+        ${plos.map((_,pi)=>{
+          const key=`${clo}_${pi}`;
+          const val=mdata[key]||'';
+          const bg=val?(levelColors[val]||'#fff'):'#fff';
+          return `<td style="background:${bg};text-align:center;padding:5px;border:1px solid #ccc;font-weight:${val?'bold':'normal'}">${val||'—'}</td>`;
+        }).join('')}
+      </tr>`).join('')}
+      </tbody></table>
+      <p style="font-size:.75rem;color:#666;margin-top:6px">I = Introduced, R = Reinforced, M = Mastery, A = Assessed</p>`;
+  }
+
+  // Build sessions HTML
+  let sessionsHtml = '<p><em>(Chưa có nội dung buổi học)</em></p>';
+  if (d.sessions && d.sessions.length) {
+    sessionsHtml = `<table style="border-collapse:collapse;font-size:.8rem;width:100%">
+      <thead><tr style="background:#1a3c5e;color:#fff">
+        <th style="padding:6px;border:1px solid #aaa;width:60px">Buổi</th>
+        <th style="padding:6px;border:1px solid #aaa">Nội dung dạy – học</th>
+        <th style="padding:6px;border:1px solid #aaa;width:50px;text-align:center">Tổng</th>
+        <th style="padding:6px;border:1px solid #aaa;width:40px;text-align:center">LT</th>
+        <th style="padding:6px;border:1px solid #aaa;width:40px;text-align:center">TH</th>
+        <th style="padding:6px;border:1px solid #aaa;width:40px;text-align:center">TuH</th>
+      </tr></thead><tbody>
+      ${d.sessions.map(s=>`<tr>
+        <td style="padding:5px;border:1px solid #ddd;font-weight:bold;text-align:center;vertical-align:top">${s.buoi}</td>
+        <td style="padding:5px;border:1px solid #ddd;vertical-align:top">
+          ${s.noidung ? `<div>${s.noidung.replace(/\n/g,'<br>')}</div>` : ''}
+          ${s.tuhoc   ? `<div style="margin-top:4px"><strong>Tự học:</strong><br>${s.tuhoc.replace(/\n/g,'<br>')}</div>` : ''}
+          ${s.ppdh    ? `<div style="margin-top:4px"><strong>PPDH:</strong> ${s.ppdh}</div>` : ''}
+          ${s.danhgia ? `<div style="margin-top:4px"><strong>Đánh giá:</strong> ${s.danhgia}</div>` : ''}
+        </td>
+        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.tong||''}</td>
+        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.lt||''}</td>
+        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.th||''}</td>
+        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.thuHoc||''}</td>
+      </tr>`).join('')}
+      </tbody></table>`;
+  }
+
   pane.innerHTML = `
     <h2 style="color:var(--primary);text-align:center">ĐỀ CƯƠNG CHI TIẾT HỌC PHẦN</h2>
-    <p style="text-align:center;font-size:.88rem;color:var(--muted)">UBND TỈNH ĐỒNG NAI – TRƯỜNG ĐẠI HỌC ĐỒNG NAI – KHOA ${d.khoa.toUpperCase()}</p>
+    <p style="text-align:center;font-size:.88rem;color:var(--muted)">TRƯỜNG ĐẠI HỌC ĐỒNG NAI – KHOA ${d.khoa.toUpperCase()}</p>
     <hr/>
     <h2>1. Thông tin học phần</h2>
     <table><tbody>
@@ -1598,8 +1919,7 @@ function previewSyllabus() {
       <tr><td><strong>Số tín chỉ</strong></td><td>${d.soTC}</td></tr>
       <tr><td><strong>Số tiết LT / TH / Tự học</strong></td><td>${d.soTietLT} / ${d.soTietTH} / ${d.soTietTuHoc} tiết</td></tr>
       <tr><td><strong>Tổng giờ học</strong></td><td>${d.tongGio}</td></tr>
-      <tr><td><strong>Học phần học trước</strong></td><td>${d.hocTruoc || '—'}</td></tr>
-      <tr><td><strong>Khoa / Bộ môn</strong></td><td>${d.khoa} / ${d.boMon}</td></tr>
+      <tr><td><strong>Số buổi học</strong></td><td>${d.soBuoi}</td></tr>
     </tbody></table>
 
     <h2>2. Mục tiêu học phần</h2>
@@ -1611,14 +1931,14 @@ function previewSyllabus() {
     <table><thead><tr><th>Ký hiệu</th><th>Phân loại</th><th>Nội dung CLO</th></tr></thead>
     <tbody>${cloRows}</tbody></table>
 
-    <h2>4. Ma trận CLO – PLO</h2>
-    <pre style="font-family:monospace;font-size:.82rem;background:#f5f5f5;padding:10px;border-radius:6px">${d.maTranh || '—'}</pre>
+    <h2>4. Ma trận CLO – PLO/PI</h2>
+    ${matrixHtml}
 
     <h2>5. Mô tả vắn tắt</h2>
     <p>${d.moTa || '—'}</p>
 
     <h2>6. Nội dung chi tiết từng buổi học</h2>
-    <pre style="font-family:inherit;white-space:pre-wrap;font-size:.82rem">${d.noiDung || '—'}</pre>
+    ${sessionsHtml}
 
     <h2>9. Giáo trình & Tài liệu tham khảo</h2>
     ${(() => {
@@ -1627,16 +1947,8 @@ function previewSyllabus() {
       const main = list.filter(t => t.type === 'main');
       const ref  = list.filter(t => t.type === 'ref');
       let html = '';
-      if (main.length) {
-        html += '<p><strong>a. Giáo trình chính</strong></p><ol style="margin-top:4px">';
-        main.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; });
-        html += '</ol>';
-      }
-      if (ref.length) {
-        html += '<p><strong>b. Tài liệu tham khảo</strong></p><ol style="margin-top:4px">';
-        ref.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; });
-        html += '</ol>';
-      }
+      if (main.length) { html += '<p><strong>a. Giáo trình chính</strong></p><ol>'; main.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; }); html += '</ol>'; }
+      if (ref.length)  { html += '<p><strong>b. Tài liệu tham khảo</strong></p><ol>'; ref.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; }); html += '</ol>'; }
       return html;
     })()}
 
@@ -2147,7 +2459,9 @@ async function generateDocx() {
     // Section 6 – Nội dung chi tiết (proper merged-header table)
     children.push(sectionTitle('6', 'Nội dung chi tiết học phần, phương pháp giảng dạy, tiến độ và hoạt động dạy – học'));
 
-    const sessions = parseSessions(d.noiDung || '');
+    const sessions = d.sessions && d.sessions.length
+      ? d.sessions
+      : parseSessions(d.noiDung || '');   // fallback legacy
     if (sessions.length > 0) {
       children.push(buildSessionTable(sessions));
     } else {
