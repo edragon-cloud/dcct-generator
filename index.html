@@ -771,19 +771,26 @@
     </div>
   </div>
 
-  <!-- ─── Rubric & Đánh giá ──────────────────────────────────── -->
+  <!-- ─── Mục 4: Thang điểm, Rubric & Kế hoạch đánh giá ───────── -->
   <div class="card-section" id="sectionRubric">
     <div class="section-header">
       <span class="section-num">3b</span>
-      Thang Điểm, Rubric &amp; Kế Hoạch Đánh Giá
+      Mục 4 – Thang Điểm, Rubric &amp; Kế Hoạch Đánh Giá
     </div>
     <div class="section-body">
-      <div class="mb-3">
-        <label class="fw-600 mb-2">Nguồn nội dung đánh giá:</label>
+
+      <p class="hint-text mb-3"><i class="bi bi-info-circle me-1"></i>
+        Điền vào các bảng bên dưới. Nội dung này sẽ được đưa vào đề cương đúng cấu trúc chuẩn DNU.
+        Nếu dùng đề cương mẫu/tham khảo, bạn cũng có thể chọn <strong>Copy từ file</strong>.
+      </p>
+
+      <!-- Nguồn -->
+      <div class="mb-4">
+        <label class="fw-600 mb-2">Nguồn nội dung:</label>
         <div class="d-flex gap-3 flex-wrap">
           <div class="form-check">
             <input class="form-check-input" type="radio" name="rubricSource" id="rubricManual" value="manual" checked onchange="toggleRubricSource()">
-            <label class="form-check-label" for="rubricManual">✏️ Nhập tay</label>
+            <label class="form-check-label" for="rubricManual">✏️ Nhập theo bảng chuẩn</label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="rubricSource" id="rubricFromTemplate" value="template" onchange="toggleRubricSource()">
@@ -796,25 +803,159 @@
         </div>
       </div>
 
+      <!-- Manual area -->
       <div id="rubricManualArea">
-        <div class="mb-3">
-          <label>Thang điểm &amp; Kế hoạch đánh giá</label>
-          <div class="hint-text mb-1">Nhập từng tiêu chí trên một dòng riêng.</div>
-          <textarea id="rubricText" class="form-control" rows="8"
-            placeholder="- Chuyên cần: 10%&#10;- Kiểm tra giữa kỳ: 25% (Speaking test – IELTS format)&#10;- Bài tập / thực hành: 15%&#10;- Thi cuối kỳ: 50%"></textarea>
+
+        <!-- 4.1 Rubric 1: Chuyên cần -->
+        <div class="mb-4">
+          <div class="fw-600 mb-2">❖ <em>Rubric 1: Đánh giá điểm chuyên cần</em></div>
+          <div style="overflow-x:auto">
+            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:700px">
+              <thead>
+                <tr>
+                  <th rowspan="3" style="background:var(--primary);color:#fff;vertical-align:middle;text-align:center;width:120px">Tiêu chí đánh giá</th>
+                  <th rowspan="3" style="background:var(--primary);color:#fff;vertical-align:middle;text-align:center;width:80px">Trọng số (%)</th>
+                  <th colspan="5" style="background:var(--primary);color:#fff;text-align:center">Mức độ đạt chuẩn quy định</th>
+                </tr>
+                <tr>
+                  <th style="background:#d6e4f0;text-align:center">A</th>
+                  <th style="background:#d6e4f0;text-align:center">B</th>
+                  <th style="background:#d6e4f0;text-align:center">C</th>
+                  <th style="background:#d6e4f0;text-align:center">D</th>
+                  <th style="background:#d6e4f0;text-align:center">F</th>
+                </tr>
+                <tr>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">8.5–10</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">7.0–8.4</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">5.5–6.9</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">4.0–5.4</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">0.0–3.9</th>
+                </tr>
+              </thead>
+              <tbody id="rubric1Body">
+                <tr>
+                  <td><input class="form-control form-control-sm" placeholder="Dự học trên lớp" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="50%" /></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Đi học đầy đủ hoặc nghỉ 1 buổi có lý do hợp lệ."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Nghỉ 2 buổi có lý do hợp lệ hoặc nghỉ 1 buổi không lý do."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Nghỉ 3 buổi."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Nghỉ 4 buổi."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Nghỉ ≥5 buổi."></textarea></td>
+                </tr>
+                <tr>
+                  <td><input class="form-control form-control-sm" placeholder="Đóng góp tại lớp" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="50%" /></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Tham gia đầy đủ, chủ động phát biểu, đóng góp nổi bật."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Tham gia tích cực, có đóng góp thường xuyên."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Tham gia tương đối, có phát biểu nhưng chưa thường xuyên."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Ít tham gia, đóng góp hạn chế."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Không tham gia, không có đóng góp."></textarea></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary mt-1" onclick="addRubricRow('rubric1Body',7)">
+            <i class="bi bi-plus me-1"></i>Thêm tiêu chí
+          </button>
         </div>
-        <div class="mb-3">
-          <label>Rubric chi tiết (mô tả tiêu chí đánh giá)</label>
-          <div class="hint-text mb-1">Mỗi tiêu chí một dòng.</div>
-          <textarea id="rubricDetail" class="form-control" rows="6"
-            placeholder="CLO1 – Đánh giá qua bài thi nói (IELTS format): Band 6.0–6.5&#10;CLO2 – Đánh giá qua bài tập pair/group work hàng tuần&#10;CLO3 – Đánh giá chuyên cần và thái độ học tập"></textarea>
+
+        <!-- 4.1 Rubric 2: Bài tập -->
+        <div class="mb-4">
+          <div class="fw-600 mb-2">❖ <em>Rubric 2: Đánh giá bài tập</em></div>
+          <div style="overflow-x:auto">
+            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:700px">
+              <thead>
+                <tr>
+                  <th rowspan="3" style="background:var(--primary);color:#fff;vertical-align:middle;text-align:center;width:120px">Tiêu chí đánh giá</th>
+                  <th rowspan="3" style="background:var(--primary);color:#fff;vertical-align:middle;text-align:center;width:80px">Trọng số (%)</th>
+                  <th colspan="5" style="background:var(--primary);color:#fff;text-align:center">Mức độ đạt chuẩn quy định</th>
+                </tr>
+                <tr>
+                  <th style="background:#d6e4f0;text-align:center">A</th><th style="background:#d6e4f0;text-align:center">B</th>
+                  <th style="background:#d6e4f0;text-align:center">C</th><th style="background:#d6e4f0;text-align:center">D</th>
+                  <th style="background:#d6e4f0;text-align:center">F</th>
+                </tr>
+                <tr>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">8.5–10</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">7.0–8.4</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">5.5–6.9</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">4.0–5.4</th>
+                  <th style="background:#eef3f8;text-align:center;font-size:.78rem">0.0–3.9</th>
+                </tr>
+              </thead>
+              <tbody id="rubric2Body">
+                <tr>
+                  <td><input class="form-control form-control-sm" placeholder="Kiểm tra bài làm cá nhân" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="100%" /></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Hoàn thành đầy đủ 100% bài tập, đúng yêu cầu, trình bày rõ ràng."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Hoàn thành phần lớn (≈80–90%), đa số đúng yêu cầu."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Hoàn thành khoảng 60–79%, còn một số sai sót."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Hoàn thành dưới 60%, nhiều sai sót, chưa đạt yêu cầu."></textarea></td>
+                  <td><textarea class="form-control form-control-sm" rows="2" placeholder="Không nộp bài hoặc bài làm không đạt yêu cầu tối thiểu."></textarea></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary mt-1" onclick="addRubricRow('rubric2Body',7)">
+            <i class="bi bi-plus me-1"></i>Thêm tiêu chí
+          </button>
         </div>
-      </div>
+
+        <!-- 4.2 Kế hoạch đánh giá -->
+        <div class="mb-2">
+          <div class="fw-600 mb-2">4.2 Kế hoạch và phương pháp đánh giá, trọng số điểm thành phần</div>
+          <div style="overflow-x:auto">
+            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:600px">
+              <thead>
+                <tr style="background:var(--primary);color:#fff">
+                  <th style="width:100px">Điểm thành phần</th>
+                  <th>Phương pháp đánh giá</th>
+                  <th style="width:80px">Trọng số (%)</th>
+                  <th style="width:80px">CLOs đánh giá</th>
+                  <th style="width:120px">Thời điểm đánh giá</th>
+                </tr>
+              </thead>
+              <tbody id="assessPlanBody">
+                <tr>
+                  <td rowspan="3" style="vertical-align:middle;font-weight:bold;text-align:center"><span contenteditable="true">Quá trình</span></td>
+                  <td><input class="form-control form-control-sm" value="Chuyên cần." /></td>
+                  <td><input class="form-control form-control-sm" placeholder="10%" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="CLO1, CLO2, CLO3" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="Tuần 1–15" /></td>
+                </tr>
+                <tr>
+                  <td><input class="form-control form-control-sm" placeholder="Bài tập về nhà." /></td>
+                  <td><input class="form-control form-control-sm" placeholder="5%" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="CLO1, CLO2, CLO3" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="Tuần 1–15" /></td>
+                </tr>
+                <tr>
+                  <td><input class="form-control form-control-sm" placeholder="Kiểm tra giữa kỳ." /></td>
+                  <td><input class="form-control form-control-sm" placeholder="25%" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="CLO1, CLO2, CLO3" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="Tuần 10–15" /></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;text-align:center"><span contenteditable="true">Cuối kỳ</span></td>
+                  <td><input class="form-control form-control-sm" value="Thi cuối kỳ (thi tập trung theo lịch trường)." /></td>
+                  <td><input class="form-control form-control-sm" placeholder="60%" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="CLO1, CLO2, CLO3" /></td>
+                  <td><input class="form-control form-control-sm" placeholder="Theo kế hoạch năm học" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary mt-1" onclick="addAssessRow()">
+            <i class="bi bi-plus me-1"></i>Thêm hàng
+          </button>
+        </div>
+
+      </div><!-- /rubricManualArea -->
 
       <div id="rubricCopyArea" style="display:none">
         <div class="alert alert-info" style="font-size:.88rem">
           <i class="bi bi-info-circle me-1"></i>
-          Nội dung sẽ được tự động trích xuất từ file bạn đã upload khi nhấn <strong>Tạo Đề Cương</strong>.
+          Nội dung mục 4 sẽ được trích xuất tự động từ file đã upload khi nhấn <strong>Tạo Đề Cương</strong>.
           <button class="btn btn-sm btn-outline-primary ms-2" onclick="previewRubricSource()">
             <i class="bi bi-eye me-1"></i>Xem trước
           </button>
@@ -824,25 +965,27 @@
     </div>
   </div>
 
-  <!-- ─── BƯỚC 4: Thông tin giảng viên & Tài liệu ───────────── -->
+  <!-- ─── Mục 7 & 8: Yêu cầu GV + Nhiệm vụ SV ─────────────────── -->
   <div class="card-section" id="sectionGV">
     <div class="section-header">
       <span class="section-num">4</span>
-      Phần C – Thông Tin Giảng Viên &amp; Tài Liệu
+      Phần C – Thông Tin Giảng Viên, Tài Liệu &amp; Yêu Cầu
     </div>
     <div class="section-body">
       <div class="row g-3">
+
+        <!-- Thông tin giảng viên -->
         <div class="col-md-4">
           <label>Họ và tên giảng viên<span class="required-star">*</span></label>
-          <input type="text" id="tenGV" class="form-control" placeholder="VD: Dương Thanh Tú" />
+          <input type="text" id="tenGV" class="form-control" placeholder="Dương Thanh Tú" />
         </div>
         <div class="col-md-4">
           <label>Học hàm / Học vị</label>
-          <input type="text" id="hocVi" class="form-control" placeholder="VD: Thạc sĩ" />
+          <input type="text" id="hocVi" class="form-control" placeholder="Thạc sĩ" />
         </div>
         <div class="col-md-4">
           <label>Email</label>
-          <input type="email" id="emailGV" class="form-control" placeholder="email@..." />
+          <input type="email" id="emailGV" class="form-control" placeholder="email@dnu.edu.vn" />
         </div>
         <div class="col-md-4">
           <label>Điện thoại</label>
@@ -853,6 +996,7 @@
           <input type="text" id="lienLac" class="form-control" value="Trao đổi qua Zalo, điện thoại" />
         </div>
 
+        <!-- Tài liệu -->
         <div class="col-12 mt-2">
           <label>Giáo trình chính &amp; Tài liệu tham khảo</label>
           <div id="taiLieuContainer"></div>
@@ -861,13 +1005,42 @@
           </button>
         </div>
 
+        <!-- Mục 7: Yêu cầu giảng viên -->
         <div class="col-12">
-          <label>Yêu cầu của giảng viên / Điều kiện phòng học</label>
-          <div class="hint-text mb-1">Mỗi yêu cầu một dòng riêng.</div>
-          <textarea id="ghiChu" class="form-control" rows="4"
-            placeholder="- Phòng học có wifi, máy chiếu, loa.&#10;- Sinh viên cần có tai nghe để luyện tập speaking.&#10;- Yêu cầu ứng dụng ghi âm trên điện thoại."></textarea>
+          <label><strong>7.</strong> Yêu cầu của giảng viên đối với học phần</label>
+          <div class="hint-text mb-1">Mỗi yêu cầu một dòng. VD: − Phòng học có wifi, máy chiếu, loa.</div>
+          <textarea id="ghiChu" class="form-control" rows="3"
+            placeholder="- Phòng học có wifi, máy chiếu, loa.&#10;- Sinh viên cần cài ứng dụng ghi âm trên điện thoại."></textarea>
+        </div>
+
+        <!-- Mục 8: Nhiệm vụ sinh viên -->
+        <div class="col-12">
+          <label><strong>8.</strong> Nhiệm vụ của sinh viên</label>
+          <div class="hint-text mb-1">Điền các nhiệm vụ chính. Mỗi mục một dòng.</div>
+          <textarea id="nhiemVuSV" class="form-control" rows="6"
+            placeholder="8.1. Các nhiệm vụ chính của sinh viên:&#10;- Tham gia đầy đủ các buổi học trên lớp.&#10;- Chuẩn bị đầy đủ tài liệu học tập theo quy định của giảng viên.&#10;- Tự đọc, nghiên cứu tài liệu trước khi đến lớp.&#10;&#10;8.2. Quy định về liêm chính học thuật:&#10;- Sinh viên không được sao chép bài làm của người khác dưới mọi hình thức."></textarea>
+        </div>
+
+      </div><!-- /.row -->
+
+      <!-- Custom fields: Add another field -->
+      <hr class="my-4" />
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <strong>Thêm mục tùy chỉnh</strong>
+          <div class="hint-text">Thêm các mục bổ sung nếu đề cương yêu cầu (văn bản hoặc bảng).</div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" onclick="addCustomField('text')">
+            <i class="bi bi-plus-circle me-1"></i>+ Mục văn bản
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="addCustomField('table')">
+            <i class="bi bi-table me-1"></i>+ Mục bảng biểu
+          </button>
         </div>
       </div>
+      <div id="customFieldsContainer"></div>
+
     </div>
   </div>
 
@@ -1094,6 +1267,138 @@ function renderCLOInputs() {
   // Re-render matrix when CLO count changes
   if (document.getElementById('matrixTable')) renderMatrix();
 }
+// ─────────────────────────────────────────────────────────────
+// Rubric & Assessment helpers
+// ─────────────────────────────────────────────────────────────
+function addRubricRow(tbodyId, colCount) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  let cells = `<td><input class="form-control form-control-sm" placeholder="Tiêu chí..." /></td>
+    <td><input class="form-control form-control-sm" placeholder="%" /></td>`;
+  for (let i = 0; i < colCount - 2; i++) {
+    cells += `<td><textarea class="form-control form-control-sm" rows="2" placeholder="Mức ${['A','B','C','D','F'][i]||''}..."></textarea></td>`;
+  }
+  tr.innerHTML = cells;
+  tbody.appendChild(tr);
+}
+
+function addAssessRow() {
+  const tbody = document.getElementById('assessPlanBody');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="form-control form-control-sm" placeholder="Loại điểm..." /></td>
+    <td><input class="form-control form-control-sm" placeholder="Phương pháp đánh giá..." /></td>
+    <td><input class="form-control form-control-sm" placeholder="%" /></td>
+    <td><input class="form-control form-control-sm" placeholder="CLO1, CLO2..." /></td>
+    <td><input class="form-control form-control-sm" placeholder="Thời điểm..." /></td>`;
+  tbody.appendChild(tr);
+}
+
+function getRubricTableData(tbodyId) {
+  const rows = [];
+  document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+    const row = [];
+    tr.querySelectorAll('input, textarea').forEach(el => row.push(el.value.trim()));
+    if (row.some(v => v)) rows.push(row);
+  });
+  return rows;
+}
+
+function getAssessTableData() {
+  const rows = [];
+  document.querySelectorAll('#assessPlanBody tr').forEach(tr => {
+    const row = [];
+    tr.querySelectorAll('input, [contenteditable]').forEach(el => row.push((el.value || el.textContent || '').trim()));
+    if (row.some(v => v)) rows.push(row);
+  });
+  return rows;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Custom field builder
+// ─────────────────────────────────────────────────────────────
+let customFieldCount = 0;
+
+function addCustomField(type) {
+  customFieldCount++;
+  const id = customFieldCount;
+  const container = document.getElementById('customFieldsContainer');
+  const div = document.createElement('div');
+  div.id = `customField_${id}`;
+  div.style.cssText = 'border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;background:#fafcff';
+
+  if (type === 'text') {
+    div.innerHTML = `
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <input class="form-control form-control-sm fw-600" style="max-width:360px"
+          placeholder="Tên mục (VD: 9. Biên soạn và cập nhật)" id="cf_title_${id}" />
+        <button onclick="document.getElementById('customField_${id}').remove()"
+          style="background:none;border:none;color:#dc3545;cursor:pointer;font-size:1.1rem" title="Xóa">✕</button>
+      </div>
+      <textarea id="cf_content_${id}" class="form-control" rows="4"
+        placeholder="Nội dung mục này..."></textarea>`;
+  } else {
+    const colsStr = prompt('Số cột của bảng? (2–8)', '4');
+    const cols = Math.min(8, Math.max(2, parseInt(colsStr) || 4));
+    const headers = [];
+    for (let c = 0; c < cols; c++) {
+      headers.push(prompt(`Tên cột ${c+1}:`, `Cột ${c+1}`) || `Cột ${c+1}`);
+    }
+    const headerHtml = headers.map(h => `<th style="background:var(--primary);color:#fff;padding:6px 8px">${h}</th>`).join('');
+    const firstRow   = headers.map(() => `<td><input class="form-control form-control-sm" placeholder="..." /></td>`).join('');
+    div.innerHTML = `
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <input class="form-control form-control-sm fw-600" style="max-width:360px"
+          placeholder="Tên bảng (VD: Bảng phân công giảng dạy)" id="cf_title_${id}" />
+        <button onclick="document.getElementById('customField_${id}').remove()"
+          style="background:none;border:none;color:#dc3545;cursor:pointer;font-size:1.1rem" title="Xóa">✕</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="table table-bordered table-sm" style="font-size:.83rem">
+          <thead><tr>${headerHtml}</tr></thead>
+          <tbody id="cf_tbody_${id}"><tr>${firstRow}</tr></tbody>
+        </table>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary mt-1" onclick="addCustomTableRow(${id},${cols})">
+        <i class="bi bi-plus me-1"></i>Thêm hàng
+      </button>`;
+    div.dataset.cols    = cols;
+    div.dataset.headers = JSON.stringify(headers);
+  }
+  div.dataset.type = type;
+  container.appendChild(div);
+}
+
+function addCustomTableRow(fieldId, cols) {
+  const tbody = document.getElementById(`cf_tbody_${fieldId}`);
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = Array(cols).fill(0).map(() => `<td><input class="form-control form-control-sm" placeholder="..." /></td>`).join('');
+  tbody.appendChild(tr);
+}
+
+function getCustomFieldsData() {
+  const fields = [];
+  document.querySelectorAll('#customFieldsContainer > div[id^="customField_"]').forEach(div => {
+    const id      = div.id.replace('customField_','');
+    const type    = div.dataset.type;
+    const title   = (document.getElementById(`cf_title_${id}`)?.value || '').trim();
+    if (type === 'text') {
+      fields.push({ type, title, content: (document.getElementById(`cf_content_${id}`)?.value || '').trim() });
+    } else {
+      const headers = JSON.parse(div.dataset.headers || '[]');
+      const rows = [];
+      div.querySelectorAll(`#cf_tbody_${id} tr`).forEach(tr => {
+        rows.push([...tr.querySelectorAll('input')].map(i => i.value.trim()));
+      });
+      fields.push({ type, title, headers, rows });
+    }
+  });
+  return fields;
+}
+
 // ─── Matrix state — khai báo sớm để renderCLOInputs dùng được ─
 let matrixData = {};
 let matrixPLOs = ['PLO1\nPI 1.1','PLO2\nPI 2.2','PLO3\nPI 3.1'];
@@ -1611,6 +1916,11 @@ function collectData() {
     lienLac:       val('lienLac'),
     taiLieu:       getTaiLieuList(),
     ghiChu:        val('ghiChu'),
+    nhiemVuSV:     val('nhiemVuSV'),
+    rubric1:       getRubricTableData('rubric1Body'),
+    rubric2:       getRubricTableData('rubric2Body'),
+    assessTable:   getAssessTableData(),
+    customFields:  getCustomFieldsData(),
     bookTOC:       (document.getElementById('bookTOC')?.value     || '').trim(),
     bookOutcomes:  (document.getElementById('bookOutcomes')?.value || '').trim(),
   };
