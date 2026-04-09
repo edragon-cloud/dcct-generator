@@ -800,8 +800,8 @@
         <!-- 4.1 Rubric 1: Chuyên cần -->
         <div class="mb-4">
           <div class="fw-600 mb-2">❖ <em>Rubric 1: Đánh giá điểm chuyên cần</em></div>
-          <div style="overflow-x:auto">
-            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:700px">
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:900px">
               <thead>
                 <tr>
                   <th rowspan="3" style="background:var(--primary);color:#fff;vertical-align:middle;text-align:center;width:120px">Tiêu chí đánh giá</th>
@@ -853,8 +853,8 @@
         <!-- 4.1 Rubric 2: Bài tập -->
         <div class="mb-4">
           <div class="fw-600 mb-2">❖ <em>Rubric 2: Đánh giá bài tập</em></div>
-          <div style="overflow-x:auto">
-            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:700px">
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:900px">
               <thead>
                 <tr>
                   <th rowspan="3" style="background:var(--primary);color:#fff;vertical-align:middle;text-align:center;width:120px">Tiêu chí đánh giá</th>
@@ -895,8 +895,8 @@
         <!-- 4.2 Kế hoạch đánh giá -->
         <div class="mb-2">
           <div class="fw-600 mb-2">4.2 Kế hoạch và phương pháp đánh giá, trọng số điểm thành phần</div>
-          <div style="overflow-x:auto">
-            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:600px">
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+            <table class="table table-bordered table-sm" style="font-size:.83rem;min-width:650px">
               <thead>
                 <tr style="background:var(--primary);color:#fff">
                   <th style="width:100px">Điểm thành phần</th>
@@ -2789,318 +2789,494 @@ async function generateDocx() {
     // ── Document sections ────────────────────────────────────
     const children = [];
 
-    // Title block
-    children.push(
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
-        children: [new TextRun({ text: 'UBND TỈNH ĐỒNG NAI', bold: true, size: 20 })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
-        children: [new TextRun({ text: 'TRƯỜNG ĐẠI HỌC ĐỒNG NAI', bold: true, size: 22, color: BLUE })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
-        children: [new TextRun({ text: 'KHOA ' + (d.khoa || '').toUpperCase(), bold: true, size: 20 })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 60 },
-        children: [new TextRun({ text: 'NGÀNH: ' + (d.nganh || '').toUpperCase(), size: 20 })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 60 },
-        children: [new TextRun({ text: 'CHƯƠNG TRÌNH GIÁO DỤC ĐẠI HỌC', bold: true, size: 20 })] }),
-      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 240 },
-        children: [new TextRun({ text: 'ĐỀ CƯƠNG HỌC PHẦN', bold: true, size: 32, color: BLUE })] }),
-    );
+    // ── FONT & SIZE CONSTANTS (Times New Roman, DNU standard) ──
+    const F  = 'Times New Roman';
+    const SZ_NORMAL   = 24;  // 12pt
+    const SZ_HEADING1 = 28;  // 14pt bold
+    const SZ_SMALL    = 22;  // 11pt
+    const INDENT_L1   = 360; // 0.25 inch
+    const INDENT_L2   = 720; // 0.5 inch
 
-    // Basic info
-    children.push(
-      para(`Mã học phần: ${d.maHP}`, { bold: true, size: 22 }),
-      para(`Tên học phần (tiếng Việt): ${d.tenMonViet.toUpperCase()}`, { bold: true, size: 22 }),
-      para(`Tên học phần (tiếng Anh): ${d.tenMonAnh.toUpperCase()}`, { bold: true, size: 22 }),
-      new Paragraph({ spacing: { before: 120, after: 60 } }),
-    );
-
-    // Section 1 – Thông tin học phần
-    children.push(sectionTitle('1', 'Thông tin về học phần'));
-
-    const infoTable = new Table({
-      width: tblW,
-      columnWidths: [3000, 6360],
-      rows: [
-        infoRow('1.1. Số tín chỉ', d.soTC),
-        infoRow('1.2. Số giờ hoạt động học tập', d.tongGio),
-        infoRow('Số tiết lý thuyết', d.soTietLT + ' tiết'),
-        infoRow('Số tiết thực hành', d.soTietTH + ' tiết'),
-        infoRow('Số tiết tự học', d.soTietTuHoc + ' tiết'),
-        infoRow('1.4. Học phần tiên quyết', d.tienQuyet || 'Không'),
-        infoRow('1.5. Học phần học trước', d.hocTruoc || 'Không'),
-        infoRow('1.6. Học phần song hành', d.songHanh || 'Không yêu cầu'),
-        infoRow('1.7. Ngôn ngữ giảng dạy', 'Tiếng Anh'),
-        infoRow('1.8. Khoa phụ trách', d.khoa),
-        infoRow('Bộ môn', d.boMon),
-        infoRow('Ngành giảng dạy', d.nganh),
-      ]
+    // Paragraph helpers (Times New Roman)
+    const tnr = (text, opts = {}) => new TextRun({
+      text, font: F,
+      size:    opts.size    || SZ_NORMAL,
+      bold:    opts.bold    || false,
+      italics: opts.italics || false,
+      color:   opts.color   || '000000',
+      underline: opts.underline ? {} : undefined,
+    });
+    const tnrPara = (text, opts = {}) => new Paragraph({
+      alignment: opts.center ? AlignmentType.CENTER : AlignmentType.LEFT,
+      spacing: { before: opts.spaceBefore ?? 60, after: opts.spaceAfter ?? 60, line: 276, lineRule: 'auto' },
+      indent: opts.indent ? { left: opts.indent } : {},
+      children: [tnr(text, opts)]
+    });
+    const heading = (num, text) => new Paragraph({
+      alignment: AlignmentType.LEFT,
+      spacing: { before: 200, after: 100, line: 276, lineRule: 'auto' },
+      children: [tnr(`${num}. ${text}`, { bold: true, size: SZ_HEADING1 })]
+    });
+    const subHeading = (text) => new Paragraph({
+      spacing: { before: 120, after: 60, line: 276, lineRule: 'auto' },
+      children: [tnr(text, { bold: true, size: SZ_NORMAL })]
+    });
+    const bullet = (text, indent = INDENT_L1) => new Paragraph({
+      spacing: { before: 40, after: 40, line: 276, lineRule: 'auto' },
+      indent: { left: indent },
+      children: [tnr('– ' + text.replace(/^[-–]\s*/, ''), { size: SZ_NORMAL })]
     });
 
-    // 1.3 Khối kiến thức — bảng checkbox đúng chuẩn DNU
-    const khoiKTLabels = {
-      'Giáo dục đại cương': 'Giáo dục đại cương',
-      'Cơ sở khối ngành':   'Cơ sở khối ngành',
-      'Cơ sở ngành':        'Cơ sở ngành',
-      'Ngành':              'Ngành',
-    };
-    const selected = d.khoiKT || '';
-    const tick = (val) => (val === selected ? '☒' : '☐');
-    const ckCell = (label, val, w, opts = {}) => new TableCell({
+    // Cell helper (Times New Roman)
+    const tc = (text, w, opts = {}) => new TableCell({
       borders,
       width: { size: w, type: WidthType.DXA },
-      margins: { top: 60, bottom: 60, left: 80, right: 80 },
-      verticalAlign: VerticalAlign.CENTER,
-      ...(opts.rowSpan ? { rowSpan: opts.rowSpan } : {}),
-      ...(opts.colSpan ? { columnSpan: opts.colSpan } : {}),
+      margins: { top: 60, bottom: 60, left: 100, right: 100 },
+      verticalAlign: opts.vCenter !== false ? VerticalAlign.CENTER : VerticalAlign.TOP,
+      rowSpan:    opts.rowSpan   || undefined,
+      columnSpan: opts.colSpan   || undefined,
+      shading: opts.fill ? { fill: opts.fill, type: ShadingType.CLEAR } : undefined,
       children: [new Paragraph({
-        spacing: { before: 0, after: 0 },
-        children: [new TextRun({ text: `${tick(val)} ${label}`, size: 18 })]
+        alignment: opts.center ? AlignmentType.CENTER : AlignmentType.LEFT,
+        spacing: { before: 0, after: 0, line: 276, lineRule: 'auto' },
+        children: [tnr(text, {
+          bold:    opts.bold    || false,
+          italics: opts.italics || false,
+          size:    opts.size    || SZ_NORMAL,
+          color:   opts.color   || '000000',
+        })]
       })]
     });
-    const labelCell13 = new TableCell({
+    const tcH = (text, w, opts = {}) => new TableCell({
       borders,
-      width: { size: 2400, type: WidthType.DXA },
-      rowSpan: 2,
+      width: { size: w, type: WidthType.DXA },
+      margins: { top: 60, bottom: 60, left: 100, right: 100 },
       verticalAlign: VerticalAlign.CENTER,
-      margins: { top: 60, bottom: 60, left: 80, right: 80 },
-      children: [new Paragraph({ children: [new TextRun({ text: '1.3. Học phần thuộc khối kiến thức', size: 18 })] })]
+      rowSpan:    opts.rowSpan || undefined,
+      columnSpan: opts.colSpan || undefined,
+      shading: { fill: BLUE, type: ShadingType.CLEAR },
+      children: [new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 0, after: 0 },
+        children: [tnr(text, { bold: true, size: SZ_NORMAL, color: 'FFFFFF' })]
+      })]
     });
-    const chuyenNghiepHeader = new TableCell({
-      borders,
-      columnSpan: 3,
-      width: { size: 6960, type: WidthType.DXA },
-      verticalAlign: VerticalAlign.CENTER,
-      margins: { top: 60, bottom: 60, left: 80, right: 80 },
-      children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Giáo dục chuyên nghiệp', size: 18, bold: true })] })]
+
+    // Title block
+    children.push(
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 40 },
+        children: [tnr('CHƯƠNG TRÌNH GIÁO DỤC ĐẠI HỌC', { bold: true, size: SZ_NORMAL })] }),
+      new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 120 },
+        children: [tnr('ĐỀ CƯƠNG HỌC PHẦN', { bold: true, size: 32, color: BLUE })] }),
+      tnrPara(`Mã học phần: ${d.maHP}`, { bold: true, size: SZ_NORMAL, spaceBefore: 40, spaceAfter: 30 }),
+      tnrPara(`Tên học phần (tiếng Việt): ${d.tenMonViet.toUpperCase()}`, { bold: true, size: SZ_NORMAL, spaceBefore: 30, spaceAfter: 30 }),
+      tnrPara(`Tên học phần (tiếng Anh): ${d.tenMonAnh.toUpperCase()}`, { bold: true, size: SZ_NORMAL, spaceBefore: 30, spaceAfter: 120 }),
+    );
+
+    // ── SECTION 1 ────────────────────────────────────────────
+    children.push(heading('1', 'Thông tin về học phần'));
+
+    // 1.1 Số tín chỉ
+    const soTCLT = parseInt(d.soTCLT) || 1;
+    const soTCTH = parseInt(d.soTCTH) || 1;
+    const soTCTotal = soTCLT + soTCTH;
+    children.push(tnrPara(`1.1. Số tín chỉ: ${soTCTotal} tín chỉ (${soTCLT} tín chỉ lý thuyết + ${soTCTH} tín chỉ thực hành).`,
+      { size: SZ_NORMAL, spaceBefore: 60, spaceAfter: 40 }));
+
+    // 1.2 Bảng phân bổ giờ
+    const lt  = parseInt(d.soTietLT)    || 0;
+    const th  = parseInt(d.soTietTH)    || 0;
+    const tu  = parseInt(d.soTietTuHoc) || 0;
+    const tongGioNum = lt + th + tu;
+    children.push(tnrPara(`1.2. Số giờ đối với các hoạt động học tập: ${tongGioNum} giờ`,
+      { size: SZ_NORMAL, spaceBefore: 40, spaceAfter: 40 }));
+
+    // Bảng phân bổ giờ (đúng chuẩn DNU)
+    const colW12 = [1600, 1600, 880, 880, 700, 1200, 1300, 900, 1100];
+    // total = 9160
+    const hoursTable = new Table({
+      width: tblW,
+      columnWidths: colW12,
+      rows: [
+        // Header row 1
+        new TableRow({ tableHeader: true, children: [
+          tcH('Phân bổ các loại giờ', colW12[0] + colW12[1], { colSpan: 2, rowSpan: 1 }),
+          tcH('Lý thuyết', colW12[2]),
+          tcH('Thực hành', colW12[3]),
+          tcH('Đồ án', colW12[4]),
+          tcH('Đi thực tế, trải nghiệm', colW12[5]),
+          tcH('Tự học, nghiên cứu', colW12[6]),
+          tcH('Thi, kiểm tra', colW12[7]),
+          tcH('Tổng', colW12[8]),
+        ]}),
+        // Row: Số giờ giảng trực tiếp & E-learning — Trực tiếp tại phòng học
+        new TableRow({ children: [
+          tc('Số giờ giảng trực tiếp và E-learning\n(' + (lt + th) + ' giờ)', colW12[0],
+            { rowSpan: 4, center: true }),
+          tc('Trực tiếp tại phòng học', colW12[1], { fill: 'FFFF00', bold: false }),
+          tc(String(lt),  colW12[2], { center: true }),
+          tc(String(th),  colW12[3], { center: true }),
+          tc('', colW12[4], { center: true }),
+          tc('', colW12[5], { center: true }),
+          tc('', colW12[6], { center: true }),
+          tc('', colW12[7], { center: true }),
+          tc(String(lt + th), colW12[8], { center: true }),
+        ]}),
+        new TableRow({ children: [
+          tc('Trực tiếp trên Ms Team', colW12[1], { fill: 'FFFF00' }),
+          ...Array(7).fill(tc('', colW12[2], { center: true })),
+        ]}),
+        new TableRow({ children: [
+          tc('E-learning có hướng dẫn', colW12[1]),
+          ...Array(7).fill(tc('', colW12[2], { center: true })),
+        ]}),
+        new TableRow({ children: [
+          tc('Đi thực tế, trải nghiệm', colW12[1]),
+          ...Array(7).fill(tc('', colW12[2], { center: true })),
+        ]}),
+        // Row: Số giờ tự học — Tự học, tự nghiên cứu
+        new TableRow({ children: [
+          tc('Số giờ tự học và khác\n(' + tu + ' giờ)', colW12[0], { rowSpan: 2, center: true }),
+          tc('Tự học, tự nghiên cứu', colW12[1]),
+          tc('', colW12[2], { center: true }),
+          tc('', colW12[3], { center: true }),
+          tc('', colW12[4], { center: true }),
+          tc('', colW12[5], { center: true }),
+          tc(String(tu), colW12[6], { center: true }),
+          tc('', colW12[7], { center: true }),
+          tc(String(tu), colW12[8], { center: true }),
+        ]}),
+        new TableRow({ children: [
+          tc('Ôn thi, dự thi, kiểm tra', colW12[1]),
+          ...Array(7).fill(tc('', colW12[2], { center: true })),
+        ]}),
+        // Tổng row
+        new TableRow({ children: [
+          tc('Tổng', colW12[0] + colW12[1], { colSpan: 2, bold: true, center: true }),
+          tc(String(lt),  colW12[2], { center: true, bold: true }),
+          tc(String(th),  colW12[3], { center: true, bold: true }),
+          tc('',  colW12[4], { center: true }),
+          tc('',  colW12[5], { center: true }),
+          tc(String(tu), colW12[6], { center: true, bold: true }),
+          tc('',  colW12[7], { center: true }),
+          tc(String(tongGioNum), colW12[8], { center: true, bold: true }),
+        ]}),
+      ]
     });
+    children.push(hoursTable, new Paragraph({ spacing: { before: 60 } }));
+
+    // 1.3 Khối kiến thức (checkbox table)
+    const selected = d.khoiKT || '';
+    const tick = (val) => (val === selected ? '☒' : '☐');
     const khoiKTTable = new Table({
       width: tblW,
       columnWidths: [2400, 2160, 2400, 2400],
       rows: [
         new TableRow({ children: [
-          labelCell13,
-          chuyenNghiepHeader,
+          tc('1.3. Học phần thuộc khối kiến thức', 2400, { rowSpan: 2 }),
+          new TableCell({ borders, columnSpan: 3, width: { size: 6960, type: WidthType.DXA },
+            margins: { top: 60, bottom: 60, left: 100, right: 100 },
+            verticalAlign: VerticalAlign.CENTER,
+            children: [new Paragraph({ alignment: AlignmentType.CENTER,
+              children: [tnr('Giáo dục chuyên nghiệp', { bold: true, size: SZ_NORMAL })] })] }),
         ]}),
         new TableRow({ children: [
-          ckCell('Giáo dục đại cương', 'Giáo dục đại cương', 2400),
-          ckCell('Cơ sở khối ngành',   'Cơ sở khối ngành',   2160),
-          ckCell('Cơ sở ngành',        'Cơ sở ngành',        2400),
-          ckCell('Ngành',              'Ngành',               2400),
+          tc(`${tick('Giáo dục đại cương')} Giáo dục đại cương`, 2400, { size: SZ_NORMAL }),
+          tc(`${tick('Cơ sở khối ngành')} Cơ sở khối ngành`, 2160, { size: SZ_NORMAL }),
+          tc(`${tick('Cơ sở ngành')} Cơ sở ngành`, 2400, { size: SZ_NORMAL }),
+          tc(`${tick('Ngành')} Ngành`, 2400, { size: SZ_NORMAL }),
         ]}),
       ]
     });
+    children.push(khoiKTTable, new Paragraph({ spacing: { before: 60 } }));
 
-    children.push(infoTable, khoiKTTable, new Paragraph({ spacing: { before: 160 } }));
+    // 1.4 – 1.8 (text thẳng, không bảng)
+    children.push(
+      tnrPara(`1.4. Học phần tiên quyết: ${d.tienQuyet || 'Không'}`, { spaceBefore: 60, spaceAfter: 40 }),
+      tnrPara(`1.5. Học phần học trước: ${d.hocTruoc || 'Không'}`, { spaceBefore: 40, spaceAfter: 40 }),
+      tnrPara(`1.6. Học phần song hành: ${d.songHanh || 'Không yêu cầu'}`, { spaceBefore: 40, spaceAfter: 40 }),
+      tnrPara(`1.7. Ngôn ngữ giảng dạy: Tiếng Anh`, { spaceBefore: 40, spaceAfter: 40 }),
+    );
+    // 1.8 Đơn vị phụ trách (sub-bullets)
+    children.push(tnrPara('1.8. Đơn vị phụ trách:', { spaceBefore: 40, spaceAfter: 20 }));
+    children.push(tnrPara('a) Khoa và bộ môn phụ trách biên soạn:', { indent: INDENT_L1, spaceBefore: 20, spaceAfter: 20 }));
+    children.push(tnrPara(`– Khoa: ${d.khoa}`, { indent: INDENT_L2, spaceBefore: 10, spaceAfter: 10 }));
+    children.push(tnrPara(`– Bộ môn: ${d.boMon}`, { indent: INDENT_L2, spaceBefore: 10, spaceAfter: 20 }));
+    children.push(tnrPara(`b) Học phần giảng dạy cho ngành: ${d.nganh}`, { indent: INDENT_L1, spaceBefore: 20, spaceAfter: 80 }));
 
-    // Section 2 – Mục tiêu & CLOs
-    children.push(sectionTitle('2', 'Mục tiêu và chuẩn đầu ra học phần'));
-    children.push(para('2.1. Mục tiêu của học phần', { bold: true, size: 22 }));
-    children.push(para('* Mục tiêu chung', { bold: true, italics: true }));
-    children.push(para(d.mucTieuChung || ''));
-    children.push(para('* Mục tiêu cụ thể', { bold: true, italics: true }));
-
+    // ── SECTION 2 ────────────────────────────────────────────
+    children.push(heading('2', 'Mục tiêu và chuẩn đầu ra học phần'));
+    children.push(subHeading('2.1. Mục tiêu của học phần'));
+    children.push(tnrPara('* Mục tiêu chung', { bold: true, italics: true }));
+    children.push(tnrPara(d.mucTieuChung || ''));
+    children.push(tnrPara('* Mục tiêu cụ thể', { bold: true, italics: true, spaceBefore: 80 }));
     const objLines = (d.mucTieuCuThe || '').split('\n').filter(l => l.trim());
     for (const line of objLines) {
-      const isHeader = line.startsWith('*');
+      const isH = line.startsWith('*') || line.startsWith('Về');
       children.push(new Paragraph({
-        spacing: { before: 40, after: 40 },
-        indent: isHeader ? {} : { left: 360 },
-        children: [new TextRun({ text: line.replace(/^[\*\-]\s*/, ''), bold: isHeader, size: 20 })]
+        spacing: { before: 40, after: 40, line: 276, lineRule: 'auto' },
+        indent: isH ? {} : { left: INDENT_L1 },
+        children: [tnr(line.replace(/^[\*\-]\s*/, ''), { bold: isH, size: SZ_NORMAL })]
       }));
     }
 
     children.push(new Paragraph({ spacing: { before: 120 } }));
-    children.push(para('2.2. Chuẩn đầu ra của học phần (PLO) và ma trận đóng góp CLO để đạt PLO/PI', { bold: true, size: 22 }));
-    children.push(para('a. Mô tả chuẩn đầu ra của học phần (CLO)', { bold: true }));
+    children.push(subHeading('2.2. Chuẩn đầu ra của học phần (PLO) và ma trận đóng góp CLO để đạt PLO/PI'));
+    children.push(tnrPara('a. Mô tả chuẩn đầu ra của học phần (CLO)', { bold: true }));
 
     // CLO table
     const cloTable = new Table({
       width: tblW,
       columnWidths: [1200, 2400, 5760],
       rows: [
-        makeHeaderRow(['Ký hiệu', 'Phân loại', 'Chuẩn đầu ra học phần (CLOs)'], [1200, 2400, 5760]),
-        ...d.clos.map(c => new TableRow({
-          children: [
-            new TableCell({ borders, width: { size: 1200, type: WidthType.DXA }, margins: cellMarg, verticalAlign: VerticalAlign.CENTER,
-              shading: { fill: LIGHT_BLU, type: ShadingType.CLEAR },
-              children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: c.id, bold: true, size: 20 })] })] }),
-            new TableCell({ borders, width: { size: 2400, type: WidthType.DXA }, margins: cellMarg,
-              children: [new Paragraph({ children: [new TextRun({ text: c.category, italics: true, size: 20 })] })] }),
-            new TableCell({ borders, width: { size: 5760, type: WidthType.DXA }, margins: cellMarg,
-              children: [new Paragraph({ children: [new TextRun({ text: c.content || '—', size: 20 })] })] }),
-          ]
-        }))
+        new TableRow({ tableHeader: true, children: [
+          tcH('Ký hiệu', 1200),
+          tcH('Phân loại', 2400),
+          tcH('Chuẩn đầu ra học phần (CLOs)', 5760),
+        ]}),
+        ...d.clos.map(c => new TableRow({ children: [
+          tc(c.id, 1200, { center: true, bold: true, fill: LIGHT_BLU }),
+          tc(c.category, 2400, { italics: true }),
+          tc(c.content || '—', 5760),
+        ]}))
       ]
     });
     children.push(cloTable, new Paragraph({ spacing: { before: 120 } }));
 
-    // Matrix – proper table
-    children.push(para('b. Ma trận đóng góp CLO để đạt PLO/PI', { bold: true }));
+    children.push(tnrPara('b. Ma trận đóng góp CLO để đạt PLO/PI', { bold: true }));
     const matrixTable = buildMatrixTable(d.matrix);
     if (matrixTable) {
       children.push(matrixTable);
-      children.push(para('Ghi chú: I = Introduced (Giới thiệu), R = Reinforced (Củng cố), M = Mastery (Thành thạo), A = Assessed (Đánh giá)', { italics: true, size: 16 }));
+      children.push(tnrPara('Ghi chú: I = Introduced (Giới thiệu), R = Reinforced (Củng cố), M = Mastery (Thành thạo), A = Assessed (Đánh giá)',
+        { italics: true, size: SZ_SMALL, spaceBefore: 40 }));
     }
     children.push(new Paragraph({ spacing: { before: 120 } }));
 
-    // Section 3 – Mô tả vắn tắt
-    children.push(sectionTitle('3', 'Mô tả vắn tắt nội dung học phần'));
-    children.push(para(d.moTa || ''));
+    // ── SECTION 3 ────────────────────────────────────────────
+    children.push(heading('3', 'Mô tả vắn tắt nội dung học phần'));
+    children.push(tnrPara(d.moTa || ''));
 
-    // Section 4 – Rubric & Thang điểm
-    children.push(sectionTitle('4', 'Rubric đánh giá chuẩn đầu ra'));
-    if (d.rubric && d.rubric.source === 'manual') {
-      const rubricLines = (d.rubric.detail || '').split('\n').filter(l => l.trim());
-      for (const line of rubricLines) {
-        children.push(new Paragraph({ spacing: { before: 40, after: 40 }, indent: { left: 360 },
-          children: [new TextRun({ text: '– ' + line.replace(/^[-–]\s*/, ''), size: 20 })] }));
-      }
-      if (!rubricLines.length) children.push(para('(Xem đề cương mẫu)', { italics: true, color: '888888' }));
-    } else {
-      children.push(para('(Copy từ đề cương mẫu/tham khảo theo lựa chọn của giảng viên)', { italics: true, color: '888888' }));
+    // ── SECTION 4 – Rubric ───────────────────────────────────
+    children.push(heading('4', 'Rubric đánh giá chuẩn đầu ra'));
+
+    // Helper: build rubric table from collected data
+    function buildRubricTable(bodyRows, title) {
+      if (!bodyRows || bodyRows.length === 0) return null;
+      const cW = [1400, 800, 1200, 1200, 1200, 1200, 1200, 720];
+      // total ~8920, last col is delete-button col (skip in docx)
+      const docxCW = [1400, 800, 1432, 1432, 1432, 1432, 1432];
+      return new Table({
+        width: tblW,
+        columnWidths: docxCW,
+        rows: [
+          // Sub-header
+          new TableRow({ tableHeader: true, children: [
+            tcH('Tiêu chí đánh giá', docxCW[0], { rowSpan: 2 }),
+            tcH('Trọng số (%)',       docxCW[1], { rowSpan: 2 }),
+            new TableCell({ borders, columnSpan: 5,
+              width: { size: docxCW.slice(2).reduce((a,b)=>a+b,0), type: WidthType.DXA },
+              shading: { fill: BLUE, type: ShadingType.CLEAR },
+              margins: { top: 60, bottom: 60, left: 100, right: 100 },
+              children: [new Paragraph({ alignment: AlignmentType.CENTER,
+                children: [tnr('Mức độ đạt chuẩn quy định', { bold: true, size: SZ_NORMAL, color: 'FFFFFF' })] })] }),
+          ]}),
+          new TableRow({ tableHeader: true, children: [
+            tcH('A\n8.5–10', docxCW[2]),
+            tcH('B\n7.0–8.4', docxCW[3]),
+            tcH('C\n5.5–6.9', docxCW[4]),
+            tcH('D\n4.0–5.4', docxCW[5]),
+            tcH('F\n0.0–3.9', docxCW[6]),
+          ]}),
+          ...bodyRows.map(row => new TableRow({ children: [
+            tc(row[0] || '', docxCW[0]),
+            tc(row[1] || '', docxCW[1], { center: true }),
+            tc(row[2] || '', docxCW[2], { vCenter: false }),
+            tc(row[3] || '', docxCW[3], { vCenter: false }),
+            tc(row[4] || '', docxCW[4], { vCenter: false }),
+            tc(row[5] || '', docxCW[5], { vCenter: false }),
+            tc(row[6] || '', docxCW[6], { vCenter: false }),
+          ]}))
+        ]
+      });
     }
 
-    // Section 5 – Kế hoạch đánh giá
-    children.push(sectionTitle('5', 'Kế hoạch đánh giá học phần'));
-    if (d.rubric && d.rubric.source === 'manual' && d.rubric.text) {
-      const thangLines = d.rubric.text.split('\n').filter(l => l.trim());
-      for (const line of thangLines) {
-        children.push(new Paragraph({ spacing: { before: 40, after: 40 }, indent: { left: 360 },
-          children: [new TextRun({ text: '– ' + line.replace(/^[-–]\s*/, ''), size: 20 })] }));
-      }
-    } else {
-      children.push(para('(Copy từ đề cương mẫu/tham khảo theo lựa chọn của giảng viên)', { italics: true, color: '888888' }));
+    const rubric1Rows = d.rubric1 || [];
+    const rubric2Rows = d.rubric2 || [];
+
+    if (rubric1Rows.length) {
+      children.push(tnrPara('❖ Rubric 1: Đánh giá điểm chuyên cần', { italics: true, bold: false, spaceBefore: 80 }));
+      const r1t = buildRubricTable(rubric1Rows, 'Rubric 1');
+      if (r1t) children.push(r1t, new Paragraph({ spacing: { before: 80 } }));
+    }
+    if (rubric2Rows.length) {
+      children.push(tnrPara('❖ Rubric 2: Đánh giá bài tập', { italics: true, bold: false, spaceBefore: 80 }));
+      const r2t = buildRubricTable(rubric2Rows, 'Rubric 2');
+      if (r2t) children.push(r2t, new Paragraph({ spacing: { before: 80 } }));
+    }
+    if (!rubric1Rows.length && !rubric2Rows.length) {
+      children.push(tnrPara('(Xem đề cương mẫu)', { italics: true, color: '888888' }));
     }
 
-    // Section 6 – Nội dung chi tiết (proper merged-header table)
-    children.push(sectionTitle('6', 'Nội dung chi tiết học phần, phương pháp giảng dạy, tiến độ và hoạt động dạy – học'));
+    // ── SECTION 5 – Kế hoạch đánh giá ──────────────────────
+    children.push(heading('5', 'Kế hoạch đánh giá học phần'));
+    const assessRows = d.assessTable || [];
+    if (assessRows.length) {
+      // Cols: Điểm thành phần | PP đánh giá | Trọng số | CLOs | Thời điểm
+      const aCW = [1400, 2800, 900, 2000, 2260];
+      const assessTable = new Table({
+        width: tblW,
+        columnWidths: aCW,
+        rows: [
+          new TableRow({ tableHeader: true, children: [
+            tcH('Điểm thành phần', aCW[0]),
+            tcH('Phương pháp đánh giá', aCW[1]),
+            tcH('Trọng số (%)', aCW[2]),
+            tcH('Chuẩn đầu ra học phần', aCW[3]),
+            tcH('Thời điểm đánh giá', aCW[4]),
+          ]}),
+          ...assessRows.map(row => new TableRow({ children: [
+            tc(row[0] || '', aCW[0], { bold: true, center: true }),
+            tc(row[1] || '', aCW[1], { center: true }),
+            tc(row[2] || '', aCW[2], { center: true }),
+            tc(row[3] || '', aCW[3], { center: true }),
+            tc(row[4] || '', aCW[4], { center: true }),
+          ]}))
+        ]
+      });
+      children.push(assessTable, new Paragraph({ spacing: { before: 80 } }));
+    } else {
+      children.push(tnrPara('(Copy từ đề cương mẫu/tham khảo theo lựa chọn của giảng viên)', { italics: true, color: '888888' }));
+    }
+
+    // ── SECTION 6 – Nội dung chi tiết ───────────────────────
+    children.push(heading('6', 'Nội dung chi tiết học phần, phương pháp giảng dạy, tiến độ và hoạt động dạy – học'));
 
     const sessions = d.sessions && d.sessions.length
       ? d.sessions
-      : parseSessions(d.noiDung || '');   // fallback legacy
+      : parseSessions(d.noiDung || '');
     if (sessions.length > 0) {
       children.push(buildSessionTable(sessions));
     } else {
-      children.push(para('(Chưa có nội dung. Nhấn "AI Gợi ý lịch dạy" để tạo.)', { italics: true, color: '888888' }));
+      children.push(tnrPara('(Chưa có nội dung. Nhấn "AI Gợi ý" để tạo.)', { italics: true, color: '888888' }));
     }
     children.push(new Paragraph({ spacing: { before: 120 } }));
 
-    // Section 7 – Yêu cầu GV
-    children.push(sectionTitle('7', 'Yêu cầu của giảng viên đối với học phần'));
-    children.push(para(d.ghiChu || 'Phòng học có wifi, máy chiếu, loa.'));
+    // ── SECTION 7 – Yêu cầu GV ──────────────────────────────
+    children.push(heading('7', 'Yêu cầu của giảng viên đối với học phần'));
+    const gvReqs = (d.ghiChu || 'Phòng học có wifi, máy chiếu, loa.').split('\n').filter(l => l.trim());
+    for (const r of gvReqs) children.push(bullet(r));
 
-    // Section 8 – Nhiệm vụ SV
-    children.push(sectionTitle('8', 'Nhiệm vụ của sinh viên'));
-    const svTasks = [
+    // ── SECTION 8 – Nhiệm vụ SV ─────────────────────────────
+    children.push(heading('8', 'Nhiệm vụ của sinh viên'));
+    const nhiemVuLines = (d.nhiemVuSV || '').split('\n').filter(l => l.trim());
+    const defaultNhiemVu = [
+      '8.1. Các nhiệm vụ chính của sinh viên:',
       'Tham gia đầy đủ các buổi học trên lớp.',
-      'Chuẩn bị đầy đủ tài liệu học tập theo quy định của giảng viên.',
-      'Tự đọc, nghiên cứu tài liệu trước khi đến lớp.',
-      'Thể hiện tinh thần trách nhiệm, kỷ luật trong học tập và làm việc nhóm.',
+      'Chuẩn bị đầy đủ tài liệu học tập theo quy định của giảng viên khi đến lớp.',
+      'Trước khi đến lớp, yêu cầu sinh viên tự đọc, nghiên cứu các bài tập, tài liệu tại nhà theo sự hướng dẫn giảng viên.',
+      'Tinh thần, thái độ tôn trọng, nghiêm túc, trách nhiệm, tính kỷ luật, cầu thị trong học tập.',
     ];
-    for (const t of svTasks) {
+    const svList = nhiemVuLines.length ? nhiemVuLines : defaultNhiemVu;
+    for (const line of svList) {
+      const isTitle = /^\d+\.|^8\./.test(line);
       children.push(new Paragraph({
-        spacing: { before: 40, after: 40 },
-        indent: { left: 360 },
-        children: [new TextRun({ text: '– ' + t, size: 20 })]
+        spacing: { before: isTitle ? 80 : 40, after: 40, line: 276, lineRule: 'auto' },
+        indent: isTitle ? {} : { left: INDENT_L1 },
+        children: [tnr(line, { bold: isTitle, size: SZ_NORMAL })]
       }));
     }
 
-    // Section 9 – Tài liệu
-    children.push(sectionTitle('9', 'Giáo trình và tài liệu tham khảo'));
-
+    // ── SECTION 9 – Tài liệu ────────────────────────────────
+    children.push(heading('9', 'Giáo trình và tài liệu tham khảo'));
     const mainBooks = (d.taiLieu || []).filter(t => t.type === 'main');
     const refBooks  = (d.taiLieu || []).filter(t => t.type === 'ref');
-
-    // Helper: render 1 book list
     function renderBookList(label, books, startIdx) {
       if (books.length === 0) return;
-      children.push(para(label, { bold: true, size: 20 }));
-
-      // Build table: STT | Thông tin tài liệu | Ghi chú
+      children.push(tnrPara(label, { bold: true, spaceBefore: 80 }));
       const bookTable = new Table({
-        width: tblW,
-        columnWidths: [700, 7160, 1500],
+        width: tblW, columnWidths: [700, 7160, 1500],
         rows: [
-          makeHeaderRow(['STT', 'Thông tin tài liệu', 'Ghi chú'], [700, 7160, 1500]),
-          ...books.map((item, i) => new TableRow({
-            children: [
-              new TableCell({ borders, width: { size: 700, type: WidthType.DXA }, margins: cellMarg,
-                verticalAlign: VerticalAlign.CENTER,
-                children: [new Paragraph({ alignment: AlignmentType.CENTER,
-                  children: [new TextRun({ text: String(startIdx + i), bold: true, size: 20 })] })] }),
-              new TableCell({ borders, width: { size: 7160, type: WidthType.DXA }, margins: cellMarg,
-                children: [new Paragraph({ children: [
-                  new TextRun({ text: formatTaiLieu(item, ''), size: 20 })
-                ]})] }),
-              new TableCell({ borders, width: { size: 1500, type: WidthType.DXA }, margins: cellMarg,
-                children: [new Paragraph({ children: [
-                  new TextRun({ text: item.type === 'main' ? 'Bắt buộc' : 'Tham khảo', italics: true, size: 18, color: '555555' })
-                ]})] }),
-            ]
-          }))
+          new TableRow({ tableHeader: true, children: [tcH('STT',700), tcH('Thông tin tài liệu',7160), tcH('Ghi chú',1500)] }),
+          ...books.map((item, i) => new TableRow({ children: [
+            tc(String(startIdx + i), 700, { center: true, bold: true }),
+            tc(formatTaiLieu(item, ''), 7160),
+            tc(item.type === 'main' ? 'Bắt buộc' : 'Tham khảo', 1500, { italics: true, center: true, size: SZ_SMALL }),
+          ]}))
         ]
       });
       children.push(bookTable, new Paragraph({ spacing: { before: 80 } }));
     }
-
     renderBookList('a. Giáo trình chính', mainBooks, 1);
     renderBookList('b. Tài liệu tham khảo', refBooks, mainBooks.length + 1);
+    if (!d.taiLieu?.length) children.push(tnrPara('(Chưa điền tài liệu tham khảo)', { italics: true, color: '888888' }));
 
-    if ((d.taiLieu || []).length === 0) {
-      children.push(para('(Chưa điền tài liệu tham khảo)', { italics: true, color: '888888' }));
-    }
-
-    // Section 10 – Thông tin GV
-    children.push(sectionTitle('10', 'Thông tin giảng viên phụ trách học phần'));
+    // ── SECTION 10 – Thông tin GV ───────────────────────────
+    children.push(heading('10', 'Thông tin giảng viên phụ trách học phần'));
     const gvTable = new Table({
-      width: tblW,
-      columnWidths: [4680, 4680],
+      width: tblW, columnWidths: [4680, 4680],
       rows: [
         new TableRow({ children: [
-          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
-            children: [para(`Họ và tên: ${d.tenGV}`, { bold: true })] }),
-          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
-            children: [para(`Học hàm, học vị: ${d.hocVi}`)] }),
+          tc(`Họ và tên: ${d.tenGV}`, 4680, { bold: true }),
+          tc(`Học hàm, học vị: ${d.hocVi}`, 4680),
         ]}),
         new TableRow({ children: [
-          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
-            children: [para(`Địa chỉ cơ quan: Số 9 Lê Quý Đôn, p. Tam Hiệp, Đồng Nai`)] }),
-          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
-            children: [para(`Điện thoại: ${d.dienThoai}`)] }),
+          tc('Địa chỉ cơ quan: Số 9 Lê Quý Đôn, p. Tam Hiệp, Đồng Nai', 4680),
+          tc(`Điện thoại: ${d.dienThoai}`, 4680),
         ]}),
         new TableRow({ children: [
-          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
-            children: [para(`Email: ${d.emailGV}`)] }),
-          new TableCell({ borders, width: { size: 4680, type: WidthType.DXA }, margins: cellMarg,
-            children: [para(`Cách liên lạc: ${d.lienLac}`)] }),
+          tc(`Email: ${d.emailGV}`, 4680),
+          tc(`Cách liên lạc: ${d.lienLac}`, 4680),
         ]}),
       ]
     });
     children.push(gvTable, new Paragraph({ spacing: { before: 200 } }));
 
+    // Custom fields
+    if (d.customFields && d.customFields.length) {
+      for (const cf of d.customFields) {
+        if (!cf.title) continue;
+        children.push(tnrPara(cf.title, { bold: true, spaceBefore: 160, spaceAfter: 80 }));
+        if (cf.type === 'text') {
+          const lines = (cf.content || '').split('\n').filter(l => l.trim());
+          for (const l of lines) children.push(bullet(l));
+        } else if (cf.type === 'table' && cf.headers) {
+          const cw = Math.floor(9360 / cf.headers.length);
+          const cfTable = new Table({
+            width: tblW,
+            columnWidths: cf.headers.map(() => cw),
+            rows: [
+              new TableRow({ tableHeader: true, children: cf.headers.map(h => tcH(h, cw)) }),
+              ...(cf.rows || []).map(row => new TableRow({ children: row.map(cell => tc(cell, cw)) }))
+            ]
+          });
+          children.push(cfTable);
+        }
+      }
+    }
+
     // Signature block
     const today = new Date();
     children.push(
       new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 120, after: 40 },
-        children: [new TextRun({ text: `Đồng Nai, ngày ${today.getDate()} tháng ${today.getMonth()+1} năm ${today.getFullYear()}`, italics: true, size: 20 })] })
+        children: [tnr(`Đồng Nai, ngày ${today.getDate()} tháng ${today.getMonth()+1} năm ${today.getFullYear()}`,
+          { italics: true, size: SZ_NORMAL })] })
     );
-
     const sigTable = new Table({
-      width: tblW,
-      columnWidths: [3120, 3120, 3120],
-      rows: [
-        new TableRow({ children: [
-          new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
-            width: { size: 3120, type: WidthType.DXA }, margins: cellMarg,
-            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'TRƯỞNG KHOA', bold: true, size: 20 })] })] }),
-          new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
-            width: { size: 3120, type: WidthType.DXA }, margins: cellMarg,
-            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'TRƯỞNG BỘ MÔN', bold: true, size: 20 })] })] }),
-          new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
-            width: { size: 3120, type: WidthType.DXA }, margins: cellMarg,
-            children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'NGƯỜI BIÊN SOẠN', bold: true, size: 20 })] }),
-              new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 360 }, children: [new TextRun({ text: `${d.hocVi}. ${d.tenGV}`, size: 20 })] })] }),
-        ]})
-      ]
+      width: tblW, columnWidths: [3120, 3120, 3120],
+      rows: [new TableRow({ children: [
+        new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
+          width:{size:3120,type:WidthType.DXA}, margins:{top:60,bottom:60,left:100,right:100},
+          children:[new Paragraph({alignment:AlignmentType.CENTER, children:[tnr('TRƯỞNG KHOA',{bold:true})]})] }),
+        new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
+          width:{size:3120,type:WidthType.DXA}, margins:{top:60,bottom:60,left:100,right:100},
+          children:[new Paragraph({alignment:AlignmentType.CENTER, children:[tnr('TRƯỞNG BỘ MÔN',{bold:true})]})] }),
+        new TableCell({ borders: { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} },
+          width:{size:3120,type:WidthType.DXA}, margins:{top:60,bottom:60,left:100,right:100},
+          children:[
+            new Paragraph({alignment:AlignmentType.CENTER, children:[tnr('NGƯỜI BIÊN SOẠN',{bold:true})]}),
+            new Paragraph({alignment:AlignmentType.CENTER, spacing:{before:360}, children:[tnr(`${d.hocVi}. ${d.tenGV}`)]}),
+          ]}),
+      ]})]
     });
     children.push(sigTable);
 
@@ -3108,22 +3284,14 @@ async function generateDocx() {
     const document = new Document({
       styles: {
         default: {
-          document: { run: { font: 'Times New Roman', size: 22 } }
+          document: { run: { font: F, size: SZ_NORMAL } }
         },
-        paragraphStyles: [
-          { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-            run: { size: 28, bold: true, font: 'Times New Roman', color: BLUE },
-            paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 } },
-          { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-            run: { size: 24, bold: true, font: 'Times New Roman', color: BLUE },
-            paragraph: { spacing: { before: 180, after: 100 }, outlineLevel: 1 } },
-        ]
       },
       sections: [{
         properties: {
           page: {
             size: { width: 11906, height: 16838 },
-            margin: { top: 1134, right: 851, bottom: 1134, left: 1701 } // A4 Vietnamese margins
+            margin: { top: 1134, right: 851, bottom: 1134, left: 1701 }
           }
         },
         children
