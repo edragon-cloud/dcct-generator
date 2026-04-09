@@ -2540,18 +2540,84 @@ function previewSyllabus() {
     <hr/>
 
     <h2>1. Thông tin về học phần</h2>
-    <p>1.1. Số tín chỉ: ${d.soTC}</p>
-    <p>1.2. Số giờ: ${d.tongGio} — LT: ${d.soTietLT} | TH: ${d.soTietTH} | Tự học: ${d.soTietTuHoc}</p>
-    <p>1.3. Khối kiến thức:</p>
-    <table style="border-collapse:collapse;font-size:.85rem;width:100%">
-      <tr><td rowspan="2" style="border:1px solid #aaa;padding:6px 10px;vertical-align:middle;width:28%">Giáo dục đại cương ${d.khoiKT==='Giáo dục đại cương'?'☒':'☐'}</td>
+    <p><strong>1.1. Số tín chỉ:</strong> ${d.soTC} tín chỉ (${d.soTCLT||1} tín chỉ lý thuyết + ${d.soTCTH||1} tín chỉ thực hành).</p>
+    <p><strong>1.2. Số giờ đối với các hoạt động học tập: ${parseInt(d.soTietLT||0)+parseInt(d.soTietTH||0)+parseInt(d.soTietTuHoc||0)} giờ</strong></p>
+    <div style="overflow-x:auto;margin-bottom:8px">
+    <table style="border-collapse:collapse;font-size:.82rem;width:100%">
+      <thead>
+        <tr>
+          <th colspan="2" style="background:#1B3A6B;color:#fff;padding:6px 10px;border:1px solid #aaa;text-align:center">Phân bổ các loại giờ</th>
+          <th style="background:#1B3A6B;color:#fff;padding:5px 6px;border:1px solid #aaa;text-align:center;font-size:.78rem">Lý thuyết</th>
+          <th style="background:#1B3A6B;color:#fff;padding:5px 6px;border:1px solid #aaa;text-align:center;font-size:.78rem">Thực hành</th>
+          <th style="background:#1B3A6B;color:#fff;padding:5px 6px;border:1px solid #aaa;text-align:center;font-size:.78rem">Đồ án</th>
+          <th style="background:#1B3A6B;color:#fff;padding:5px 6px;border:1px solid #aaa;text-align:center;font-size:.78rem">Đi thực tế, trải nghiệm</th>
+          <th style="background:#1B3A6B;color:#fff;padding:5px 6px;border:1px solid #aaa;text-align:center;font-size:.78rem">Tự học, nghiên cứu</th>
+          <th style="background:#1B3A6B;color:#fff;padding:5px 6px;border:1px solid #aaa;text-align:center;font-size:.78rem">Thi, kiểm tra</th>
+          <th style="background:#1B3A6B;color:#fff;padding:5px 6px;border:1px solid #aaa;text-align:center;font-size:.78rem">Tổng</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="4" style="border:1px solid #ccc;padding:5px 8px;text-align:center;vertical-align:middle;width:120px;font-size:.8rem">Số giờ giảng trực tiếp và E-learning<br><em>(${parseInt(d.soTietLT||0)+parseInt(d.soTietTH||0)} giờ)</em></td>
+          <td style="border:1px solid #ccc;padding:5px 8px;background:#FFFF00;font-weight:bold;font-size:.8rem">Trực tiếp tại phòng học</td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${d.soTietLT||''}</td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${d.soTietTH||''}</td>
+          <td style="border:1px solid #ccc;padding:5px 8px"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${parseInt(d.soTietLT||0)+parseInt(d.soTietTH||0)||''}</td>
+        </tr>
+        <tr>
+          <td style="border:1px solid #ccc;padding:5px 8px;background:#FFFF00;font-size:.8rem">Trực tiếp trên Ms Team</td>
+          <td colspan="7" style="border:1px solid #ccc"></td>
+        </tr>
+        <tr>
+          <td style="border:1px solid #ccc;padding:5px 8px;font-size:.8rem">E-learning có hướng dẫn</td>
+          <td colspan="7" style="border:1px solid #ccc"></td>
+        </tr>
+        <tr>
+          <td style="border:1px solid #ccc;padding:5px 8px;font-size:.8rem">Đi thực tế, trải nghiệm</td>
+          <td colspan="7" style="border:1px solid #ccc"></td>
+        </tr>
+        <tr>
+          <td rowspan="2" style="border:1px solid #ccc;padding:5px 8px;text-align:center;vertical-align:middle;font-size:.8rem">Số giờ tự học và khác<br><em>(${d.soTietTuHoc||0} giờ)</em></td>
+          <td style="border:1px solid #ccc;padding:5px 8px;font-size:.8rem">Tự học, tự nghiên cứu</td>
+          <td style="border:1px solid #ccc"></td>
+          <td style="border:1px solid #ccc"></td>
+          <td style="border:1px solid #ccc"></td>
+          <td style="border:1px solid #ccc"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${d.soTietTuHoc||''}</td>
+          <td style="border:1px solid #ccc"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${d.soTietTuHoc||''}</td>
+        </tr>
+        <tr>
+          <td style="border:1px solid #ccc;padding:5px 8px;font-size:.8rem">Ôn thi, dự thi, kiểm tra</td>
+          <td colspan="7" style="border:1px solid #ccc"></td>
+        </tr>
+        <tr style="background:#f0f4fa">
+          <td colspan="2" style="border:1px solid #ccc;padding:5px 10px;font-weight:bold;text-align:center">Tổng</td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${d.soTietLT||''}</td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${d.soTietTH||''}</td>
+          <td style="border:1px solid #ccc;padding:5px 8px"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${d.soTietTuHoc||''}</td>
+          <td style="border:1px solid #ccc;padding:5px 8px"></td>
+          <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;font-weight:bold">${parseInt(d.soTietLT||0)+parseInt(d.soTietTH||0)+parseInt(d.soTietTuHoc||0)||''}</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-top:6px"><strong>1.3. Học phần thuộc khối kiến thức:</strong></p>
+    <table style="border-collapse:collapse;font-size:.85rem;width:100%;margin-bottom:6px">
+      <tr><td rowspan="2" style="border:1px solid #aaa;padding:6px 10px;vertical-align:middle;width:26%">Giáo dục đại cương ${d.khoiKT==='Giáo dục đại cương'?'☒':'☐'}</td>
           <td colspan="3" style="border:1px solid #aaa;padding:6px 10px;text-align:center;font-weight:bold">Giáo dục chuyên nghiệp</td></tr>
       <tr><td style="border:1px solid #aaa;padding:6px 10px">Cơ sở khối ngành ${d.khoiKT==='Cơ sở khối ngành'?'☒':'☐'}</td>
           <td style="border:1px solid #aaa;padding:6px 10px">Cơ sở ngành ${d.khoiKT==='Cơ sở ngành'?'☒':'☐'}</td>
           <td style="border:1px solid #aaa;padding:6px 10px">Ngành ${d.khoiKT==='Ngành'?'☒':'☐'}</td></tr>
     </table>
     <p>1.4. Tiên quyết: ${d.tienQuyet||'Không'} &nbsp;|&nbsp; 1.5. Học trước: ${d.hocTruoc||'Không'} &nbsp;|&nbsp; 1.6. Song hành: ${d.songHanh||'Không'}</p>
-    <p>1.8. Khoa: ${d.khoa} | Bộ môn: ${d.boMon} | Ngành: ${d.nganh}</p>
+    <p>1.7. Ngôn ngữ: ${d.ngonNgu||'Tiếng Anh'} &nbsp;|&nbsp; 1.8. Khoa: ${d.khoa} | Bộ môn: ${d.boMon} | Ngành: ${d.nganh}</p>
 
     <h2>2. Mục tiêu &amp; Chuẩn đầu ra</h2>
     <p><strong>Mục tiêu chung:</strong> ${d.mucTieuChung||'—'}</p>
