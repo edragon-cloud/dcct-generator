@@ -690,9 +690,9 @@
       </table>
       </div><!-- /overflow-x:auto -->
 
-      <!-- Upload files (compact row) -->
-      <div class="row g-3 mt-3">
-        <div class="col-md-4">
+      <!-- Upload files + PLOs (compact 3-col layout) -->
+      <div class="row g-2 mt-3">
+        <div class="col-md-3">
           <label class="small fw-600"><i class="bi bi-file-earmark-word me-1 text-primary"></i>Đề cương tham khảo <span class="text-muted fw-400">(optional)</span></label>
           <div class="upload-zone" id="dropZoneRef" ondragover="dragOver(event,'dropZoneRef')" ondragleave="dragLeave('dropZoneRef')" ondrop="dropFile(event,'refFile','dropZoneRef')" style="padding:8px">
             <input type="file" id="refFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZoneRef')" />
@@ -700,7 +700,7 @@
             <div class="upload-name" id="refFile_name"></div>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="small fw-600"><i class="bi bi-file-earmark-check me-1 text-success"></i>Chuẩn đầu ra CT (PLOs) <span class="text-muted fw-400">(optional)</span></label>
           <div class="upload-zone" id="dropZonePLO" ondragover="dragOver(event,'dropZonePLO')" ondragleave="dragLeave('dropZonePLO')" ondrop="dropFile(event,'ploFile','dropZonePLO')" style="padding:8px">
             <input type="file" id="ploFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZonePLO')" />
@@ -708,8 +708,8 @@
             <div class="upload-name" id="ploFile_name"></div>
           </div>
         </div>
-        <div class="col-md-4">
-          <label class="small fw-600"><i class="bi bi-list-check me-1 text-warning"></i>PLOs &amp; PIs (copy/paste)</label>
+        <div class="col-md-6">
+          <label class="small fw-600"><i class="bi bi-list-check me-1 text-warning"></i>PLOs &amp; PIs <span class="text-muted fw-400">(copy/paste từ CTĐT)</span></label>
           <textarea id="ploText" class="form-control form-control-sm" rows="3"
             placeholder="PLO1 (PI 1.1): ...&#10;PLO2 (PI 2.1): ..."></textarea>
         </div>
@@ -2488,10 +2488,10 @@ function previewSyllabus() {
     ${tbl(['TT','Tên giáo trình','Tác giả','Năm xuất bản','Nhà xuất bản'],
       books.map((b,i)=>`<tr>
         ${td(start+i,'text-align:center;font-weight:bold;width:40px')}
-        ${td(b.tenTL||b.ten||'','vertical-align:top')}
-        ${td(b.tacGia||'','text-align:center;width:130px')}
-        ${td(b.namXB||b.nam||'','text-align:center;width:80px')}
-        ${td(b.nxb||b.nhaxb||b.nhaXB||'','text-align:center;width:130px')}
+        ${td(b.title||b.tenTL||b.ten||'','vertical-align:top')}
+        ${td(b.author||b.tacGia||'','text-align:center;width:130px')}
+        ${td(b.year||b.namXB||b.nam||'','text-align:center;width:80px')}
+        ${td(b.publisher||b.nxb||b.nhaxb||'','text-align:center;width:130px')}
       </tr>`).join('')
     )}`;
   };
@@ -3439,10 +3439,10 @@ async function generateDocx() {
           ]}),
           ...books.map((b, i) => new TableRow({ children: [
             tc(String(startIdx + i), bCW[0], { center: true, bold: true }),
-            tc(b.tenTL || b.ten || '', bCW[1]),
-            tc(b.tacGia || '', bCW[2], { center: true }),
-            tc(b.namXB || b.nam || '', bCW[3], { center: true }),
-            tc(b.nxb || b.nhaxb || b.nhaXB || '', bCW[4], { center: true }),
+            tc(b.title || b.tenTL || b.ten || '', bCW[1]),
+            tc(b.author || b.tacGia || '', bCW[2], { center: true }),
+            tc(b.year || b.namXB || b.nam || '', bCW[3], { center: true }),
+            tc(b.publisher || b.nxb || b.nhaxb || b.nhaXB || '', bCW[4], { center: true }),
           ]}))
         ]
       });
