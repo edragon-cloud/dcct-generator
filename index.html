@@ -1458,7 +1458,7 @@ function addCustomField(type) {
       headers.push(prompt(`Tên cột ${c+1}:`, `Cột ${c+1}`) || `Cột ${c+1}`);
     }
     const headerHtml = headers.map(h => `<th style="background:var(--primary);color:#fff;padding:6px 8px">${h}</th>`).join('');
-    const firstRow   = headers.map(() => `<td><input class="form-control form-control-sm" placeholder="..." /></td>`).join('');
+    const firstRow   = headers.map(() => `<td><input type="text" class="form-control form-control-sm" placeholder="..." /></td>`).join('');
     div.innerHTML = `
       <div class="d-flex align-items-center gap-2 mb-2">
         <input class="form-control form-control-sm fw-600" style="max-width:360px"
@@ -1486,7 +1486,7 @@ function addCustomTableRow(fieldId, cols) {
   const tbody = document.getElementById(`cf_tbody_${fieldId}`);
   if (!tbody) return;
   const tr = document.createElement('tr');
-  const cells = Array(cols).fill(0).map(() => `<td><input class="form-control form-control-sm" placeholder="..." /></td>`).join('');
+  const cells = Array(cols).fill(0).map(() => `<td><input type="text" class="form-control form-control-sm" placeholder="..." /></td>`).join('');
   tr.innerHTML = cells + `<td style="text-align:center;vertical-align:middle;width:36px">
     <button onclick="this.closest('tr').remove()" title="Xóa dòng"
       style="background:none;border:none;color:#dc3545;font-size:1.1rem;cursor:pointer;padding:2px">✕</button></td>`;
@@ -1496,17 +1496,33 @@ function addCustomTableRow(fieldId, cols) {
 function getCustomFieldsData() {
   const fields = [];
   document.querySelectorAll('#customFieldsContainer > div[id^="customField_"]').forEach(div => {
-    const id      = div.id.replace('customField_','');
-    const type    = div.dataset.type;
-    const title   = (document.getElementById(`cf_title_${id}`)?.value || '').trim();
+    const id   = div.id.replace('customField_','');
+    const type = div.dataset.type;
+    const titleEl = div.querySelector(`#cf_title_${id}`) || div.querySelector('input[id^="cf_title_"]');
+    const title = (titleEl?.value || '').trim();
+
     if (type === 'text') {
-      fields.push({ type, title, content: (document.getElementById(`cf_content_${id}`)?.value || '').trim() });
+      const contentEl = div.querySelector(`#cf_content_${id}`) || div.querySelector('textarea');
+      fields.push({ type, title, content: (contentEl?.value || '').trim() });
+
     } else {
-      const headers = JSON.parse(div.dataset.headers || '[]');
+      // Table: get headers from dataset or from <thead>
+      let headers = [];
+      try { headers = JSON.parse(div.dataset.headers || '[]'); } catch(_) {}
+      if (!headers.length) {
+        div.querySelectorAll('thead th').forEach(th => headers.push(th.textContent.trim()));
+      }
+
+      // Get rows — only from <input> cells (skip delete button cells)
       const rows = [];
-      div.querySelectorAll(`#cf_tbody_${id} tr`).forEach(tr => {
-        rows.push([...tr.querySelectorAll('input')].map(i => i.value.trim()));
-      });
+      const tbodyId = `cf_tbody_${id}`;
+      const tbody = div.querySelector(`#${tbodyId}`) || div.querySelector('tbody');
+      if (tbody) {
+        tbody.querySelectorAll('tr').forEach(tr => {
+          const row = [...tr.querySelectorAll('input[type="text"], input:not([type])')].map(i => i.value.trim());
+          if (row.length > 0) rows.push(row);
+        });
+      }
       fields.push({ type, title, headers, rows });
     }
   });
@@ -2501,20 +2517,29 @@ function previewSyllabus() {
     ? bookTableHtml('5.1. Giáo trình chính',main,1) + bookTableHtml('5.2. Giáo trình và tài liệu học tập',refs,main.length+1)
     : '<p><em>(Chưa có tài liệu)</em></p>';
 
-  // Custom fields
+  // Custom fields — always show if any exist
   let customHtml = '';
-  if (d.customFields?.length) {
-    for (const cf of d.customFields) {
-      if (!cf.title) continue;
-      customHtml += `<h3>${cf.title}</h3>`;
+  const cfs = d.customFields || [];
+  if (cfs.length) {
+    customHtml = '';
+    cfs.forEach((cf, idx) => {
+      const title = cf.title || `Mục bổ sung ${idx + 1}`;
+      customHtml += `<p style="font-weight:600;margin-top:14px;margin-bottom:6px;color:var(--primary);font-size:1rem">${title}</p>`;
       if (cf.type === 'text') {
-        customHtml += `<pre style="font-family:inherit;white-space:pre-wrap;font-size:.88rem">${cf.content||''}</pre>`;
-      } else if (cf.type === 'table' && cf.headers) {
-        customHtml += `<div style="overflow-x:auto">${tbl(cf.headers,
-          (cf.rows||[]).map(r=>`<tr>${r.map(c=>td(c)).join('')}</tr>`).join('')
+        customHtml += `<pre style="font-family:inherit;white-space:pre-wrap;font-size:.88rem;background:#f8f9fa;padding:8px;border-radius:4px;border:1px solid #e0e0e0">${cf.content || '(chưa có nội dung)'}</pre>`;
+      } else if (cf.headers?.length) {
+        const hasData = cf.rows?.some(r => r.some(c => c));
+        customHtml += `<div style="overflow-x:auto">${tbl(
+          cf.headers,
+          (cf.rows||[]).map(r =>
+            `<tr>${cf.headers.map((_,i) => td(r[i]||'')).join('')}</tr>`
+          ).join('') || `<tr>${cf.headers.map(()=>td('...','')).join('')}</tr>`
         )}</div>`;
+        if (!hasData) customHtml += `<p style="font-size:.8rem;color:#888;font-style:italic">Bảng chưa có dữ liệu.</p>`;
+      } else {
+        customHtml += `<p style="color:#888;font-style:italic;font-size:.88rem">(Mục chưa có nội dung)</p>`;
       }
-    }
+    });
   }
 
   // GV table helper
@@ -2643,7 +2668,7 @@ function previewSyllabus() {
 
     <h2>8. Giáo trình &amp; Tài liệu tham khảo</h2>${taiLieuHtml}
 
-    ${customHtml ? `<h2>Mục bổ sung</h2>${customHtml}` : ''}
+    ${cfs.length ? `<hr style="margin:16px 0"/><h2>Mục bổ sung (${cfs.length} mục)</h2>${customHtml}` : ''}
 
     <h2>10. Thông tin giảng viên</h2>
     ${gvTable('10.1 Giảng viên', d.tenGV, d.hocVi, d.emailGV, d.dienThoai, d.trangWebGV, d.lienLac)}
@@ -3492,23 +3517,30 @@ async function generateDocx() {
 
     // Custom fields
     if (d.customFields && d.customFields.length) {
-      for (const cf of d.customFields) {
-        if (!cf.title) continue;
-        children.push(tnrPara(cf.title, { bold: true, spaceBefore: 160, spaceAfter: 80 }));
+      for (let idx = 0; idx < d.customFields.length; idx++) {
+        const cf = d.customFields[idx];
+        const title = cf.title || `Mục bổ sung ${idx + 1}`;
+        children.push(tnrPara(title, { bold: true, spaceBefore: 160, spaceAfter: 80 }));
         if (cf.type === 'text') {
           const lines = (cf.content || '').split('\n').filter(l => l.trim());
-          for (const l of lines) children.push(bullet(l));
-        } else if (cf.type === 'table' && cf.headers) {
+          if (lines.length) {
+            for (const l of lines) children.push(bullet(l));
+          } else {
+            children.push(tnrPara('(chưa có nội dung)', { italics: true, color: '888888' }));
+          }
+        } else if (cf.type === 'table' && cf.headers && cf.headers.length) {
           const cw = Math.floor(9360 / cf.headers.length);
           const cfTable = new Table({
             width: tblW,
             columnWidths: cf.headers.map(() => cw),
             rows: [
               new TableRow({ tableHeader: true, children: cf.headers.map(h => tcH(h, cw)) }),
-              ...(cf.rows || []).map(row => new TableRow({ children: row.map(cell => tc(cell, cw)) }))
+              ...(cf.rows || []).map(row => new TableRow({
+                children: cf.headers.map((_, i) => tc(row[i] || '', cw))
+              }))
             ]
           });
-          children.push(cfTable);
+          children.push(cfTable, new Paragraph({ spacing: { before: 60 } }));
         }
       }
     }
