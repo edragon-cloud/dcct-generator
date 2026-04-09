@@ -365,7 +365,38 @@
     ::-webkit-input-placeholder { color: #adb5bd; font-style: italic; }
     ::-moz-placeholder { color: #adb5bd; font-style: italic; }
 
-    /* ── Placeholder italic mờ ────────────────── */
+    /* ── Info table (Section A điền trực tiếp) ─── */
+    .info-table { border-collapse: collapse; width: 100%; }
+    .info-table .it-label {
+      background: #f0f4fa;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      font-size: .86rem;
+      font-weight: 600;
+      color: var(--primary);
+      vertical-align: middle;
+      width: 32%;
+    }
+    .info-table .it-val {
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      vertical-align: middle;
+      background: #fff;
+    }
+    .info-table .it-input {
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      padding: 2px 4px !important;
+      font-size: .88rem !important;
+    }
+    .info-table .it-input:focus {
+      outline: 1px solid var(--primary-mid) !important;
+      border-radius: 3px !important;
+      background: #f8faff !important;
+    }
+
+    @media (max-width: 576px) {
     input::placeholder, textarea::placeholder {
       color: #aab4c4;
       font-style: italic;
@@ -514,149 +545,194 @@
       Phần A – Thông Tin Chung
     </div>
     <div class="section-body">
-      <div class="row g-3">
 
-        <!-- Hàng 1: Tên môn học (TV) | Tên môn học (EN) | Khối kiến thức -->
-        <div class="col-md-4">
-          <label>Tên môn học (tiếng Việt)<span class="required-star">*</span></label>
-          <input type="text" id="tenMonViet" class="form-control" placeholder="Nói 4" />
-        </div>
-        <div class="col-md-4">
-          <label>Tên môn học (tiếng Anh)<span class="required-star">*</span></label>
-          <input type="text" id="tenMonAnh" class="form-control" placeholder="Speaking 4" />
-        </div>
-        <div class="col-md-4">
-          <label>Học phần thuộc khối kiến thức</label>
-          <select id="khoiKT" class="form-select">
-            <option value="">-- Chọn --</option>
-            <option value="Giáo dục đại cương">Giáo dục đại cương</option>
-            <option value="Cơ sở khối ngành">Cơ sở khối ngành</option>
-            <option value="Cơ sở ngành">Cơ sở ngành</option>
-            <option value="Ngành">Ngành (chuyên ngành)</option>
-          </select>
-        </div>
+      <div class="hint-text mb-3"><i class="bi bi-info-circle me-1"></i>
+        Điền thông tin trực tiếp vào bảng bên dưới — đây chính là bảng thông tin học phần sẽ xuất hiện trong đề cương.
+      </div>
 
-        <!-- Hàng 2: Mã học phần | Số TC lý thuyết | Số TC thực hành -->
-        <div class="col-md-4">
-          <label>Mã học phần<span class="required-star">*</span></label>
-          <input type="text" id="maHP" class="form-control" placeholder="2110336" />
-        </div>
-        <div class="col-md-4">
-          <label>Số tín chỉ lý thuyết<span class="required-star">*</span></label>
-          <input type="number" id="soTCLT" class="form-control" min="0" max="10" placeholder="1" oninput="updateSoTC()" />
-        </div>
-        <div class="col-md-4">
-          <label>Số tín chỉ thực hành<span class="required-star">*</span></label>
-          <input type="number" id="soTCTH" class="form-control" min="0" max="10" placeholder="1" oninput="updateSoTC()" />
-        </div>
-        <!-- hidden soTC for backward compat -->
-        <input type="hidden" id="soTC" value="" />
+      <!-- hidden soTC for backward compat -->
+      <input type="hidden" id="soTC" value="" />
 
-        <!-- Hàng 3: Số tiết LT | TH | Tự học | Tổng giờ | Số buổi -->
-        <div class="col-md-2">
-          <label>Số tiết lý thuyết<span class="required-star">*</span></label>
-          <input type="number" id="soTietLT" class="form-control" min="0" placeholder="15" oninput="calcHours()" />
-        </div>
-        <div class="col-md-2">
-          <label>Số tiết thực hành<span class="required-star">*</span></label>
-          <input type="number" id="soTietTH" class="form-control" min="0" placeholder="30" oninput="calcHours()" />
-        </div>
-        <div class="col-md-2">
-          <label>Số tiết tự học<span class="required-star">*</span></label>
-          <input type="number" id="soTietTuHoc" class="form-control" min="0" placeholder="55" oninput="calcHours()" />
-        </div>
-        <div class="col-md-3">
-          <label>Tổng giờ học tập <i class="bi bi-calculator text-primary"></i></label>
-          <input type="text" id="tongGio" class="form-control auto-calc" readonly placeholder="Tự tính" />
-        </div>
-        <div class="col-md-3">
-          <label>Số buổi học</label>
-          <input type="number" id="soBuoi" class="form-control" min="1" max="30" placeholder="Tự tính"
-            oninput="soBuoiManual()" />
-          <div id="soBuoiHint" class="hint-text" style="font-size:.75rem;color:#888"></div>
-        </div>
+      <!-- ── Bảng thông tin học phần (điền trực tiếp như đề cương) ── -->
+      <div style="overflow-x:auto">
+      <table class="info-table" style="border-collapse:collapse;width:100%;font-size:.9rem">
 
-        <!-- Hàng 4: Tiên quyết | Học trước | Song hành -->
-        <div class="col-md-4">
-          <label>Học phần tiên quyết</label>
-          <input type="text" id="tienQuyet" class="form-control" placeholder="Không" />
-        </div>
-        <div class="col-md-4">
-          <label>Học phần học trước</label>
-          <input type="text" id="hocTruoc" class="form-control" placeholder="Nói 3" />
-        </div>
-        <div class="col-md-4">
-          <label>Học phần song hành</label>
-          <input type="text" id="songHanh" class="form-control" placeholder="Không yêu cầu" />
-        </div>
+        <!-- Tên môn học -->
+        <tr>
+          <td class="it-label" style="width:32%">Tên học phần (tiếng Việt)<span class="required-star">*</span></td>
+          <td class="it-val" colspan="3">
+            <input type="text" id="tenMonViet" class="form-control form-control-sm it-input" placeholder="VD: Nói 4" />
+          </td>
+        </tr>
+        <tr>
+          <td class="it-label">Tên học phần (tiếng Anh)<span class="required-star">*</span></td>
+          <td class="it-val" colspan="3">
+            <input type="text" id="tenMonAnh" class="form-control form-control-sm it-input" placeholder="VD: Speaking 4" />
+          </td>
+        </tr>
 
-        <!-- Hàng 5: Khoa | Bộ môn | Ngành giảng dạy -->
-        <div class="col-md-4">
-          <label>Khoa<span class="required-star">*</span></label>
-          <input type="text" id="khoa" class="form-control" value="Ngoại Ngữ" />
-        </div>
-        <div class="col-md-4">
-          <label>Bộ môn</label>
-          <input type="text" id="boMon" class="form-control" placeholder="Kỹ năng Tiếng Anh" />
-        </div>
-        <div class="col-md-4">
-          <label>Ngành giảng dạy</label>
-          <input type="text" id="nganh" class="form-control" value="Sư phạm Tiếng Anh" />
-        </div>
+        <!-- Mã HP + TC -->
+        <tr>
+          <td class="it-label">Mã học phần<span class="required-star">*</span></td>
+          <td class="it-val" style="width:18%">
+            <input type="text" id="maHP" class="form-control form-control-sm it-input" placeholder="2110336" />
+          </td>
+          <td class="it-label" style="width:20%">Số tín chỉ<span class="required-star">*</span></td>
+          <td class="it-val" style="width:30%">
+            <div class="d-flex align-items-center gap-1">
+              <input type="number" id="soTCLT" class="form-control form-control-sm it-input" style="width:60px" min="0" max="10" placeholder="1" oninput="updateSoTC()" />
+              <span style="font-size:.8rem;color:#666">LT +</span>
+              <input type="number" id="soTCTH" class="form-control form-control-sm it-input" style="width:60px" min="0" max="10" placeholder="1" oninput="updateSoTC()" />
+              <span style="font-size:.8rem;color:#666">TH</span>
+            </div>
+          </td>
+        </tr>
 
-        <!-- Hàng 5b: Upload đề cương tham khảo (full width hoặc half) -->
-        <div class="col-md-6">
-          <label><i class="bi bi-file-text me-1"></i>Đề cương tham khảo <span class="text-muted">(optional)</span></label>
-          <div class="upload-zone" id="dropZoneRef" ondragover="dragOver(event,'dropZoneRef')" ondragleave="dragLeave('dropZoneRef')" ondrop="dropFile(event,'refFile','dropZoneRef')" style="padding:10px">
+        <!-- Số tiết + Tổng giờ -->
+        <tr>
+          <td class="it-label">Số tiết lý thuyết / Thực hành / Tự học<span class="required-star">*</span></td>
+          <td class="it-val">
+            <div class="d-flex align-items-center gap-1">
+              <input type="number" id="soTietLT" class="form-control form-control-sm it-input" style="width:60px" min="0" placeholder="15" oninput="calcHours()" />
+              <span style="color:#888;font-size:.8rem">/</span>
+              <input type="number" id="soTietTH" class="form-control form-control-sm it-input" style="width:60px" min="0" placeholder="30" oninput="calcHours()" />
+              <span style="color:#888;font-size:.8rem">/</span>
+              <input type="number" id="soTietTuHoc" class="form-control form-control-sm it-input" style="width:60px" min="0" placeholder="55" oninput="calcHours()" />
+            </div>
+          </td>
+          <td class="it-label">Tổng giờ <i class="bi bi-calculator text-primary" style="font-size:.8rem"></i></td>
+          <td class="it-val">
+            <input type="text" id="tongGio" class="form-control form-control-sm it-input auto-calc" readonly placeholder="Tự tính" />
+          </td>
+        </tr>
+
+        <!-- Số buổi học -->
+        <tr>
+          <td class="it-label">Số buổi học</td>
+          <td class="it-val" colspan="3">
+            <div class="d-flex align-items-center gap-2">
+              <input type="number" id="soBuoi" class="form-control form-control-sm it-input" style="width:80px" min="1" max="30" placeholder="Tự tính" oninput="soBuoiManual()" />
+              <div id="soBuoiHint" class="hint-text" style="font-size:.75rem;color:#888"></div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Khối kiến thức (checkbox table) -->
+        <tr>
+          <td class="it-label">Khối kiến thức</td>
+          <td class="it-val" colspan="3">
+            <div class="d-flex flex-wrap gap-3" id="khoiKTCheckboxes">
+              <label class="d-flex align-items-center gap-1" style="cursor:pointer">
+                <input type="radio" name="khoiKT" id="khoiKT" value="Giáo dục đại cương" onchange="document.getElementById('khoiKTVal').value=this.value" />
+                <span style="font-size:.88rem">Giáo dục đại cương</span>
+              </label>
+              <label class="d-flex align-items-center gap-1" style="cursor:pointer">
+                <input type="radio" name="khoiKT" value="Cơ sở khối ngành" onchange="document.getElementById('khoiKTVal').value=this.value" />
+                <span style="font-size:.88rem">Cơ sở khối ngành</span>
+              </label>
+              <label class="d-flex align-items-center gap-1" style="cursor:pointer">
+                <input type="radio" name="khoiKT" value="Cơ sở ngành" onchange="document.getElementById('khoiKTVal').value=this.value" checked />
+                <span style="font-size:.88rem">Cơ sở ngành</span>
+              </label>
+              <label class="d-flex align-items-center gap-1" style="cursor:pointer">
+                <input type="radio" name="khoiKT" value="Ngành" onchange="document.getElementById('khoiKTVal').value=this.value" />
+                <span style="font-size:.88rem">Ngành</span>
+              </label>
+            </div>
+            <input type="hidden" id="khoiKTVal" value="Cơ sở ngành" />
+          </td>
+        </tr>
+
+        <!-- Học phần liên quan -->
+        <tr>
+          <td class="it-label">Học phần tiên quyết</td>
+          <td class="it-val">
+            <input type="text" id="tienQuyet" class="form-control form-control-sm it-input" placeholder="Không" />
+          </td>
+          <td class="it-label">Học phần học trước</td>
+          <td class="it-val">
+            <input type="text" id="hocTruoc" class="form-control form-control-sm it-input" placeholder="Nói 3" />
+          </td>
+        </tr>
+        <tr>
+          <td class="it-label">Học phần song hành</td>
+          <td class="it-val" colspan="3">
+            <input type="text" id="songHanh" class="form-control form-control-sm it-input" placeholder="Không yêu cầu" />
+          </td>
+        </tr>
+
+        <!-- Ngôn ngữ giảng dạy -->
+        <tr>
+          <td class="it-label">Ngôn ngữ giảng dạy</td>
+          <td class="it-val" colspan="3">
+            <input type="text" id="ngonNgu" class="form-control form-control-sm it-input" value="Tiếng Anh" />
+          </td>
+        </tr>
+
+        <!-- 1.8 Đơn vị phụ trách -->
+        <tr>
+          <td class="it-label">Khoa phụ trách<span class="required-star">*</span></td>
+          <td class="it-val">
+            <input type="text" id="khoa" class="form-control form-control-sm it-input" value="Ngoại Ngữ" />
+          </td>
+          <td class="it-label">Bộ môn</td>
+          <td class="it-val">
+            <input type="text" id="boMon" class="form-control form-control-sm it-input" placeholder="Kỹ năng Tiếng Anh" />
+          </td>
+        </tr>
+        <tr>
+          <td class="it-label">Ngành giảng dạy</td>
+          <td class="it-val" colspan="3">
+            <input type="text" id="nganh" class="form-control form-control-sm it-input" value="Sư phạm Tiếng Anh" />
+          </td>
+        </tr>
+
+      </table>
+      </div><!-- /overflow-x:auto -->
+
+      <!-- Upload files (compact row) -->
+      <div class="row g-3 mt-3">
+        <div class="col-md-4">
+          <label class="small fw-600"><i class="bi bi-file-earmark-word me-1 text-primary"></i>Đề cương tham khảo <span class="text-muted fw-400">(optional)</span></label>
+          <div class="upload-zone" id="dropZoneRef" ondragover="dragOver(event,'dropZoneRef')" ondragleave="dragLeave('dropZoneRef')" ondrop="dropFile(event,'refFile','dropZoneRef')" style="padding:8px">
             <input type="file" id="refFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZoneRef')" />
-            <div style="font-size:.82rem"><i class="bi bi-upload text-muted"></i> Chọn file</div>
+            <div style="font-size:.8rem"><i class="bi bi-upload text-muted"></i> Chọn file</div>
             <div class="upload-name" id="refFile_name"></div>
           </div>
         </div>
-        <div class="col-md-6">
-          <label><i class="bi bi-file-earmark-check me-1 text-primary"></i>
-            Chuẩn đầu ra chương trình (PLOs) <span class="text-muted">(optional – upload)</span>
-          </label>
-          <div class="upload-zone" id="dropZonePLO" ondragover="dragOver(event,'dropZonePLO')" ondragleave="dragLeave('dropZonePLO')" ondrop="dropFile(event,'ploFile','dropZonePLO')" style="padding:10px">
+        <div class="col-md-4">
+          <label class="small fw-600"><i class="bi bi-file-earmark-check me-1 text-success"></i>Chuẩn đầu ra CT (PLOs) <span class="text-muted fw-400">(optional)</span></label>
+          <div class="upload-zone" id="dropZonePLO" ondragover="dragOver(event,'dropZonePLO')" ondragleave="dragLeave('dropZonePLO')" ondrop="dropFile(event,'ploFile','dropZonePLO')" style="padding:8px">
             <input type="file" id="ploFile" accept=".docx,.pdf" onchange="fileSelected(this,'dropZonePLO')" />
-            <div style="font-size:.82rem"><i class="bi bi-upload text-muted"></i> Chọn file</div>
+            <div style="font-size:.8rem"><i class="bi bi-upload text-muted"></i> Chọn file</div>
             <div class="upload-name" id="ploFile_name"></div>
           </div>
         </div>
-
-        <!-- Hàng 6: Chuẩn đầu ra chương trình – copy/paste PLOs -->
-        <div class="col-12">
-          <label><i class="bi bi-list-check me-1 text-primary"></i>
-            <strong>Chuẩn đầu ra chương trình – PLOs &amp; PIs</strong>
-            <span class="text-muted" style="font-weight:400;font-size:.82rem"> — copy từ tài liệu CTĐT</span>
-          </label>
-          <textarea id="ploText" class="form-control" rows="5"
-            placeholder="PLO1 (PI 1.1): Có kiến thức nền tảng về ngôn ngữ học, phương pháp giảng dạy tiếng Anh...&#10;PLO2 (PI 2.1): Sử dụng thành thạo tiếng Anh ở trình độ B2–C1...&#10;PLO3 (PI 3.1): Thiết kế và tổ chức các hoạt động dạy học tiếng Anh...&#10;..."></textarea>
-          <div class="hint-text">Dán nội dung PLOs &amp; PIs trực tiếp vào đây — AI sẽ dùng để tạo CLOs và ma trận phù hợp</div>
+        <div class="col-md-4">
+          <label class="small fw-600"><i class="bi bi-list-check me-1 text-warning"></i>PLOs &amp; PIs (copy/paste)</label>
+          <textarea id="ploText" class="form-control form-control-sm" rows="3"
+            placeholder="PLO1 (PI 1.1): ...&#10;PLO2 (PI 2.1): ..."></textarea>
         </div>
+      </div>
 
-      </div><!-- /.row -->
-      <div class="row g-3 mt-1">
+      <!-- Giáo trình -->
+      <div class="row g-3 mt-2">
         <div class="col-12">
-          <div style="background:#f0f7ff;border:1px solid #b8d4f0;border-radius:10px;padding:16px 18px">
-            <div class="d-flex align-items-center gap-2 mb-3">
+          <div style="background:#f0f7ff;border:1px solid #b8d4f0;border-radius:10px;padding:14px 16px">
+            <div class="d-flex align-items-center gap-2 mb-2">
               <i class="bi bi-book-fill text-primary"></i>
-              <strong>Thông tin Giáo trình chính</strong>
+              <strong style="font-size:.9rem">Thông tin Giáo trình chính</strong>
             </div>
-            <div class="row g-3">
+            <div class="row g-2">
               <div class="col-md-6">
-                <label class="fw-500">📋 Mục lục sách (Table of Contents)
-                  <span class="hint-text ms-1">— copy từ đầu sách</span>
-                </label>
-                <textarea id="bookTOC" class="form-control" rows="7"
-                  placeholder="Unit 1: Urban &amp; Rural Life (pp. 25–29)&#10;Unit 2: Health and Diet (pp. 47–51)&#10;Unit 3: Art and Artists (pp. 69–72)&#10;..."></textarea>
+                <label class="small fw-600">📋 Mục lục sách (Table of Contents)</label>
+                <textarea id="bookTOC" class="form-control form-control-sm" rows="5"
+                  placeholder="Unit 1: Urban &amp; Rural Life (pp. 25–29)&#10;Unit 2: Health and Diet (pp. 47–51)&#10;..."></textarea>
               </div>
               <div class="col-md-6">
-                <label class="fw-500">🎯 Learning Outcomes / Scope &amp; Sequence
-                  <span class="hint-text ms-1">— copy từ teacher book</span>
-                </label>
-                <textarea id="bookOutcomes" class="form-control" rows="7"
-                  placeholder="Unit 1 – Outcomes:&#10;- Vocabulary: house/apartment, urban/rural...&#10;- Grammar: Future time conditionals&#10;- Speaking: Part 1, Part 2 cue card&#10;&#10;Unit 2 – Outcomes:&#10;..."></textarea>
+                <label class="small fw-600">🎯 Learning Outcomes / Scope &amp; Sequence</label>
+                <textarea id="bookOutcomes" class="form-control form-control-sm" rows="5"
+                  placeholder="Unit 1 – Outcomes:&#10;- Vocabulary: house/apartment...&#10;- Grammar: Future conditionals&#10;..."></textarea>
               </div>
             </div>
           </div>
@@ -965,30 +1041,8 @@
     <div class="section-body">
       <div class="row g-3">
 
-        <!-- Thông tin giảng viên -->
-        <div class="col-md-4">
-          <label>Họ và tên giảng viên<span class="required-star">*</span></label>
-          <input type="text" id="tenGV" class="form-control" placeholder="Dương Thanh Tú" />
-        </div>
-        <div class="col-md-4">
-          <label>Học hàm / Học vị</label>
-          <input type="text" id="hocVi" class="form-control" placeholder="Thạc sĩ" />
-        </div>
-        <div class="col-md-4">
-          <label>Email</label>
-          <input type="email" id="emailGV" class="form-control" placeholder="email@dnu.edu.vn" />
-        </div>
-        <div class="col-md-4">
-          <label>Điện thoại</label>
-          <input type="text" id="dienThoai" class="form-control" placeholder="09xx..." />
-        </div>
-        <div class="col-md-8">
-          <label>Cách liên lạc</label>
-          <input type="text" id="lienLac" class="form-control" value="Trao đổi qua Zalo, điện thoại" />
-        </div>
-
         <!-- Tài liệu -->
-        <div class="col-12 mt-2">
+        <div class="col-12">
           <label>Giáo trình chính &amp; Tài liệu tham khảo</label>
           <div id="taiLieuContainer"></div>
           <button class="btn btn-sm btn-outline-primary mt-2" onclick="addTaiLieu()">
@@ -1010,6 +1064,66 @@
           <div class="hint-text mb-1">Điền các nhiệm vụ chính. Mỗi mục một dòng.</div>
           <textarea id="nhiemVuSV" class="form-control" rows="6"
             placeholder="8.1. Các nhiệm vụ chính của sinh viên:&#10;- Tham gia đầy đủ các buổi học trên lớp.&#10;- Chuẩn bị đầy đủ tài liệu học tập theo quy định của giảng viên.&#10;- Tự đọc, nghiên cứu tài liệu trước khi đến lớp.&#10;&#10;8.2. Quy định về liêm chính học thuật:&#10;- Sinh viên không được sao chép bài làm của người khác dưới mọi hình thức."></textarea>
+        </div>
+
+        <!-- Mục 10: Thông tin giảng viên — 3 bảng DNU chuẩn -->
+        <div class="col-12">
+          <label class="fw-600 d-block mb-2">10. Thông tin giảng viên phụ trách học phần</label>
+
+          <!-- 10.1 Giảng viên chính -->
+          <div class="mb-3">
+            <div class="hint-text fw-600 mb-2" style="color:var(--primary)">10.1 Giảng viên</div>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="small">Họ và tên<span class="required-star">*</span></label>
+                <input type="text" id="tenGV" class="form-control" placeholder="Dương Thanh Tú" /></div>
+              <div class="col-md-6"><label class="small">Học hàm / Học vị</label>
+                <input type="text" id="hocVi" class="form-control" placeholder="Thạc sĩ" /></div>
+              <div class="col-md-6"><label class="small">Email</label>
+                <input type="email" id="emailGV" class="form-control" placeholder="email@dnu.edu.vn" /></div>
+              <div class="col-md-6"><label class="small">Điện thoại</label>
+                <input type="text" id="dienThoai" class="form-control" placeholder="09xx..." /></div>
+              <div class="col-md-6"><label class="small">Trang web</label>
+                <input type="text" id="trangWebGV" class="form-control" placeholder="" /></div>
+              <div class="col-md-6"><label class="small">Cách liên lạc</label>
+                <input type="text" id="lienLac" class="form-control" value="Trao đổi qua Zalo, điện thoại" /></div>
+            </div>
+          </div>
+
+          <!-- 10.2 Giảng viên dự phòng -->
+          <div class="mb-3">
+            <div class="hint-text fw-600 mb-2" style="color:var(--primary)">10.2 Giảng viên dự phòng <span class="text-muted fw-400">(nếu có)</span></div>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="small">Họ và tên</label>
+                <input type="text" id="tenGV2" class="form-control" placeholder="(nếu có)" /></div>
+              <div class="col-md-6"><label class="small">Học hàm / Học vị</label>
+                <input type="text" id="hocVi2" class="form-control" placeholder="Thạc sĩ" /></div>
+              <div class="col-md-6"><label class="small">Email</label>
+                <input type="email" id="emailGV2" class="form-control" placeholder="" /></div>
+              <div class="col-md-6"><label class="small">Điện thoại</label>
+                <input type="text" id="dienThoai2" class="form-control" placeholder="" /></div>
+              <div class="col-md-6"><label class="small">Trang web</label>
+                <input type="text" id="trangWebGV2" class="form-control" placeholder="" /></div>
+              <div class="col-md-6"><label class="small">Cách liên lạc</label>
+                <input type="text" id="lienLac2" class="form-control" placeholder="Trao đổi qua Zalo, điện thoại" /></div>
+            </div>
+          </div>
+
+          <!-- 10.3 Phụ giảng / Trợ giảng -->
+          <div class="mb-3">
+            <div class="hint-text fw-600 mb-2" style="color:var(--primary)">10.3 Phụ giảng (đối với giảng viên) hoặc Trợ giảng – TA (đối với sinh viên) <span class="text-muted fw-400">(nếu có)</span></div>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="small">Họ và tên</label>
+                <input type="text" id="tenGV3" class="form-control" placeholder="(nếu có)" /></div>
+              <div class="col-md-6"><label class="small">Học hàm / Học vị</label>
+                <input type="text" id="hocVi3" class="form-control" placeholder="" /></div>
+              <div class="col-md-6"><label class="small">Email</label>
+                <input type="email" id="emailGV3" class="form-control" placeholder="" /></div>
+              <div class="col-md-6"><label class="small">Điện thoại</label>
+                <input type="text" id="dienThoai3" class="form-control" placeholder="" /></div>
+              <div class="col-md-12"><label class="small">Cách liên lạc</label>
+                <input type="text" id="lienLac3" class="form-control" placeholder="" /></div>
+            </div>
+          </div>
         </div>
 
       </div><!-- /.row -->
@@ -1888,7 +2002,8 @@ function collectData() {
     tenMonViet:    val('tenMonViet'),
     tenMonAnh:     val('tenMonAnh'),
     maHP:          val('maHP'),
-    khoiKT:        val('khoiKT'),
+    khoiKT:        val('khoiKTVal') || (document.querySelector('input[name="khoiKT"]:checked')?.value) || '',
+    ngonNgu:       val('ngonNgu') || 'Tiếng Anh',
     soTC:          val('soTC'),
     soTietLT:      val('soTietLT'),
     soTietTH:      val('soTietTH'),
@@ -1913,7 +2028,21 @@ function collectData() {
     hocVi:         val('hocVi'),
     emailGV:       val('emailGV'),
     dienThoai:     val('dienThoai'),
+    trangWebGV:    val('trangWebGV'),
     lienLac:       val('lienLac'),
+    // GV2
+    tenGV2:        val('tenGV2'),
+    hocVi2:        val('hocVi2'),
+    emailGV2:      val('emailGV2'),
+    dienThoai2:    val('dienThoai2'),
+    trangWebGV2:   val('trangWebGV2'),
+    lienLac2:      val('lienLac2'),
+    // GV3 (phụ/trợ giảng)
+    tenGV3:        val('tenGV3'),
+    hocVi3:        val('hocVi3'),
+    emailGV3:      val('emailGV3'),
+    dienThoai3:    val('dienThoai3'),
+    lienLac3:      val('lienLac3'),
     taiLieu:       getTaiLieuList(),
     ghiChu:        val('ghiChu'),
     nhiemVuSV:     val('nhiemVuSV'),
@@ -1984,14 +2113,14 @@ async function aiSuggest(field) {
   const outcomesSumm = bookOutcomes ? `\n=== LEARNING OUTCOMES / SCOPE & SEQUENCE ===\n${bookOutcomes}`               : '';
   const ploSummary   = ploText      ? `\n=== CHUẨN ĐẦU RA CHƯƠNG TRÌNH (PLOs) ===\n${ploText.slice(0, 700)}`         : '';
   const templateSumm = templateText ? `\n=== ĐỀ CƯƠNG MẪU (cấu trúc) ===\n${templateText.slice(0, 700)}`             : '';
-  const refSummary   = refText      ? `\n=== ĐỀ CƯƠNG THAM KHẢO ===\n${refText.slice(0, 400)}`                       : '';
+  const refSummary   = refText      ? `\n=== ĐỀ CƯƠNG THAM KHẢO (tinh hoa nội dung — kế thừa và cải thiện) ===\n${refText.slice(0, 800)}`  : '';
 
   const baseInfo = `=== THÔNG TIN MÔN HỌC ===
 Tên: ${data.tenMonViet} (${data.tenMonAnh}) | Mã: ${data.maHP} | TC: ${data.soTC}
 Tiết LT: ${data.soTietLT} | TH: ${data.soTietTH} | Tự học: ${data.soTietTuHoc}
 Khối KT: ${data.khoiKT} | Khoa: ${data.khoa} | Ngành: ${data.nganh}`;
 
-  // Thứ tự ưu tiên: thông tin môn → mục lục → outcomes → PLO → đề cương mẫu → tham khảo
+  // Thứ tự ưu tiên: thông tin môn → mục lục → outcomes → PLO → đề cương mẫu (format) → đề cương tham khảo (nội dung kế thừa)
   const contextBlock = [baseInfo, bookSummary, outcomesSumm, ploSummary, templateSumm, refSummary].filter(Boolean).join('\n').trim();
 
   const prompts = {
@@ -2298,123 +2427,162 @@ async function callOpenAI(apiKey, prompt) {
 function previewSyllabus() {
   const d = collectData();
   const pane = document.getElementById('previewPane');
+  const th = (t) => `<th style="background:#1B3A6B;color:#fff;padding:6px 8px;border:1px solid #aaa;text-align:center">${t}</th>`;
+  const td = (t,opts='') => `<td style="padding:5px 8px;border:1px solid #ddd;${opts}">${t||'—'}</td>`;
+  const tbl = (hdrs,rows,opts='') => `<table style="border-collapse:collapse;font-size:.82rem;width:100%;${opts}"><thead><tr>${hdrs.map(th).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
 
-  const cloRows = d.clos.map(c =>
-    `<tr><td><strong>${c.id}</strong></td><td><em>${c.category}</em></td><td>${c.content || '—'}</td></tr>`
-  ).join('');
-
-  // Build matrix HTML
+  // Matrix
   let matrixHtml = '<p><em>(Chưa có dữ liệu ma trận)</em></p>';
-  if (d.matrix && d.matrix.plos && d.matrix.plos.length) {
-    const { clos: mClos, plos, data: mdata } = d.matrix;
-    const levelColors = { I:'#d1ecf1', R:'#d4edda', M:'#fff3cd', A:'#f8d7da' };
-    matrixHtml = `<table style="border-collapse:collapse;font-size:.82rem;width:100%">
-      <thead><tr>
-        <th style="background:#1a3c5e;color:#fff;padding:6px 10px;border:1px solid #aaa">CLO \\ PLO</th>
-        ${plos.map(p=>`<th style="background:#1a3c5e;color:#fff;padding:6px 8px;border:1px solid #aaa;text-align:center;white-space:pre-line">${p}</th>`).join('')}
-      </tr></thead><tbody>
-      ${mClos.map(clo=>`<tr>
-        <td style="background:#eef3f8;font-weight:bold;padding:5px 10px;border:1px solid #ccc;text-align:center">${clo}</td>
-        ${plos.map((_,pi)=>{
-          const key=`${clo}_${pi}`;
-          const val=mdata[key]||'';
-          const bg=val?(levelColors[val]||'#fff'):'#fff';
-          return `<td style="background:${bg};text-align:center;padding:5px;border:1px solid #ccc;font-weight:${val?'bold':'normal'}">${val||'—'}</td>`;
-        }).join('')}
-      </tr>`).join('')}
-      </tbody></table>
-      <p style="font-size:.75rem;color:#666;margin-top:6px">I = Introduced, R = Reinforced, M = Mastery, A = Assessed</p>`;
+  if (d.matrix?.plos?.length) {
+    const {clos:mC,plos,data:md} = d.matrix;
+    const lc = {I:'#d1ecf1',R:'#d4edda',M:'#fff3cd',A:'#f8d7da'};
+    matrixHtml = `<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.82rem">
+      <thead><tr><th style="background:#1B3A6B;color:#fff;padding:6px 10px;border:1px solid #aaa">CLO \\ PLO</th>
+      ${plos.map(p=>`<th style="background:#1B3A6B;color:#fff;padding:6px 8px;border:1px solid #aaa;text-align:center;white-space:pre-line">${p}</th>`).join('')}</tr></thead><tbody>
+      ${mC.map(c=>`<tr><td style="background:#eef3f8;font-weight:bold;padding:5px 10px;border:1px solid #ccc;text-align:center">${c}</td>
+      ${plos.map((_,pi)=>{const k=`${c}_${pi}`;const v=md[k]||'';return `<td style="background:${v?lc[v]||'#fff':'#fff'};text-align:center;padding:5px;border:1px solid #ccc;font-weight:${v?'bold':'normal'}">${v||'—'}</td>`;}).join('')}</tr>`).join('')}
+      </tbody></table></div><p style="font-size:.75rem;color:#666;margin-top:4px">I=Introduced R=Reinforced M=Mastery A=Assessed</p>`;
   }
 
-  // Build sessions HTML
+  // Sessions
   let sessionsHtml = '<p><em>(Chưa có nội dung buổi học)</em></p>';
-  if (d.sessions && d.sessions.length) {
-    sessionsHtml = `<table style="border-collapse:collapse;font-size:.8rem;width:100%">
-      <thead><tr style="background:#1a3c5e;color:#fff">
-        <th style="padding:6px;border:1px solid #aaa;width:60px">Buổi</th>
-        <th style="padding:6px;border:1px solid #aaa">Nội dung dạy – học</th>
-        <th style="padding:6px;border:1px solid #aaa;width:50px;text-align:center">Tổng</th>
-        <th style="padding:6px;border:1px solid #aaa;width:40px;text-align:center">LT</th>
-        <th style="padding:6px;border:1px solid #aaa;width:40px;text-align:center">TH</th>
-        <th style="padding:6px;border:1px solid #aaa;width:40px;text-align:center">TuH</th>
-      </tr></thead><tbody>
-      ${d.sessions.map(s=>`<tr>
-        <td style="padding:5px;border:1px solid #ddd;font-weight:bold;text-align:center;vertical-align:top">${s.buoi}</td>
-        <td style="padding:5px;border:1px solid #ddd;vertical-align:top">
-          ${s.noidung ? `<div>${s.noidung.replace(/\n/g,'<br>')}</div>` : ''}
-          ${s.tuhoc   ? `<div style="margin-top:4px"><strong>Tự học:</strong><br>${s.tuhoc.replace(/\n/g,'<br>')}</div>` : ''}
-          ${s.ppdh    ? `<div style="margin-top:4px"><strong>PPDH:</strong> ${s.ppdh}</div>` : ''}
-          ${s.danhgia ? `<div style="margin-top:4px"><strong>Đánh giá:</strong> ${s.danhgia}</div>` : ''}
+  if (d.sessions?.length) {
+    sessionsHtml = `<div style="overflow-x:auto">${tbl(
+      ['Buổi','Nội dung dạy – học','Tổng','LT','TH','TuH'],
+      d.sessions.map(s=>`<tr>
+        ${td(s.buoi,'font-weight:bold;text-align:center;vertical-align:top;width:55px')}
+        <td style="padding:5px 8px;border:1px solid #ddd;vertical-align:top">
+          ${s.noidung?`<div>${s.noidung.replace(/\n/g,'<br>')}</div>`:''}
+          ${s.tuhoc?`<div style="margin-top:4px"><strong>Tự học:</strong><br>${s.tuhoc.replace(/\n/g,'<br>')}</div>`:''}
+          ${s.ppdh?`<div style="margin-top:4px"><strong>PPDH:</strong> ${s.ppdh}</div>`:''}
+          ${s.danhgia?`<div style="margin-top:4px"><strong>Đánh giá:</strong> ${s.danhgia}</div>`:''}
         </td>
-        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.tong||''}</td>
-        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.lt||''}</td>
-        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.th||''}</td>
-        <td style="padding:5px;border:1px solid #ddd;text-align:center">${s.thuHoc||''}</td>
-      </tr>`).join('')}
-      </tbody></table>`;
+        ${td(s.tong||'','text-align:center;width:45px')}${td(s.lt||'','text-align:center;width:35px')}${td(s.th||'','text-align:center;width:35px')}${td(s.thuHoc||'','text-align:center;width:35px')}
+      </tr>`).join('')
+    )}</div>`;
   }
+
+  // Rubric 1 & 2
+  const rubricHtml = (rows, title) => {
+    if (!rows?.length) return '';
+    return `<p><em>❖ ${title}</em></p>
+    <div style="overflow-x:auto">${tbl(
+      ['Tiêu chí','Trọng số','A (8.5–10)','B (7.0–8.4)','C (5.5–6.9)','D (4.0–5.4)','F (0–3.9)'],
+      rows.map(r=>`<tr>${r.slice(0,7).map((c,i)=>td(c,i<2?'text-align:center':'vertical-align:top')).join('')}</tr>`).join('')
+    )}</div>`;
+  };
+
+  // Assess table
+  let assessHtml = '<p><em>(Chưa có kế hoạch đánh giá)</em></p>';
+  if (d.assessTable?.length) {
+    assessHtml = `<div style="overflow-x:auto">${tbl(
+      ['Điểm thành phần','Phương pháp đánh giá','Trọng số','CLOs','Thời điểm'],
+      d.assessTable.map(r=>`<tr>${r.slice(0,5).map((c,i)=>td(c,i===2||i===3?'text-align:center':'')).join('')}</tr>`).join('')
+    )}</div>`;
+  }
+
+  // Tài liệu table DNU format
+  const bookTableHtml = (label, books, start) => {
+    if (!books.length) return '';
+    return `<p><strong>${label}</strong></p>
+    ${tbl(['TT','Tên giáo trình','Tác giả','Năm xuất bản','Nhà xuất bản'],
+      books.map((b,i)=>`<tr>
+        ${td(start+i,'text-align:center;font-weight:bold;width:40px')}
+        ${td(b.tenTL||b.ten||'','vertical-align:top')}
+        ${td(b.tacGia||'','text-align:center;width:130px')}
+        ${td(b.namXB||b.nam||'','text-align:center;width:80px')}
+        ${td(b.nxb||b.nhaxb||b.nhaXB||'','text-align:center;width:130px')}
+      </tr>`).join('')
+    )}`;
+  };
+  const main = (d.taiLieu||[]).filter(t=>t.type==='main');
+  const refs = (d.taiLieu||[]).filter(t=>t.type==='ref');
+  const taiLieuHtml = (main.length||refs.length)
+    ? bookTableHtml('5.1. Giáo trình chính',main,1) + bookTableHtml('5.2. Giáo trình và tài liệu học tập',refs,main.length+1)
+    : '<p><em>(Chưa có tài liệu)</em></p>';
+
+  // Custom fields
+  let customHtml = '';
+  if (d.customFields?.length) {
+    for (const cf of d.customFields) {
+      if (!cf.title) continue;
+      customHtml += `<h3>${cf.title}</h3>`;
+      if (cf.type === 'text') {
+        customHtml += `<pre style="font-family:inherit;white-space:pre-wrap;font-size:.88rem">${cf.content||''}</pre>`;
+      } else if (cf.type === 'table' && cf.headers) {
+        customHtml += `<div style="overflow-x:auto">${tbl(cf.headers,
+          (cf.rows||[]).map(r=>`<tr>${r.map(c=>td(c)).join('')}</tr>`).join('')
+        )}</div>`;
+      }
+    }
+  }
+
+  // GV table helper
+  const gvTable = (label, name, hv, email, phone, web, lienLacVal) => {
+    if (!name) return '';
+    return `<p><strong>${label}</strong></p>
+    <table style="border-collapse:collapse;font-size:.85rem;width:100%;margin-bottom:8px">
+      <tr><td style="border:1px solid #ccc;padding:5px 10px;width:50%">Họ và tên: <strong>${name}</strong></td>
+          <td style="border:1px solid #ccc;padding:5px 10px">Học hàm, học vị: ${hv||''}</td></tr>
+      <tr><td style="border:1px solid #ccc;padding:5px 10px">Địa chỉ cơ quan: Số 9 Lê Quý Đôn, p. Tam Hiệp, Đồng Nai</td>
+          <td style="border:1px solid #ccc;padding:5px 10px">Điện thoại liên hệ: ${phone||''}</td></tr>
+      <tr><td style="border:1px solid #ccc;padding:5px 10px">Email: ${email||''}</td>
+          <td style="border:1px solid #ccc;padding:5px 10px">Trang web: ${web||''}</td></tr>
+      <tr><td colspan="2" style="border:1px solid #ccc;padding:5px 10px">Cách liên lạc với giảng viên: ${lienLacVal||''}</td></tr>
+    </table>`;
+  };
 
   pane.innerHTML = `
-    <h2 style="color:var(--primary);text-align:center">ĐỀ CƯƠNG CHI TIẾT HỌC PHẦN</h2>
-    <p style="text-align:center;font-size:.88rem;color:var(--muted)">TRƯỜNG ĐẠI HỌC ĐỒNG NAI – KHOA ${d.khoa.toUpperCase()}</p>
+    <h2 style="color:var(--primary);text-align:center">CHƯƠNG TRÌNH GIÁO DỤC ĐẠI HỌC<br>ĐỀ CƯƠNG HỌC PHẦN</h2>
+    <p style="text-align:center"><strong>Mã học phần: ${d.maHP}</strong><br>
+    Tên học phần (tiếng Việt): <strong>${d.tenMonViet}</strong><br>
+    Tên học phần (tiếng Anh): <strong>${d.tenMonAnh}</strong></p>
     <hr/>
-    <h2>1. Thông tin học phần</h2>
-    <table><tbody>
-      <tr><td width="40%"><strong>Tên môn học (TV)</strong></td><td>${d.tenMonViet}</td></tr>
-      <tr><td><strong>Tên môn học (EN)</strong></td><td>${d.tenMonAnh}</td></tr>
-      <tr><td><strong>Mã học phần</strong></td><td>${d.maHP}</td></tr>
-      <tr><td><strong>Số tín chỉ</strong></td><td>${d.soTC}</td></tr>
-      <tr><td><strong>Số tiết LT / TH / Tự học</strong></td><td>${d.soTietLT} / ${d.soTietTH} / ${d.soTietTuHoc} tiết</td></tr>
-      <tr><td><strong>Tổng giờ học</strong></td><td>${d.tongGio}</td></tr>
-      <tr><td><strong>Số buổi học</strong></td><td>${d.soBuoi}</td></tr>
-    </tbody></table>
 
-    <p><strong>1.3. Học phần thuộc khối kiến thức:</strong></p>
+    <h2>1. Thông tin về học phần</h2>
+    <p>1.1. Số tín chỉ: ${d.soTC}</p>
+    <p>1.2. Số giờ: ${d.tongGio} — LT: ${d.soTietLT} | TH: ${d.soTietTH} | Tự học: ${d.soTietTuHoc}</p>
+    <p>1.3. Khối kiến thức:</p>
     <table style="border-collapse:collapse;font-size:.85rem;width:100%">
-      <tr>
-        <td rowspan="2" style="border:1px solid #aaa;padding:6px 10px;vertical-align:middle;width:28%">Giáo dục đại cương ${d.khoiKT==='Giáo dục đại cương'?'☒':'☐'}</td>
-        <td colspan="3" style="border:1px solid #aaa;padding:6px 10px;text-align:center;font-weight:bold">Giáo dục chuyên nghiệp</td>
-      </tr>
-      <tr>
-        <td style="border:1px solid #aaa;padding:6px 10px">Cơ sở khối ngành ${d.khoiKT==='Cơ sở khối ngành'?'☒':'☐'}</td>
-        <td style="border:1px solid #aaa;padding:6px 10px">Cơ sở ngành ${d.khoiKT==='Cơ sở ngành'?'☒':'☐'}</td>
-        <td style="border:1px solid #aaa;padding:6px 10px">Ngành ${d.khoiKT==='Ngành'?'☒':'☐'}</td>
-      </tr>
+      <tr><td rowspan="2" style="border:1px solid #aaa;padding:6px 10px;vertical-align:middle;width:28%">Giáo dục đại cương ${d.khoiKT==='Giáo dục đại cương'?'☒':'☐'}</td>
+          <td colspan="3" style="border:1px solid #aaa;padding:6px 10px;text-align:center;font-weight:bold">Giáo dục chuyên nghiệp</td></tr>
+      <tr><td style="border:1px solid #aaa;padding:6px 10px">Cơ sở khối ngành ${d.khoiKT==='Cơ sở khối ngành'?'☒':'☐'}</td>
+          <td style="border:1px solid #aaa;padding:6px 10px">Cơ sở ngành ${d.khoiKT==='Cơ sở ngành'?'☒':'☐'}</td>
+          <td style="border:1px solid #aaa;padding:6px 10px">Ngành ${d.khoiKT==='Ngành'?'☒':'☐'}</td></tr>
     </table>
-    </tbody></table>
+    <p>1.4. Tiên quyết: ${d.tienQuyet||'Không'} &nbsp;|&nbsp; 1.5. Học trước: ${d.hocTruoc||'Không'} &nbsp;|&nbsp; 1.6. Song hành: ${d.songHanh||'Không'}</p>
+    <p>1.8. Khoa: ${d.khoa} | Bộ môn: ${d.boMon} | Ngành: ${d.nganh}</p>
 
-    <h2>2. Mục tiêu học phần</h2>
-    <p><strong>Mục tiêu chung:</strong> ${d.mucTieuChung || '—'}</p>
+    <h2>2. Mục tiêu &amp; Chuẩn đầu ra</h2>
+    <p><strong>Mục tiêu chung:</strong> ${d.mucTieuChung||'—'}</p>
     <p><strong>Mục tiêu cụ thể:</strong></p>
-    <pre style="font-family:inherit;white-space:pre-wrap;font-size:.88rem">${d.mucTieuCuThe || '—'}</pre>
+    <pre style="font-family:inherit;white-space:pre-wrap;font-size:.88rem">${d.mucTieuCuThe||'—'}</pre>
+    <p><strong>CLOs:</strong></p>
+    ${tbl(['Ký hiệu','Phân loại','Chuẩn đầu ra học phần'],
+      d.clos.map(c=>`<tr>${td(c.id,'text-align:center;font-weight:bold')}${td(`<em>${c.category}</em>`)}${td(c.content||'—')}</tr>`).join(''))}
+    <p><strong>Ma trận CLO–PLO:</strong></p>${matrixHtml}
 
-    <h2>3. Chuẩn đầu ra (CLOs)</h2>
-    <table><thead><tr><th>Ký hiệu</th><th>Phân loại</th><th>Nội dung CLO</th></tr></thead>
-    <tbody>${cloRows}</tbody></table>
+    <h2>3. Mô tả vắn tắt</h2><p>${d.moTa||'—'}</p>
 
-    <h2>4. Ma trận CLO – PLO/PI</h2>
-    ${matrixHtml}
+    <h2>4. Rubric đánh giá chuẩn đầu ra</h2>
+    ${rubricHtml(d.rubric1,'Rubric 1: Đánh giá điểm chuyên cần') || '<p><em>(Chưa điền)</em></p>'}
+    ${rubricHtml(d.rubric2,'Rubric 2: Đánh giá bài tập')}
+    <p style="font-weight:600;margin-top:12px;margin-bottom:6px">4.2 Kế hoạch và phương pháp đánh giá</p>${assessHtml}
 
-    <h2>5. Mô tả vắn tắt</h2>
-    <p>${d.moTa || '—'}</p>
+    <h2>5. Nội dung chi tiết từng buổi học</h2>${sessionsHtml}
 
-    <h2>6. Nội dung chi tiết từng buổi học</h2>
-    ${sessionsHtml}
+    <h2>6. Yêu cầu giảng viên</h2><pre style="font-family:inherit;white-space:pre-wrap">${d.ghiChu||''}</pre>
 
-    <h2>9. Giáo trình & Tài liệu tham khảo</h2>
-    ${(() => {
-      const list = d.taiLieu || [];
-      if (!list.length) return '<p><em>(Chưa có tài liệu)</em></p>';
-      const main = list.filter(t => t.type === 'main');
-      const ref  = list.filter(t => t.type === 'ref');
-      let html = '';
-      if (main.length) { html += '<p><strong>a. Giáo trình chính</strong></p><ol>'; main.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; }); html += '</ol>'; }
-      if (ref.length)  { html += '<p><strong>b. Tài liệu tham khảo</strong></p><ol>'; ref.forEach(t => { html += `<li>${formatTaiLieu(t,'')}</li>`; }); html += '</ol>'; }
-      return html;
-    })()}
+    <h2>7. Nhiệm vụ sinh viên</h2><pre style="font-family:inherit;white-space:pre-wrap">${d.nhiemVuSV||''}</pre>
+
+    <h2>8. Giáo trình &amp; Tài liệu tham khảo</h2>${taiLieuHtml}
+
+    ${customHtml ? `<h2>Mục bổ sung</h2>${customHtml}` : ''}
 
     <h2>10. Thông tin giảng viên</h2>
-    <p><strong>${d.tenGV}</strong> – ${d.hocVi} | ${d.emailGV} | ${d.dienThoai}</p>
+    ${gvTable('10.1 Giảng viên', d.tenGV, d.hocVi, d.emailGV, d.dienThoai, d.trangWebGV, d.lienLac)}
+    ${gvTable('10.2 Giảng viên dự phòng (nếu có)', d.tenGV2, d.hocVi2, d.emailGV2, d.dienThoai2, d.trangWebGV2, d.lienLac2)}
+    ${gvTable('10.3 Phụ giảng / Trợ giảng – TA (nếu có)', d.tenGV3, d.hocVi3, d.emailGV3, d.dienThoai3, '', d.lienLac3)}
   `;
   pane.style.display = 'block';
   pane.scrollIntoView({ behavior: 'smooth' });
@@ -3190,46 +3358,71 @@ async function generateDocx() {
     children.push(heading('9', 'Giáo trình và tài liệu tham khảo'));
     const mainBooks = (d.taiLieu || []).filter(t => t.type === 'main');
     const refBooks  = (d.taiLieu || []).filter(t => t.type === 'ref');
-    function renderBookList(label, books, startIdx) {
-      if (books.length === 0) return;
-      children.push(tnrPara(label, { bold: true, spaceBefore: 80 }));
+
+    function renderBookTable(label, books, startIdx) {
+      if (!books.length) return;
+      children.push(subHeading(label));
+      const bCW = [600, 3600, 1800, 1200, 2160];  // TT|Tên|Tác giả|Năm|NXB
       const bookTable = new Table({
-        width: tblW, columnWidths: [700, 7160, 1500],
+        width: tblW,
+        columnWidths: bCW,
         rows: [
-          new TableRow({ tableHeader: true, children: [tcH('STT',700), tcH('Thông tin tài liệu',7160), tcH('Ghi chú',1500)] }),
-          ...books.map((item, i) => new TableRow({ children: [
-            tc(String(startIdx + i), 700, { center: true, bold: true }),
-            tc(formatTaiLieu(item, ''), 7160),
-            tc(item.type === 'main' ? 'Bắt buộc' : 'Tham khảo', 1500, { italics: true, center: true, size: SZ_SMALL }),
+          new TableRow({ tableHeader: true, children: [
+            tcH('TT', bCW[0]), tcH('Tên giáo trình', bCW[1]),
+            tcH('Tác giả', bCW[2]), tcH('Năm xuất bản', bCW[3]), tcH('Nhà xuất bản', bCW[4]),
+          ]}),
+          ...books.map((b, i) => new TableRow({ children: [
+            tc(String(startIdx + i), bCW[0], { center: true, bold: true }),
+            tc(b.tenTL || b.ten || '', bCW[1]),
+            tc(b.tacGia || '', bCW[2], { center: true }),
+            tc(b.namXB || b.nam || '', bCW[3], { center: true }),
+            tc(b.nxb || b.nhaxb || b.nhaXB || '', bCW[4], { center: true }),
           ]}))
         ]
       });
       children.push(bookTable, new Paragraph({ spacing: { before: 80 } }));
     }
-    renderBookList('a. Giáo trình chính', mainBooks, 1);
-    renderBookList('b. Tài liệu tham khảo', refBooks, mainBooks.length + 1);
+    renderBookTable('5.1. Giáo trình chính', mainBooks, 1);
+    renderBookTable('5.2. Giáo trình và tài liệu học tập', refBooks, mainBooks.length + 1);
     if (!d.taiLieu?.length) children.push(tnrPara('(Chưa điền tài liệu tham khảo)', { italics: true, color: '888888' }));
 
-    // ── SECTION 10 – Thông tin GV ───────────────────────────
-    children.push(heading('10', 'Thông tin giảng viên phụ trách học phần'));
-    const gvTable = new Table({
-      width: tblW, columnWidths: [4680, 4680],
-      rows: [
-        new TableRow({ children: [
-          tc(`Họ và tên: ${d.tenGV}`, 4680, { bold: true }),
-          tc(`Học hàm, học vị: ${d.hocVi}`, 4680),
-        ]}),
-        new TableRow({ children: [
-          tc('Địa chỉ cơ quan: Số 9 Lê Quý Đôn, p. Tam Hiệp, Đồng Nai', 4680),
-          tc(`Điện thoại: ${d.dienThoai}`, 4680),
-        ]}),
-        new TableRow({ children: [
-          tc(`Email: ${d.emailGV}`, 4680),
-          tc(`Cách liên lạc: ${d.lienLac}`, 4680),
-        ]}),
-      ]
-    });
-    children.push(gvTable, new Paragraph({ spacing: { before: 200 } }));
+    // ── SECTION 10 – Thông tin GV (3 bảng DNU chuẩn) ────────
+    children.push(heading('10', 'Thông tin giảng viên, trợ giảng, phụ trách học phần trong học kỳ'));
+
+    function gvDocxTable(label, name, hv, email, phone, web, lienLacVal) {
+      if (!name) return;
+      children.push(subHeading(label));
+      const gvCW = [4680, 4680];
+      const gvT = new Table({
+        width: tblW, columnWidths: gvCW,
+        rows: [
+          new TableRow({ children: [
+            tc(`Họ và tên: ${name}`, gvCW[0], { bold: false }),
+            tc(`Học hàm, học vị: ${hv||''}`, gvCW[1]),
+          ]}),
+          new TableRow({ children: [
+            tc('Địa chỉ cơ quan: Số 9 Lê Quý Đôn, phường Tam Hiệp, Đồng Nai', gvCW[0]),
+            tc(`Điện thoại liên hệ: ${phone||''}`, gvCW[1]),
+          ]}),
+          new TableRow({ children: [
+            tc(`Email: ${email||''}`, gvCW[0]),
+            tc(`Trang web: ${web||''}`, gvCW[1]),
+          ]}),
+          new TableRow({ children: [
+            new TableCell({ borders, columnSpan: 2, width: { size: 9360, type: WidthType.DXA },
+              margins: { top: 60, bottom: 60, left: 100, right: 100 },
+              children: [new Paragraph({ children: [tnr(`Cách liên lạc với giảng viên: ${lienLacVal||''}`)] })] }),
+          ]}),
+        ]
+      });
+      children.push(gvT, new Paragraph({ spacing: { before: 80 } }));
+    }
+
+    gvDocxTable('10.1 Giảng viên', d.tenGV, d.hocVi, d.emailGV, d.dienThoai, d.trangWebGV, d.lienLac);
+    gvDocxTable('10.2 Giảng viên dự phòng (nếu có)', d.tenGV2, d.hocVi2, d.emailGV2, d.dienThoai2, d.trangWebGV2, d.lienLac2);
+    gvDocxTable('10.3 Phụ giảng (đối với giảng viên) hoặc Trợ giảng (đối với học viên - TA)', d.tenGV3, d.hocVi3, d.emailGV3, d.dienThoai3, '', d.lienLac3);
+
+    children.push(new Paragraph({ spacing: { before: 200 } }));
 
     // Custom fields
     if (d.customFields && d.customFields.length) {
